@@ -49,7 +49,7 @@ const stationManager = new StationManager(nconf, logger, connector);
 
 const pollUpdateEmitter = new EventEmitter();
 pollUpdateEmitter.setMaxListeners(100);
-let updateID = 0;
+let updateID = 1;
 const pollTimeoutDelay = 15000;
 
 function respondJSON(res, data) {

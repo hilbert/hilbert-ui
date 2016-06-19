@@ -64,7 +64,7 @@ var stationManager = new _stationManager2.default(nconf, logger, connector);
 
 var pollUpdateEmitter = new EventEmitter();
 pollUpdateEmitter.setMaxListeners(100);
-var updateID = 0;
+var updateID = 1;
 var pollTimeoutDelay = 15000;
 
 function respondJSON(res, data) {
@@ -133,7 +133,7 @@ app.post('/stations.json', function (req, res) {
 });
 
 app.get('/log.json', function (req, res) {
-  respondJSON(res, stationManager.getLog());
+  respondJSON(res, { entries: stationManager.getLog() });
 });
 
 // Spawn server
