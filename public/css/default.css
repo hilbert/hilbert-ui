@@ -1,0 +1,226 @@
+/* BEGIN Regular */
+@font-face {
+  font-family: Roboto;
+  src: url("../lib/roboto/fonts/Regular/Roboto-Regular.woff2?v=1.1.0") format("woff2"), url("../lib/roboto/fonts/Regular/Roboto-Regular.woff?v=1.1.0") format("woff"), url("../lib/roboto/fonts/Regular/Roboto-Regular.ttf?v=1.1.0") format("truetype");
+  font-weight: 400;
+  font-style: normal; }
+
+@font-face {
+  font-family: Roboto;
+  src: url("../lib/roboto/fonts/Regular/Roboto-Regular.woff2?v=1.1.0") format("woff2"), url("../lib/roboto/fonts/Regular/Roboto-Regular.woff?v=1.1.0") format("woff"), url("../lib/roboto/fonts/Regular/Roboto-Regular.ttf?v=1.1.0") format("truetype");
+  font-weight: normal;
+  font-style: normal; }
+
+/* END Regular */
+/* BEGIN Bold */
+@font-face {
+  font-family: Roboto;
+  src: url("../lib/roboto/fonts/Bold/Roboto-Bold.woff2?v=1.1.0") format("woff2"), url("../lib/roboto/fonts/Bold/Roboto-Bold.woff?v=1.1.0") format("woff"), url("../lib/roboto/fonts/Bold/Roboto-Bold.ttf?v=1.1.0") format("truetype");
+  font-weight: 700;
+  font-style: normal; }
+
+@font-face {
+  font-family: Roboto;
+  src: url("../lib/roboto/fonts/Bold/Roboto-Bold.woff2?v=1.1.0") format("woff2"), url("../lib/roboto/fonts/Bold/Roboto-Bold.woff?v=1.1.0") format("woff"), url("../lib/roboto/fonts/Bold/Roboto-Bold.ttf?v=1.1.0") format("truetype");
+  font-weight: bold;
+  font-style: normal; }
+
+/* END Bold */
+/* http://sonspring.com/journal/clearing-floats */
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0; }
+
+/* Clearfix */
+.clearfix:before,
+.clearfix:after {
+  content: " ";
+  display: table; }
+
+.clearfix:after {
+  clear: both; }
+
+/* For IE 6/7 only */
+.clearfix {
+  *zoom: 1; }
+
+body {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  color: #5D5D5D; }
+
+b, strong {
+  color: #6E7E8A; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  color: #6E7E8A; }
+
+h3 {
+  font-size: 16px; }
+
+.bootbox-body {
+  font-size: 16px;
+  margin: 15px 0; }
+
+html, body,
+.container-fluid,
+.row {
+  min-height: 100%; }
+
+.pane-stations,
+.pane-actions {
+  min-height: 100%; }
+
+.form-inline .form-group-minwidth {
+  min-width: 180px; }
+  .form-inline .form-group-minwidth .form-control {
+    width: 100%; }
+
+body {
+  background-color: #b8d0da; }
+
+.pane-stations,
+.pane-actions {
+  padding: 15px; }
+
+.pane-actions {
+  position: fixed;
+  right: 0; }
+
+.navbar {
+  box-shadow: 0 6px 12px 0px rgba(0, 0, 0, 0.2); }
+  .navbar .button-filter {
+    margin: 15px 0 15px -5px; }
+
+.dropdown-menu {
+  box-shadow: 0 6px 12px 0px rgba(0, 0, 0, 0.2); }
+
+.station {
+  position: relative;
+  margin: 10px 0;
+  padding: 10px;
+  line-height: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  min-height: 80px;
+  padding-left: 109px;
+  transition: margin 0.15s;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none; }
+  .station:hover {
+    background-color: rgba(255, 255, 255, 0.95); }
+  .station .station-name {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #6E7E8A;
+    float: left; }
+  .station .station-type {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-size: 12px;
+    background-color: #91a8ba;
+    color: #fff;
+    float: right;
+    padding: 0px 8px;
+    border-radius: 10px; }
+  .station .station-app {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #7E8F9C;
+    clear: both;
+    min-height: 20px; }
+  .station .station-status {
+    margin-top: 4px;
+    margin-bottom: -4px; }
+  .station .station-icon {
+    width: 65px;
+    height: 65px;
+    position: absolute;
+    top: 7px;
+    left: 35px;
+    background-color: #A8CECA;
+    overflow: hidden;
+    border-radius: 33px; }
+    .station .station-icon img {
+      width: 65px;
+      height: 65px; }
+  .station .station-state-light {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 28px;
+    height: 100%;
+    background-color: #CAD1D4; }
+
+.station-state-off {
+  background-color: rgba(236, 236, 236, 0.8); }
+  .station-state-off:hover {
+    background-color: rgba(236, 236, 236, 0.95); }
+  .station-state-off .station-app {
+    color: #ADB8BD; }
+  .station-state-off .station-icon {
+    opacity: 0.5; }
+
+.station-state-on .station-state-light {
+  background-color: #9EFD93; }
+
+.station-state-busy .station-state-light {
+  background-color: #FFCF42; }
+
+.station-state-busy .station-icon {
+  opacity: 0.5; }
+
+.station-state-error .station-state-light {
+  background-color: #F77; }
+
+.station-selected {
+  background-color: rgba(217, 237, 255, 0.8);
+  margin-left: 10px;
+  margin-right: -10px; }
+  .station-selected:hover {
+    background-color: rgba(217, 237, 255, 0.95); }
+
+.pane-actions h3 {
+  margin-top: 0; }
+
+#dashboardActions {
+  margin: 5px 0;
+  background-color: rgba(255, 255, 255, 0.65);
+  padding: 15px;
+  border-radius: 10px; }
+
+.action-pane {
+  margin-bottom: 10px; }
+  .action-pane.disabled {
+    opacity: 0.6; }
+
+.action-pane-separator {
+  border-top: 1px solid rgba(0, 0, 0, 0.13);
+  margin: 12px 0; }
+
+.appSelect.disabled {
+  opacity: 0.6; }
+
+.selectActions {
+  margin-top: 10px; }
+
+.logViewer-modal .modal-body {
+  max-height: 0px;
+  overflow-y: auto; }
+
+/*# sourceMappingURL=default.css.map */

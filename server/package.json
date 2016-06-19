@@ -1,0 +1,18 @@
+{
+  "name": "dockapp-dashboard-server",
+  "description": "Backend server for the Dockapp Dashboard",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "nconf": "^0.8.4",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-wrapper": "^1.0.0"
+  }
+}

@@ -1,0 +1,130 @@
+$station-line-height: 20px;
+$station-padding: 10px;
+$station-min-height: $station-line-height * 3 + $station-padding * 2;
+
+$station-icon-padding: 7px;
+$station-icon-height: $station-min-height - 2 * $station-icon-padding;
+$station-icon-width: $station-min-height - 2 * $station-icon-padding;
+
+$station-light-width: 28px;
+
+.station {
+  position: relative;
+  margin: 10px 0;
+  padding: $station-padding;
+  line-height: $station-line-height;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  min-height: $station-min-height;
+  padding-left: $station-padding + $station-light-width + $station-icon-width + 5px;
+  transition: margin 0.15s;
+  @include unselectable;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+
+  .station-name {
+    @include headingText;
+    font-size: 14px;
+    color: $color-blue-text-dark;
+    float: left;
+  }
+
+  .station-type {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-size: 12px;
+    background-color: $color-blue-shadow;
+    color: $color-white;
+    float: right;
+    padding: 0px 8px;
+    border-radius: $station-line-height / 2;
+  }
+
+  .station-app {
+    @include headingText;
+    font-size: 16px;
+    color: $color-blue-text;
+    clear: both;
+    min-height: $station-line-height;
+  }
+
+  .station-status {
+    margin-top: 4px;
+    margin-bottom: -4px;
+
+  }
+
+  .station-icon {
+    img {
+      width: 65px;
+      height: 65px;
+    }
+    width: 65px;
+    height: 65px;
+    position: absolute;
+    top: $station-icon-padding;
+    left: $station-light-width + $station-icon-padding;
+    background-color: $color-turquoise;
+    overflow: hidden;
+    border-radius: 33px;
+  }
+
+  .station-state-light {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: $station-light-width;
+    height: 100%;
+    background-color: $color-status-off;
+  }
+}
+
+.station-state-off {
+  background-color: rgba(236, 236, 236, 0.8);
+
+  &:hover {
+    background-color: rgba(236, 236, 236, 0.95);
+  }
+  .station-app {
+    color: $color-blue-text-grayed;
+  }
+
+  .station-icon {
+    opacity: 0.5;
+  }
+}
+
+.station-state-on {
+  .station-state-light {
+    background-color: $color-status-on;
+  }
+}
+
+.station-state-busy {
+  .station-state-light {
+    background-color: $color-status-busy;
+  }
+
+  .station-icon {
+    opacity: 0.5;
+  }
+}
+
+.station-state-error {
+  .station-state-light {
+    background-color: $color-status-error;
+  }
+}
+
+.station-selected {
+  background-color: rgba(217, 237, 255, 0.8);
+  margin-left: 10px;
+  margin-right: -10px;
+  &:hover {
+    background-color: rgba(217, 237, 255, 0.95);
+  }
+}

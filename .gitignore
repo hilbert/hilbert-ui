@@ -1,0 +1,5 @@
+node_modules
+/work
+/server/log/*.log
+stop_nginx
+start_nginx

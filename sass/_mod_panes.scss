@@ -1,0 +1,18 @@
+body {
+  background-color: $color-blue;
+}
+
+.pane-stations,
+.pane-actions {
+
+  padding: 15px;
+}
+
+.pane-stations {
+
+}
+
+.pane-actions {
+  position: fixed;
+  right: 0;
+}

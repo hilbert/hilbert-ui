@@ -1,0 +1,33 @@
+.pane-actions {
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+#dashboardActions {
+  margin: 5px 0;
+  background-color: rgba(255, 255, 255, 0.65);
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.action-pane {
+  margin-bottom: 10px;
+  &.disabled {
+    opacity: 0.6;
+  }
+}
+
+.action-pane-separator {
+  border-top: 1px solid rgba(0, 0, 0, 0.13);
+  margin: 12px 0;
+}
+
+.appSelect.disabled {
+  opacity: 0.6;
+}
+
+.selectActions {
+  margin-top: 10px;
+}

@@ -1,0 +1,7 @@
+@mixin regularText {
+  @include robotoRegular;
+}
+
+@mixin headingText {
+  @include robotoBold;
+}

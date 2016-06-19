@@ -1,0 +1,446 @@
+[
+  {
+    "id": "station_interactive_1",
+    "name": "F1 Interactive 101 (Black hole pong)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Black hole pong"
+  },
+  {
+    "id": "station_interactive_2",
+    "name": "F1 Interactive 102 (Habitable zone)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Habitable zone"
+  },
+  {
+    "id": "station_interactive_3",
+    "name": "F1 Interactive 103 (Stellar evolution)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Stellar evolution"
+  },
+  {
+    "id": "station_interactive_4",
+    "name": "F1 Interactive 104 (Stellar evolution)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Stellar evolution"
+  },
+  {
+    "id": "station_interactive_5",
+    "name": "F1 Interactive 105 (Stellar evolution)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Stellar evolution"
+  },
+  {
+    "id": "station_static_6",
+    "name": "F1 Static 110 (Milky Way at different wavelengths)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Milky Way at different wavelengths"
+  },
+  {
+    "id": "station_kinect_7",
+    "name": "F1 Kinect 120 (Floor projection \"star formation\")",
+    "type": "kinect",
+    "default_app": "Floor projection \"star formation\"",
+    "possible_apps": [
+      "Floor projection \"star formation\""
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Floor projection \"star formation\""
+  },
+  {
+    "id": "station_special_8",
+    "name": "F1 Touch Table 130 (Galaxy collision touch table)",
+    "type": "special",
+    "default_app": "Galaxy collision touch table",
+    "possible_apps": [
+      "Galaxy collision touch table",
+      "Science on a half-sphere",
+      "Science on a sphere",
+      "Solar system explorer",
+      "IR/UV/optical camera",
+      "ALMA Interferometry",
+      "Relativity bike"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Galaxy collision touch table"
+  },
+  {
+    "id": "station_special_9",
+    "name": "F1 Leap 131 (Science on a half-sphere)",
+    "type": "special",
+    "default_app": "Galaxy collision touch table",
+    "possible_apps": [
+      "Galaxy collision touch table",
+      "Science on a half-sphere",
+      "Science on a sphere",
+      "Solar system explorer",
+      "IR/UV/optical camera",
+      "ALMA Interferometry",
+      "Relativity bike"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Science on a half-sphere"
+  },
+  {
+    "id": "station_special_10",
+    "name": "F1 Leap 131 (Science on a half-sphere)",
+    "type": "special",
+    "default_app": "Galaxy collision touch table",
+    "possible_apps": [
+      "Galaxy collision touch table",
+      "Science on a half-sphere",
+      "Science on a sphere",
+      "Solar system explorer",
+      "IR/UV/optical camera",
+      "ALMA Interferometry",
+      "Relativity bike"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Science on a half-sphere"
+  },
+  {
+    "id": "station_special_11",
+    "name": "F1 Leap 132 (Science on a half-sphere)",
+    "type": "special",
+    "default_app": "Galaxy collision touch table",
+    "possible_apps": [
+      "Galaxy collision touch table",
+      "Science on a half-sphere",
+      "Science on a sphere",
+      "Solar system explorer",
+      "IR/UV/optical camera",
+      "ALMA Interferometry",
+      "Relativity bike"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Science on a half-sphere"
+  },
+  {
+    "id": "station_interactive_12",
+    "name": "F2 Interactive 206 (Day & night, time zones)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Day & night, time zones"
+  },
+  {
+    "id": "station_interactive_13",
+    "name": "F2 Interactive 207 (Moon phases & eclipses)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Moon phases & eclipses"
+  },
+  {
+    "id": "station_interactive_14",
+    "name": "F2 Interactive 208 (Moon phases & eclipses)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Moon phases & eclipses"
+  },
+  {
+    "id": "station_interactive_15",
+    "name": "F2 Interactive 209 (Chilean night sky)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Chilean night sky"
+  },
+  {
+    "id": "station_interactive_16",
+    "name": "F2 Interactive 210 (Chilean night sky)",
+    "type": "interactive",
+    "default_app": "Black hole pong",
+    "possible_apps": [
+      "Black hole pong",
+      "Habitable zone",
+      "Stellar evolution",
+      "Day & night, time zones",
+      "Moon phases & eclipses",
+      "Chilean night sky",
+      "Illustris explorer",
+      "Signal delay",
+      "Galaxy zoo",
+      "Time relativity",
+      "Sky explorer / Aladin lite"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Chilean night sky"
+  },
+  {
+    "id": "station_static_17",
+    "name": "F2 Static 211 (Slideshow: Milky Way)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Slideshow: Milky Way"
+  },
+  {
+    "id": "station_static_18",
+    "name": "F2 Static 212 (Slideshow: Milky Way)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Slideshow: Milky Way"
+  },
+  {
+    "id": "station_static_19",
+    "name": "F2 Static 213 (Slideshow: Milky Way)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Slideshow: Milky Way"
+  },
+  {
+    "id": "station_static_20",
+    "name": "F2 Static 214 (Slideshow: Relativity)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Slideshow: Relativity"
+  },
+  {
+    "id": "station_static_21",
+    "name": "F2 Static 215 (Slideshow: Relativity)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Slideshow: Relativity"
+  },
+  {
+    "id": "station_static_22",
+    "name": "F2 Static 216 (Slideshow: Relativity)",
+    "type": "static",
+    "default_app": "Milky Way at different wavelengths",
+    "possible_apps": [
+      "Milky Way at different wavelengths",
+      "Slideshow: Milky Way",
+      "Slideshow: Relativity"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Slideshow: Relativity"
+  },
+  {
+    "id": "station_vr_23",
+    "name": "F2 VR 220 (Formation of the moon AR)",
+    "type": "vr",
+    "default_app": "Formation of the moon AR",
+    "possible_apps": [
+      "Formation of the moon AR",
+      "Solar system formation AR",
+      "VR experience of ESO sites"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Formation of the moon AR"
+  },
+  {
+    "id": "station_vr_24",
+    "name": "F2 VR 221 (Solar system formation AR)",
+    "type": "vr",
+    "default_app": "Formation of the moon AR",
+    "possible_apps": [
+      "Formation of the moon AR",
+      "Solar system formation AR",
+      "VR experience of ESO sites"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "Solar system formation AR"
+  },
+  {
+    "id": "station_vr_25",
+    "name": "F2 VR 222 (VR experience of ESO sites)",
+    "type": "vr",
+    "default_app": "Formation of the moon AR",
+    "possible_apps": [
+      "Formation of the moon AR",
+      "Solar system formation AR",
+      "VR experience of ESO sites"
+    ],
+    "state": "off",
+    "status": "",
+    "app": "VR experience of ESO sites"
+  }
+]
