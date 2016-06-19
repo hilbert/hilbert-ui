@@ -1,8 +1,8 @@
 {
   "name": "dockapp-dashboard",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Dockapp Dashboard",
-  "main": "gulpfile.js",
+  "repository": "IMAGINARY/dockapp_dashboard",
   "dependencies": {
     "react": "^15.0.2",
     "react-dom": "^15.0.2"

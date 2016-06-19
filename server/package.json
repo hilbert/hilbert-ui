@@ -1,7 +1,9 @@
 {
   "name": "dockapp-dashboard-server",
   "description": "Backend server for the Dockapp Dashboard",
-  "version": "0.0.1",
+  "repository": "IMAGINARY/dockapp_dashboard",
+  "version": "0.1.0",
+  "main": "app/main.js",
   "private": true,
   "dependencies": {
     "body-parser": "^1.15.1",
