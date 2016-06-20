@@ -31,3 +31,20 @@
 .selectActions {
   margin-top: 10px;
 }
+
+.button-filter {
+  .badge {
+    background-color: rgba(0, 0, 0, 0.24);
+    -webkit-font-smoothing: antialiased;
+    margin-bottom: -1px;
+    margin-left: 5px;
+    margin-right: -7px;
+    min-width: 28px;
+  }
+}
+
+.button-filter-option-error {
+  .badge.non-zero {
+    background-color: $color-red-bootstrap;
+  }
+}

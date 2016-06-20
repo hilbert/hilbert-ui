@@ -291,6 +291,14 @@ export default class Dashboard extends React.Component {
       />
     ));
 
+    const counts = {};
+    this.state.stations.forEach((station) => {
+      if (!counts.hasOwnProperty(station.state)) {
+        counts[station.state] = 0;
+      }
+      counts[station.state]++;
+    });
+
     const selectedCount = this.state.selection.size;
     const allSelected = (selectedCount === this.state.stations.length);
     const selectAllClasses =
@@ -305,6 +313,7 @@ export default class Dashboard extends React.Component {
       <div key="stationStateFilter" className="action-pane">
         <ButtonFilter
           options={['on', 'off', 'busy', 'error']}
+          counts={counts}
           allText="All states"
           value={this.state.visibleState}
           onChange={(option) => {
