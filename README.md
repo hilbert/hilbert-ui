@@ -119,6 +119,18 @@ are also compiled and packed to a vendors.js file.
 
         gulp sass
 
+## Deployment with Docker
+
+The [Dockerfile](Dockerfile) can be used to build a self-contained Docker image for the dashboard. Install [Docker](https://www.docker.com/), then build the image from the top level directory:
+```
+docker build -t dockapp_frontend .
+```
+Spin up a Docker container with
+```
+docker run -p 8080:8080 dockapp_frontend
+```
+This exposes the container's port 8080 to the host's port 8080.
+
 ## Credits
 
 Eric Londaits for [IMAGINARY](https://www.imaginary.org)
