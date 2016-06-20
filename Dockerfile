@@ -42,6 +42,9 @@ server {\n\
 }\n'\
 >> /etc/nginx/sites-enabled/dockapp-dashboard
 
+# tell Docker which port is exposed by the container
+EXPOSE 8080
+
 # configure services for baseimage-docker's init system
 RUN echo "#!/bin/sh\nnginx" > /etc/rc.local
 RUN mkdir -p /etc/service/dockapp_dashboard_api \
