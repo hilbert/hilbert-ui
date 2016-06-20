@@ -3,7 +3,7 @@ FROM phusion/baseimage:0.9.16
 MAINTAINER Christian Stussak <stussak@mfo.de>
 
 # install dependencies
-RUN DEBIAN_FRONTEND=noninteractive curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - \
+RUN DEBIAN_FRONTEND=noninteractive curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash - \
     && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y -q nodejs nginx git \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
