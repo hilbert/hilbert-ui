@@ -278,7 +278,7 @@ var StationManager = function () {
                 station.app = appID;
                 station.icon = _this3.getIconURL(appID);
                 station.state = 'error';
-                station.status = 'Failure launching appID';
+                station.status = 'Failure launching app';
                 _this3.log('error', station, 'Failed to launch app ' + appID);
               }).then(function () {
                 _this3.signalUpdate();

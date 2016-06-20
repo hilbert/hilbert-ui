@@ -142,7 +142,7 @@ export default class StationManager {
             station.app = appID;
             station.icon = this.getIconURL(appID);
             station.state = 'error';
-            station.status = 'Failure launching appID';
+            station.status = 'Failure launching app';
             this.log('error', station, `Failed to launch app ${appID}`);
           })
           .then(() => {
