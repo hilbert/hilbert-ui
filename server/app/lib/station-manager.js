@@ -64,6 +64,7 @@ var StationManager = function () {
     }
 
     this.logEntries = [];
+    this.lastLogID = 1;
   }
 
   /**
@@ -121,6 +122,7 @@ var StationManager = function () {
      * Start indicated stations
      *
      * @todo Change interface to return a promise
+     * @todo Make argument optional (start all stations)
      * @param {iterable} stationIDs - IDs of stations to start
      */
 
@@ -182,6 +184,7 @@ var StationManager = function () {
      * Stop indicated stations
      *
      * @todo Change interface to return a promise
+     * @todo Make argument optional (stop all stations)
      * @param {iterable} stationIDs - IDs of stations to stop
      */
 
@@ -354,7 +357,7 @@ var StationManager = function () {
     key: 'log',
     value: function log(type, station, message) {
       var newLogEntry = {
-        id: this.logEntries.length + 1,
+        id: this.lastLogID,
         time: new Date().toISOString(),
         type: type,
         message: message
@@ -365,6 +368,7 @@ var StationManager = function () {
         newLogEntry.station_name = station.name;
       }
 
+      this.lastLogID++;
       this.logEntries.push(newLogEntry);
 
       var maxEntries = this.config.get('max_log_length');
