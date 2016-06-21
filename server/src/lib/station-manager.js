@@ -25,6 +25,7 @@ export default class StationManager {
       station.icon = this.getIconURL(station.app);
     }
     this.logEntries = [];
+    this.lastLogID = 1;
   }
 
   /**
@@ -142,7 +143,7 @@ export default class StationManager {
             station.app = appID;
             station.icon = this.getIconURL(appID);
             station.state = 'error';
-            station.status = 'Failure launching appID';
+            station.status = 'Failure launching app';
             this.log('error', station, `Failed to launch app ${appID}`);
           })
           .then(() => {
@@ -192,7 +193,7 @@ export default class StationManager {
    */
   log(type, station, message) {
     const newLogEntry = {
-      id: this.logEntries.length + 1,
+      id: this.lastLogID,
       time: new Date().toISOString(),
       type,
       message,
@@ -203,6 +204,7 @@ export default class StationManager {
       newLogEntry.station_name = station.name;
     }
 
+    this.lastLogID++;
     this.logEntries.push(newLogEntry);
 
     const maxEntries = this.config.get('max_log_length');
