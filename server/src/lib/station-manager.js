@@ -1,6 +1,7 @@
-const testStations = require('../../tests/models/test_stations.json');
 const iconmap = require('../../iconmap.json');
 const EventEmitter = require('events').EventEmitter;
+
+import Station from './station';
 
 /**
  * Service Layer to the DockApp system
@@ -19,58 +20,103 @@ export default class StationManager {
     this.config = config;
     this.logger = logger;
     this.connector = connector;
-    this.stations = testStations;
     this.events = new EventEmitter();
-    for (const station of this.stations) {
-      station.icon = this.getIconURL(station.app);
-    }
     this.logEntries = [];
     this.lastLogID = 1;
+
+    this.loadStationConfig();
   }
 
   /**
-   * Return the list of stations
+   * Loads the station configuration.
+   *
+   * If the configuration was already loaded this method clears it
+   * and reloads everything
+   */
+  loadStationConfig() {
+    this.clearStations();
+    this.signalUpdate();
+
+    this.connector.getStationConfig().then((stationsCFG) => {
+      for (const stationCFG of stationsCFG) {
+        const newStation = new Station(stationCFG);
+        newStation.icon = StationManager.getIconURL(newStation.app);
+        this.addStation(newStation);
+      }
+      this.signalUpdate();
+    }).catch((error) => {
+      this.logger.error(error);
+    });
+  }
+
+  /**
+   * Adds a station to the manager
+   * @param {Station} aStation
+   */
+  addStation(aStation) {
+    this.stationList.push(aStation);
+    this.stationIndex.set(aStation.id, aStation);
+  }
+
+  /**
+   * Removes a station from the manager
+   * @param {Station} aStation
+   */
+  removeStation(aStation) {
+    const i = this.stationList.indexOf(aStation);
+    if (i !== -1) {
+      this.stationList.splice(i, 1);
+    }
+
+    this.stationIndex.delete(aStation.id);
+  }
+
+  /**
+   * Removes all the stations
+   */
+  clearStations() {
+    this.stationIndex = new Map();
+    this.stationList = [];
+  }
+
+  /**
+   * Get the ordered list of stations
+   * @returns {Array}
    */
   getStations() {
-    return this.stations;
+    return this.stationList;
   }
 
   /**
    * Return a station identified by ID
    *
    * @param {string} id - Station ID
-   * @returns {*}
+   * @returns {Station}
    */
   getStationByID(id) {
-    for (const station of this.stations) {
-      if (station.id === id) {
-        return station;
-      }
-    }
-
-    return null;
+    return this.stationIndex.get(id);
   }
 
   /**
    * Start indicated stations
    *
    * @todo Change interface to return a promise
-   * @param {iterable} stationIDs - IDs of stations to start
+   * @param {Iterable} stationIDs - IDs of stations to start
    */
   startStations(stationIDs) {
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
       if (station) {
-        if (station.state === 'off') {
-          station.state = 'busy';
+        if (station.state === Station.OFF) {
+          station.state = Station.BUSY;
           station.status = 'Starting...';
           this.connector.startStation(stationID).then(() => {
-            station.state = 'on';
+            station.state = Station.ON;
             station.status = '';
             this.log('message', station, 'Station started');
           })
           .catch(() => {
-            station.state = 'error';
+            station.state = Station.ERROR;
             station.status = 'Failure starting the station';
             this.log('error', station, 'Error starting station');
           })
@@ -87,23 +133,23 @@ export default class StationManager {
    * Stop indicated stations
    *
    * @todo Change interface to return a promise
-   * @param {iterable} stationIDs - IDs of stations to stop
+   * @param {Iterable} stationIDs - IDs of stations to stop
    */
   stopStations(stationIDs) {
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
       if (station) {
-        if (station.state === 'on') {
-          station.state = 'busy';
+        if (station.state === Station.ON) {
+          station.state = Station.BUSY;
           station.status = 'Stopping...';
 
           this.connector.stopStation(stationID).then(() => {
-            station.state = 'off';
+            station.state = Station.OFF;
             station.status = '';
             this.log('message', station, 'Station stopped');
           })
           .catch(() => {
-            station.state = 'error';
+            station.state = Station.ERROR;
             station.status = 'Failure stopping the station';
             this.log('error', station, 'Error stopping station');
           })
@@ -127,22 +173,22 @@ export default class StationManager {
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
       if (station) {
-        if (station.state === 'on') {
-          station.state = 'busy';
+        if (station.state === Station.ON) {
+          station.state = Station.BUSY;
           station.status = `Switching to ${appID}...`;
           station.app = '';
 
           this.connector.changeApp(stationID, appID).then(() => {
             station.app = appID;
-            station.icon = this.getIconURL(appID);
-            station.state = 'on';
+            station.icon = StationManager.getIconURL(appID);
+            station.state = Station.ON;
             station.status = '';
             this.log('message', station, `Launched app ${appID}`);
           })
           .catch(() => {
             station.app = appID;
-            station.icon = this.getIconURL(appID);
-            station.state = 'error';
+            station.icon = StationManager.getIconURL(appID);
+            station.state = Station.ERROR;
             station.status = 'Failure launching app';
             this.log('error', station, `Failed to launch app ${appID}`);
           })
@@ -161,7 +207,7 @@ export default class StationManager {
    * @param {string} appID - ID of the app
    * @returns {string} - URL of the icon
    */
-  getIconURL(appID) {
+  static getIconURL(appID) {
     if (iconmap[appID] !== undefined) {
       return `icons/${iconmap[appID]}`;
     }
@@ -188,7 +234,7 @@ export default class StationManager {
    * Logs an event
    *
    * @param {string} type - Event type: info | warning | error
-   * @param {string|null} station - station associated with the event logged
+   * @param {Station|null} station - station associated with the event logged
    * @param {string} message - Message to log
    */
   log(type, station, message) {

@@ -11,6 +11,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var testStations = require('../../tests/models/test_stations.json');
+
 /**
  * Testing stub to replace DockAppConnector
  *
@@ -25,31 +27,50 @@ var TestingConnector = function () {
     this.logger = logger;
   }
 
+  /**
+   * Reads the station config
+   * @returns {Promise}
+   * @resolve {Array} - List of stations
+   * @reject {Error}
+   */
+
+
   _createClass(TestingConnector, [{
-    key: 'startStation',
-    value: function startStation(stationID) {
+    key: 'getStationConfig',
+    value: function getStationConfig() {
       var _this = this;
 
+      return new Promise(function (resolve) {
+        _this.randomDelay(1000, 3000).then(function () {
+          resolve(testStations);
+        });
+      });
+    }
+  }, {
+    key: 'startStation',
+    value: function startStation(stationID) {
+      var _this2 = this;
+
       return new Promise(function (resolve, reject) {
-        _this.randomDelay(3000, 8000).then(resolve);
+        _this2.randomDelay(3000, 8000).then(resolve);
       });
     }
   }, {
     key: 'stopStation',
     value: function stopStation(stationID) {
-      var _this2 = this;
+      var _this3 = this;
 
       return new Promise(function (resolve, reject) {
-        _this2.randomDelay(2000, 6000).then(resolve);
+        _this3.randomDelay(2000, 6000).then(resolve);
       });
     }
   }, {
     key: 'changeApp',
     value: function changeApp(stationID, appID) {
-      var _this3 = this;
+      var _this4 = this;
 
       return new Promise(function (resolve, reject) {
-        _this3.randomDelay(1000, 5000).then(function () {
+        _this4.randomDelay(1000, 5000).then(function () {
           if (appID === 'Sky explorer / Aladin lite') {
             reject();
           } else {

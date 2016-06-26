@@ -15,7 +15,7 @@ var exec = require('child_process').exec;
 
 /**
  * Interface with DockApp via scripts
- * 
+ *
  * This class doesn't check the state of the stations before dispatching
  * the commands.
  */
@@ -28,21 +28,25 @@ var DockAppConnector = function () {
     this.logger = logger;
   }
 
+  /**
+   * Reads the station config
+   * @returns {Promise}
+   * @resolve {Array} - List of stations
+   * @reject {Error}
+   */
+
+
   _createClass(DockAppConnector, [{
-    key: 'getStations',
-    value: function getStations(done, error) {
-      var command = 'scripts/list_stations.sh ' + this.config.get('dockapp_path');
-      exec(command, {}, function (err, stdout) {
-        if (err) {
-          error(err);
-        } else {
-          var response = JSON.parse(stdout);
-          for (var i = 0; i !== response.stations.length; i++) {
-            response.stations[i].state = 'on';
-            response.stations[i].status = '';
-          }
-          done(response.stations);
-        }
+    key: 'getStationConfig',
+    value: function getStationConfig() {
+      var _this = this;
+
+      return new Promise(function (resolve, reject) {
+        _this.execute(DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path')).then(function (output) {
+          resolve(JSON.parse(output));
+        }).catch(function (err) {
+          return reject(err);
+        });
       });
     }
 
@@ -78,7 +82,7 @@ var DockAppConnector = function () {
      * Change the foreground application running in a station
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
-     * @returns Promise
+     * @returns {Promise}
      */
 
   }, {
@@ -88,10 +92,54 @@ var DockAppConnector = function () {
         resolve();
       });
     }
+
+    /**
+     * Executes a child process
+     * @private
+     *
+     * @param command
+     * @returns {Promise}
+     * @resolve {String} - stdout output
+     * @reject {Error}
+     */
+
+  }, {
+    key: 'execute',
+    value: function execute(command) {
+      return new Promise(function (resolve, reject) {
+        var stdoutBuf = '';
+        var stderrBuf = '';
+        var process = exec(command);
+        process.stdout.on('data', function (data) {
+          stdoutBuf += data;
+        });
+        process.stderr.on('data', function (data) {
+          stderrBuf += data;
+        });
+        process.on('close', function (code, signal) {
+          if (code === 0) {
+            resolve(stdoutBuf);
+          } else {
+            var term = 'rc=' + code;
+            var output = '';
+            if (signal !== null) {
+              term = term + ', ' + signal;
+            }
+            if (stderrBuf.length) {
+              output = '\nstderr: ' + stderrBuf;
+            }
+            reject(new Error('Command \'' + command + '\' exited with ' + term + '.' + output));
+          }
+        });
+      });
+    }
   }]);
 
   return DockAppConnector;
 }();
 
 exports.default = DockAppConnector;
+
+
+DockAppConnector.SCRIPT_LIST_STATIONS = 'scripts/list_stations.sh';
 //# sourceMappingURL=dockapp-connector.js.map

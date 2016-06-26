@@ -1,3 +1,5 @@
+const testStations = require('../../tests/models/test_stations.json');
+
 /**
  * Testing stub to replace DockAppConnector
  *
@@ -8,6 +10,18 @@ export default class TestingConnector {
   constructor(nconf, logger) {
     this.nconf = nconf;
     this.logger = logger;
+  }
+
+  /**
+   * Reads the station config
+   * @returns {Promise}
+   * @resolve {Array} - List of stations
+   * @reject {Error}
+   */
+  getStationConfig() {
+    return new Promise((resolve) => {
+      this.randomDelay(1000, 3000).then(() => { resolve(testStations); });
+    });
   }
 
   startStation(stationID) {

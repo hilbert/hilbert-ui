@@ -105,7 +105,7 @@ app.get('/poll.json', function (req, res) {
   }
 });
 
-stationManager.getEvents().on('stationUpdate', function () {
+stationManager.events.on('stationUpdate', function () {
   updateID++;
   pollUpdateEmitter.emit('update', stationDataResponse());
 });
