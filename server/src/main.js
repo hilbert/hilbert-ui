@@ -88,7 +88,7 @@ app.get('/poll.json', (req, res) => {
   }
 });
 
-stationManager.getEvents().on('stationUpdate', () => {
+stationManager.events.on('stationUpdate', () => {
   updateID++;
   pollUpdateEmitter.emit('update', stationDataResponse());
 });

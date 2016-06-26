@@ -212,21 +212,12 @@ export default class StationManager {
       this.logEntries = this.logEntries.slice(this.logEntries.length - maxEntries);
     }
   }
-
-  /**
-   * Return the event emitter
-   *
-   * @returns {EventEmitter}
-   */
-  getEvents() {
-    return this.events;
-  }
-
+  
   /**
    * Signal listeners that station data was modified
    * @private
    */
   signalUpdate() {
-    this.getEvents().emit('stationUpdate');
+    this.events.emit('stationUpdate');
   }
 }
