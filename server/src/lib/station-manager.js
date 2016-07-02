@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const iconmap = require('../../iconmap.json');
 const EventEmitter = require('events').EventEmitter;
 

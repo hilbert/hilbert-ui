@@ -1,3 +1,4 @@
+const Promise = require("bluebird");
 const appPackage = require('../package.json');
 const logger = require('winston');
 const nconf = require('nconf');

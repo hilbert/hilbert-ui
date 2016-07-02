@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const exec = require('child_process').exec;
 
 /**

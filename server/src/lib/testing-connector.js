@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const testStations = require('../../tests/models/test_stations.json');
 
 /**
