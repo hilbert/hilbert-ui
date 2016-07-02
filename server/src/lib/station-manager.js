@@ -101,54 +101,76 @@ export default class StationManager {
   /**
    * Start indicated stations
    *
-   * @todo Change interface to return a promise
    * @param {Iterable} stationIDs - IDs of stations to start
+   * @return {Promise}
    */
   startStations(stationIDs) {
+    const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station) {
-        if (station.state === Station.OFF) {
-          station.state = Station.BUSY;
-          station.status = 'Starting...';
-          this.connector.startStation(stationID).then(() => {
-            station.state = Station.ON;
-            station.status = '';
-            this.log('message', station, 'Station started');
-          })
-          .catch(() => {
-            station.state = Station.ERROR;
-            station.status = 'Failure starting the station';
-            this.log('error', station, 'Error starting station');
-          })
-          .then(() => {
-            this.signalUpdate();
-          });
-        }
+      if (station && station.state === Station.OFF) {
+        station.state = Station.BUSY;
+        station.status = 'Waiting to start...';
+        eligibleStations.push(stationID);
       }
     }
+
     this.signalUpdate();
+
+    return Promise.map(
+      eligibleStations,
+      (eligibleStation) => {
+        const station = this.getStationByID(eligibleStation);
+        station.status = 'Starting...';
+        this.signalUpdate();
+        return this.connector.startStation(station.id).then(() => {
+          station.state = Station.ON;
+          station.status = '';
+          this.log('message', station, 'Station started');
+        })
+        .catch(() => {
+          station.state = Station.ERROR;
+          station.status = 'Failure starting the station';
+          this.log('error', station, 'Error starting station');
+        })
+        .then(() => {
+          this.signalUpdate();
+        });
+      },
+      { concurrency: this.config.get('scriptConcurrency') }
+    );
   }
 
   /**
    * Stop indicated stations
    *
-   * @todo Change interface to return a promise
    * @param {Iterable} stationIDs - IDs of stations to stop
+   * @return {Promise}
    */
   stopStations(stationIDs) {
+    const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station) {
-        if (station.state === Station.ON) {
-          station.state = Station.BUSY;
-          station.status = 'Stopping...';
+      if (station && station.state === Station.ON) {
+        station.state = Station.BUSY;
+        station.status = 'Waiting to stop...';
+        eligibleStations.push(stationID);
+      }
+    }
 
-          this.connector.stopStation(stationID).then(() => {
-            station.state = Station.OFF;
-            station.status = '';
-            this.log('message', station, 'Station stopped');
-          })
+    this.signalUpdate();
+
+    return Promise.map(
+      eligibleStations,
+      (eligibleStation) => {
+        const station = this.getStationByID(eligibleStation);
+        station.status = 'Stopping...';
+        this.signalUpdate();
+        return this.connector.stopStation(station.id).then(() => {
+          station.state = Station.OFF;
+          station.status = '';
+          this.log('message', station, 'Station stopped');
+        })
           .catch(() => {
             station.state = Station.ERROR;
             station.status = 'Failure stopping the station';
@@ -157,49 +179,57 @@ export default class StationManager {
           .then(() => {
             this.signalUpdate();
           });
-        }
-      }
-    }
-    this.signalUpdate();
+      },
+      { concurrency: this.config.get('scriptConcurrency') }
+    );
   }
 
   /**
    * Change the application running in indicated stations
    *
-   * @todo Change interface to return a promise
    * @param {iterable} stationIDs - IDs of stations in which to change the appID
    * @param {string} appID - Name of the appID to run
    */
   changeApp(stationIDs, appID) {
+    const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station) {
-        if (station.state === Station.ON) {
-          station.state = Station.BUSY;
-          station.status = `Switching to ${appID}...`;
-          station.app = '';
-
-          this.connector.changeApp(stationID, appID).then(() => {
-            station.app = appID;
-            station.icon = StationManager.getIconURL(appID);
-            station.state = Station.ON;
-            station.status = '';
-            this.log('message', station, `Launched app ${appID}`);
-          })
-          .catch(() => {
-            station.app = appID;
-            station.icon = StationManager.getIconURL(appID);
-            station.state = Station.ERROR;
-            station.status = 'Failure launching app';
-            this.log('error', station, `Failed to launch app ${appID}`);
-          })
-          .then(() => {
-            this.signalUpdate();
-          });
-        }
+      if (station && station.state === Station.ON) {
+        station.state = Station.BUSY;
+        station.status = 'Waiting to change app...';
+        eligibleStations.push(stationID);
       }
     }
+
     this.signalUpdate();
+
+    return Promise.map(
+      eligibleStations,
+      (eligibleStation) => {
+        const station = this.getStationByID(eligibleStation);
+        station.status = `Switching to ${appID}...`;
+        station.app = '';
+        this.signalUpdate();
+        return this.connector.changeApp(eligibleStation, appID).then(() => {
+          station.app = appID;
+          station.icon = StationManager.getIconURL(appID);
+          station.state = Station.ON;
+          station.status = '';
+          this.log('message', station, `Launched app ${appID}`);
+        })
+        .catch(() => {
+          station.app = appID;
+          station.icon = StationManager.getIconURL(appID);
+          station.state = Station.ERROR;
+          station.status = 'Failure launching app';
+          this.log('error', station, `Failed to launch app ${appID}`);
+        })
+        .then(() => {
+          this.signalUpdate();
+        });
+      },
+      { concurrency: this.config.get('scriptConcurrency') }
+    );
   }
 
   /**
@@ -259,7 +289,7 @@ export default class StationManager {
       this.logEntries = this.logEntries.slice(this.logEntries.length - maxEntries);
     }
   }
-  
+
   /**
    * Signal listeners that station data was modified
    * @private

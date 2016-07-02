@@ -23,6 +23,7 @@ nconf.defaults({
   port: '3000',
   dockapp_path: '../work/dockapp',
   test: false,
+  scriptConcurrency: 2,
   max_log_length: 100,
   log_directory: './log',
   log_level: 'info', // error, warn, info, verbose, debug, silly
