@@ -16,7 +16,7 @@ export default class Station {
       this[configKey] = config[configKey];
     }
 
-    this.state = 'off';
+    this.state = Station.UNKNOWN;
     this.status = '';
     this.app = this.default_app;
     this.icon = '';
@@ -25,7 +25,11 @@ export default class Station {
 
 // Station states
 
+Station.UNKNOWN = 'unk';
 Station.OFF = 'off';
 Station.ON = 'on';
-Station.BUSY = 'busy';
+Station.STOPPING = 'stopping';
+Station.STARTING = 'starting';
+Station.SWITCHING_APP = 'switching_app';
+Station.BUSY = 'busy'; // Deprecated
 Station.ERROR = 'error';

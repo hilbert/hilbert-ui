@@ -83,6 +83,19 @@ $station-light-width: 28px;
   }
 }
 
+.station-state-unk {
+  .station-state-light {
+    background-color: $color-status-unk;
+  }
+
+  .station-icon,
+  .station-app,
+  .station-name,
+  .station-type {
+    opacity: 0.5;
+  }
+}
+
 .station-state-off {
   background-color: rgba(236, 236, 236, 0.8);
 

@@ -165,7 +165,16 @@ body {
     left: 0;
     width: 28px;
     height: 100%;
-    background-color: #CAD1D4; }
+    background-color: #afafaf; }
+
+.station-state-unk .station-state-light {
+  background-color: #96bdda; }
+
+.station-state-unk .station-icon,
+.station-state-unk .station-app,
+.station-state-unk .station-name,
+.station-state-unk .station-type {
+  opacity: 0.5; }
 
 .station-state-off {
   background-color: rgba(236, 236, 236, 0.8); }
