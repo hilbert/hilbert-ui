@@ -185,7 +185,7 @@ export default class Dashboard extends React.Component {
       }),
       dataType: 'json',
       cache: false,
-      success: () => console.log('Started'),
+      success: () => {},
       error: (xhr, status, err) => console.error(status, err.toString()),
     });
   }
@@ -210,7 +210,7 @@ export default class Dashboard extends React.Component {
       }),
       dataType: 'json',
       cache: false,
-      success: () => console.log('Started'),
+      success: () => {},
       error: (xhr, status, err) => console.error(status, err.toString()),
     });
   }

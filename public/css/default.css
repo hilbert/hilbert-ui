@@ -188,10 +188,14 @@ body {
 .station-state-on .station-state-light {
   background-color: #9EFD93; }
 
-.station-state-busy .station-state-light {
+.station-state-starting .station-state-light,
+.station-state-stopping .station-state-light,
+.station-state-switching_app .station-state-light {
   background-color: #FFCF42; }
 
-.station-state-busy .station-icon {
+.station-state-starting .station-icon,
+.station-state-stopping .station-icon,
+.station-state-switching_app .station-icon {
   opacity: 0.5; }
 
 .station-state-error .station-state-light {

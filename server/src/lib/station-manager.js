@@ -1,5 +1,4 @@
 const Promise = require('bluebird');
-const iconmap = require('../../iconmap.json');
 const EventEmitter = require('events').EventEmitter;
 
 import Station from './station';
@@ -13,19 +12,32 @@ export default class StationManager {
   /**
    * Create a Station Manager
    *
-   * @param {Object} config - Instance of nconf configuration
+   * @param {Object} nconf - Instance of nconf configuration
    * @param {Object} logger - Instance of winston logger
-   * @param {DockAppConnector} connector - DockApp connector
+   * @param {DockAppConnector} dockApp - DockApp connector
+   * @param {MKLivestatusConnector} mkLivestatus - MKLivestatus connector
    */
-  constructor(config, logger, connector) {
-    this.config = config;
+  constructor(nconf, logger, dockApp, mkLivestatus) {
+    this.nconf = nconf;
     this.logger = logger;
-    this.connector = connector;
+
+    this.dockApp = dockApp;
+    this.mkLivestatus = mkLivestatus;
+
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
 
-    this.loadStationConfig();
+    this.mkLivestatusPollTimer = null;
+    this.loadStationConfig().then(() => {
+      const pollLoopBody = () => {
+        const pollDelay = this.nconf.get('MKLivestatusPollDelay');
+        this.pollMKLivestatus().then(() => {
+          this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+        });
+      };
+      pollLoopBody();
+    });
   }
 
   /**
@@ -33,16 +45,16 @@ export default class StationManager {
    *
    * If the configuration was already loaded this method clears it
    * and reloads everything
+   *
+   * @returns {Promise}
    */
   loadStationConfig() {
     this.clearStations();
     this.signalUpdate();
 
-    this.connector.getStationConfig().then((stationsCFG) => {
+    return this.dockApp.getStationConfig().then((stationsCFG) => {
       for (const stationCFG of stationsCFG) {
-        const newStation = new Station(stationCFG);
-        newStation.icon = StationManager.getIconURL(newStation.app);
-        this.addStation(newStation);
+        this.addStation(new Station(stationCFG));
       }
       this.signalUpdate();
     }).catch((error) => {
@@ -109,7 +121,7 @@ export default class StationManager {
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
       if (station && station.state === Station.OFF) {
-        station.state = Station.BUSY;
+        station.state = Station.STARTING;
         station.status = 'Waiting to start...';
         eligibleStations.push(stationID);
       }
@@ -123,9 +135,9 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.status = 'Starting...';
         this.signalUpdate();
-        return this.connector.startStation(station.id).then(() => {
-          station.state = Station.ON;
-          station.status = '';
+        return this.dockApp.startStation(station.id).then(() => {
+          // station.state = Station.ON;
+          // station.status = '';
           this.log('message', station, 'Station started');
         })
         .catch(() => {
@@ -137,7 +149,7 @@ export default class StationManager {
           this.signalUpdate();
         });
       },
-      { concurrency: this.config.get('scriptConcurrency') }
+      { concurrency: this.nconf.get('scriptConcurrency') }
     );
   }
 
@@ -152,7 +164,7 @@ export default class StationManager {
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
       if (station && station.state === Station.ON) {
-        station.state = Station.BUSY;
+        station.state = Station.STOPPING;
         station.status = 'Waiting to stop...';
         eligibleStations.push(stationID);
       }
@@ -166,9 +178,9 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.status = 'Stopping...';
         this.signalUpdate();
-        return this.connector.stopStation(station.id).then(() => {
-          station.state = Station.OFF;
-          station.status = '';
+        return this.dockApp.stopStation(station.id).then(() => {
+          // station.state = Station.OFF;
+          // station.status = '';
           this.log('message', station, 'Station stopped');
         })
           .catch(() => {
@@ -180,7 +192,7 @@ export default class StationManager {
             this.signalUpdate();
           });
       },
-      { concurrency: this.config.get('scriptConcurrency') }
+      { concurrency: this.nconf.get('scriptConcurrency') }
     );
   }
 
@@ -194,9 +206,10 @@ export default class StationManager {
     const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station && station.state === Station.ON) {
-        station.state = Station.BUSY;
+      if (station && station.state === Station.ON && appID !== station.app) {
+        station.state = Station.SWITCHING_APP;
         station.status = 'Waiting to change app...';
+        station.switching_app = appID;
         eligibleStations.push(stationID);
       }
     }
@@ -208,18 +221,12 @@ export default class StationManager {
       (eligibleStation) => {
         const station = this.getStationByID(eligibleStation);
         station.status = `Switching to ${appID}...`;
-        station.app = '';
         this.signalUpdate();
-        return this.connector.changeApp(eligibleStation, appID).then(() => {
-          station.app = appID;
-          station.icon = StationManager.getIconURL(appID);
-          station.state = Station.ON;
-          station.status = '';
+        return this.dockApp.changeApp(eligibleStation, appID).then(() => {
           this.log('message', station, `Launched app ${appID}`);
         })
         .catch(() => {
           station.app = appID;
-          station.icon = StationManager.getIconURL(appID);
           station.state = Station.ERROR;
           station.status = 'Failure launching app';
           this.log('error', station, `Failed to launch app ${appID}`);
@@ -228,21 +235,8 @@ export default class StationManager {
           this.signalUpdate();
         });
       },
-      { concurrency: this.config.get('scriptConcurrency') }
+      { concurrency: this.nconf.get('scriptConcurrency') }
     );
-  }
-
-  /**
-   * Return the URL of the icon of the specified app
-   *
-   * @param {string} appID - ID of the app
-   * @returns {string} - URL of the icon
-   */
-  static getIconURL(appID) {
-    if (iconmap[appID] !== undefined) {
-      return `icons/${iconmap[appID]}`;
-    }
-    return 'icons/none.png';
   }
 
   /**
@@ -284,12 +278,34 @@ export default class StationManager {
     this.lastLogID++;
     this.logEntries.push(newLogEntry);
 
-    const maxEntries = this.config.get('max_log_length');
+    const maxEntries = this.nconf.get('max_log_length');
     if (this.logEntries.length > maxEntries) {
       this.logEntries = this.logEntries.slice(this.logEntries.length - maxEntries);
     }
   }
 
+  /**
+   * Polls MKLivestatus and updates the state of stations
+   * @returns {Promise}
+   */
+  pollMKLivestatus() {
+    return this.mkLivestatus.getState().then((allStationsStatus) => {
+      let changes = false;
+
+      for (const stationStatus of allStationsStatus) {
+        const station = this.getStationByID(stationStatus.id);
+        if (station) {
+          if (station.updateFromMKLivestatus(stationStatus)) {
+            changes = true;
+          }
+        }
+      }
+
+      if (changes) {
+        this.signalUpdate();
+      }
+    });
+  }
   /**
    * Signal listeners that station data was modified
    * @private

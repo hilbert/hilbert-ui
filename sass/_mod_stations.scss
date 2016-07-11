@@ -117,7 +117,9 @@ $station-light-width: 28px;
   }
 }
 
-.station-state-busy {
+.station-state-starting,
+.station-state-stopping,
+.station-state-switching_app {
   .station-state-light {
     background-color: $color-status-busy;
   }

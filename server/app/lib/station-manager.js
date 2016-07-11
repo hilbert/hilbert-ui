@@ -17,7 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var iconmap = require('../../iconmap.json');
+var Promise = require('bluebird');
 var EventEmitter = require('events').EventEmitter;
 
 /**
@@ -30,22 +30,37 @@ var StationManager = function () {
   /**
    * Create a Station Manager
    *
-   * @param {Object} config - Instance of nconf configuration
+   * @param {Object} nconf - Instance of nconf configuration
    * @param {Object} logger - Instance of winston logger
-   * @param {DockAppConnector} connector - DockApp connector
+   * @param {DockAppConnector} dockApp - DockApp connector
+   * @param {MKLivestatusConnector} mkLivestatus - MKLivestatus connector
    */
 
-  function StationManager(config, logger, connector) {
+  function StationManager(nconf, logger, dockApp, mkLivestatus) {
+    var _this = this;
+
     _classCallCheck(this, StationManager);
 
-    this.config = config;
+    this.nconf = nconf;
     this.logger = logger;
-    this.connector = connector;
+
+    this.dockApp = dockApp;
+    this.mkLivestatus = mkLivestatus;
+
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
 
-    this.loadStationConfig();
+    this.mkLivestatusPollTimer = null;
+    this.loadStationConfig().then(function () {
+      var pollLoopBody = function pollLoopBody() {
+        var pollDelay = _this.nconf.get('MKLivestatusPollDelay');
+        _this.pollMKLivestatus().then(function () {
+          _this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+        });
+      };
+      pollLoopBody();
+    });
   }
 
   /**
@@ -53,18 +68,20 @@ var StationManager = function () {
    *
    * If the configuration was already loaded this method clears it
    * and reloads everything
+   *
+   * @returns {Promise}
    */
 
 
   _createClass(StationManager, [{
     key: 'loadStationConfig',
     value: function loadStationConfig() {
-      var _this = this;
+      var _this2 = this;
 
       this.clearStations();
       this.signalUpdate();
 
-      this.connector.getStationConfig().then(function (stationsCFG) {
+      return this.dockApp.getStationConfig().then(function (stationsCFG) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -73,9 +90,7 @@ var StationManager = function () {
           for (var _iterator = stationsCFG[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var stationCFG = _step.value;
 
-            var newStation = new _station2.default(stationCFG);
-            newStation.icon = StationManager.getIconURL(newStation.app);
-            _this.addStation(newStation);
+            _this2.addStation(new _station2.default(stationCFG));
           }
         } catch (err) {
           _didIteratorError = true;
@@ -92,9 +107,9 @@ var StationManager = function () {
           }
         }
 
-        _this.signalUpdate();
+        _this2.signalUpdate();
       }).catch(function (error) {
-        _this.logger.error(error);
+        _this2.logger.error(error);
       });
     }
 
@@ -164,45 +179,30 @@ var StationManager = function () {
     /**
      * Start indicated stations
      *
-     * @todo Change interface to return a promise
      * @param {Iterable} stationIDs - IDs of stations to start
+     * @return {Promise}
      */
 
   }, {
     key: 'startStations',
     value: function startStations(stationIDs) {
-      var _this2 = this;
+      var _this3 = this;
 
+      var eligibleStations = [];
       var _iteratorNormalCompletion2 = true;
       var _didIteratorError2 = false;
       var _iteratorError2 = undefined;
 
       try {
-        var _loop = function _loop() {
+        for (var _iterator2 = stationIDs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var stationID = _step2.value;
 
-          var station = _this2.getStationByID(stationID);
-          if (station) {
-            if (station.state === _station2.default.OFF) {
-              station.state = _station2.default.BUSY;
-              station.status = 'Starting...';
-              _this2.connector.startStation(stationID).then(function () {
-                station.state = _station2.default.ON;
-                station.status = '';
-                _this2.log('message', station, 'Station started');
-              }).catch(function () {
-                station.state = _station2.default.ERROR;
-                station.status = 'Failure starting the station';
-                _this2.log('error', station, 'Error starting station');
-              }).then(function () {
-                _this2.signalUpdate();
-              });
-            }
+          var station = this.getStationByID(stationID);
+          if (station && station.state === _station2.default.OFF) {
+            station.state = _station2.default.STARTING;
+            station.status = 'Waiting to start...';
+            eligibleStations.push(stationID);
           }
-        };
-
-        for (var _iterator2 = stationIDs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          _loop();
         }
       } catch (err) {
         _didIteratorError2 = true;
@@ -220,51 +220,52 @@ var StationManager = function () {
       }
 
       this.signalUpdate();
+
+      return Promise.map(eligibleStations, function (eligibleStation) {
+        var station = _this3.getStationByID(eligibleStation);
+        station.status = 'Starting...';
+        _this3.signalUpdate();
+        return _this3.dockApp.startStation(station.id).then(function () {
+          // station.state = Station.ON;
+          // station.status = '';
+          _this3.log('message', station, 'Station started');
+        }).catch(function () {
+          station.state = _station2.default.ERROR;
+          station.status = 'Failure starting the station';
+          _this3.log('error', station, 'Error starting station');
+        }).then(function () {
+          _this3.signalUpdate();
+        });
+      }, { concurrency: this.nconf.get('scriptConcurrency') });
     }
 
     /**
      * Stop indicated stations
      *
-     * @todo Change interface to return a promise
      * @param {Iterable} stationIDs - IDs of stations to stop
+     * @return {Promise}
      */
 
   }, {
     key: 'stopStations',
     value: function stopStations(stationIDs) {
-      var _this3 = this;
+      var _this4 = this;
 
+      var eligibleStations = [];
       var _iteratorNormalCompletion3 = true;
       var _didIteratorError3 = false;
       var _iteratorError3 = undefined;
 
       try {
-        var _loop2 = function _loop2() {
+        for (var _iterator3 = stationIDs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
           var stationID = _step3.value;
 
-          var station = _this3.getStationByID(stationID);
-          if (station) {
-            if (station.state === _station2.default.ON) {
-              station.state = _station2.default.BUSY;
-              station.status = 'Stopping...';
-
-              _this3.connector.stopStation(stationID).then(function () {
-                station.state = _station2.default.OFF;
-                station.status = '';
-                _this3.log('message', station, 'Station stopped');
-              }).catch(function () {
-                station.state = _station2.default.ERROR;
-                station.status = 'Failure stopping the station';
-                _this3.log('error', station, 'Error stopping station');
-              }).then(function () {
-                _this3.signalUpdate();
-              });
-            }
+          var station = this.getStationByID(stationID);
+          if (station && station.state === _station2.default.ON) {
+            station.state = _station2.default.STOPPING;
+            station.status = 'Waiting to stop...';
+            eligibleStations.push(stationID);
           }
-        };
-
-        for (var _iterator3 = stationIDs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          _loop2();
         }
       } catch (err) {
         _didIteratorError3 = true;
@@ -282,12 +283,28 @@ var StationManager = function () {
       }
 
       this.signalUpdate();
+
+      return Promise.map(eligibleStations, function (eligibleStation) {
+        var station = _this4.getStationByID(eligibleStation);
+        station.status = 'Stopping...';
+        _this4.signalUpdate();
+        return _this4.dockApp.stopStation(station.id).then(function () {
+          // station.state = Station.OFF;
+          // station.status = '';
+          _this4.log('message', station, 'Station stopped');
+        }).catch(function () {
+          station.state = _station2.default.ERROR;
+          station.status = 'Failure stopping the station';
+          _this4.log('error', station, 'Error stopping station');
+        }).then(function () {
+          _this4.signalUpdate();
+        });
+      }, { concurrency: this.nconf.get('scriptConcurrency') });
     }
 
     /**
      * Change the application running in indicated stations
      *
-     * @todo Change interface to return a promise
      * @param {iterable} stationIDs - IDs of stations in which to change the appID
      * @param {string} appID - Name of the appID to run
      */
@@ -295,44 +312,24 @@ var StationManager = function () {
   }, {
     key: 'changeApp',
     value: function changeApp(stationIDs, appID) {
-      var _this4 = this;
+      var _this5 = this;
 
+      var eligibleStations = [];
       var _iteratorNormalCompletion4 = true;
       var _didIteratorError4 = false;
       var _iteratorError4 = undefined;
 
       try {
-        var _loop3 = function _loop3() {
+        for (var _iterator4 = stationIDs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
           var stationID = _step4.value;
 
-          var station = _this4.getStationByID(stationID);
-          if (station) {
-            if (station.state === _station2.default.ON) {
-              station.state = _station2.default.BUSY;
-              station.status = 'Switching to ' + appID + '...';
-              station.app = '';
-
-              _this4.connector.changeApp(stationID, appID).then(function () {
-                station.app = appID;
-                station.icon = StationManager.getIconURL(appID);
-                station.state = _station2.default.ON;
-                station.status = '';
-                _this4.log('message', station, 'Launched app ' + appID);
-              }).catch(function () {
-                station.app = appID;
-                station.icon = StationManager.getIconURL(appID);
-                station.state = _station2.default.ERROR;
-                station.status = 'Failure launching app';
-                _this4.log('error', station, 'Failed to launch app ' + appID);
-              }).then(function () {
-                _this4.signalUpdate();
-              });
-            }
+          var station = this.getStationByID(stationID);
+          if (station && station.state === _station2.default.ON && appID !== station.app) {
+            station.state = _station2.default.SWITCHING_APP;
+            station.status = 'Waiting to change app...';
+            station.switching_app = appID;
+            eligibleStations.push(stationID);
           }
-        };
-
-        for (var _iterator4 = stationIDs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          _loop3();
         }
       } catch (err) {
         _didIteratorError4 = true;
@@ -350,18 +347,23 @@ var StationManager = function () {
       }
 
       this.signalUpdate();
+
+      return Promise.map(eligibleStations, function (eligibleStation) {
+        var station = _this5.getStationByID(eligibleStation);
+        station.status = 'Switching to ' + appID + '...';
+        _this5.signalUpdate();
+        return _this5.dockApp.changeApp(eligibleStation, appID).then(function () {
+          _this5.log('message', station, 'Launched app ' + appID);
+        }).catch(function () {
+          station.app = appID;
+          station.state = _station2.default.ERROR;
+          station.status = 'Failure launching app';
+          _this5.log('error', station, 'Failed to launch app ' + appID);
+        }).then(function () {
+          _this5.signalUpdate();
+        });
+      }, { concurrency: this.nconf.get('scriptConcurrency') });
     }
-
-    /**
-     * Return the URL of the icon of the specified app
-     *
-     * @param {string} appID - ID of the app
-     * @returns {string} - URL of the icon
-     */
-
-  }, {
-    key: 'getLog',
-
 
     /**
      * Return the station activity log
@@ -374,6 +376,9 @@ var StationManager = function () {
      *
      * @returns {Array}
      */
+
+  }, {
+    key: 'getLog',
     value: function getLog() {
       return this.logEntries;
     }
@@ -404,12 +409,60 @@ var StationManager = function () {
       this.lastLogID++;
       this.logEntries.push(newLogEntry);
 
-      var maxEntries = this.config.get('max_log_length');
+      var maxEntries = this.nconf.get('max_log_length');
       if (this.logEntries.length > maxEntries) {
         this.logEntries = this.logEntries.slice(this.logEntries.length - maxEntries);
       }
     }
 
+    /**
+     * Polls MKLivestatus and updates the state of stations
+     * @returns {Promise}
+     */
+
+  }, {
+    key: 'pollMKLivestatus',
+    value: function pollMKLivestatus() {
+      var _this6 = this;
+
+      return this.mkLivestatus.getState().then(function (allStationsStatus) {
+        var changes = false;
+
+        var _iteratorNormalCompletion5 = true;
+        var _didIteratorError5 = false;
+        var _iteratorError5 = undefined;
+
+        try {
+          for (var _iterator5 = allStationsStatus[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+            var stationStatus = _step5.value;
+
+            var station = _this6.getStationByID(stationStatus.id);
+            if (station) {
+              if (station.updateFromMKLivestatus(stationStatus)) {
+                changes = true;
+              }
+            }
+          }
+        } catch (err) {
+          _didIteratorError5 = true;
+          _iteratorError5 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion5 && _iterator5.return) {
+              _iterator5.return();
+            }
+          } finally {
+            if (_didIteratorError5) {
+              throw _iteratorError5;
+            }
+          }
+        }
+
+        if (changes) {
+          _this6.signalUpdate();
+        }
+      });
+    }
     /**
      * Signal listeners that station data was modified
      * @private
@@ -419,14 +472,6 @@ var StationManager = function () {
     key: 'signalUpdate',
     value: function signalUpdate() {
       this.events.emit('stationUpdate');
-    }
-  }], [{
-    key: 'getIconURL',
-    value: function getIconURL(appID) {
-      if (iconmap[appID] !== undefined) {
-        return 'icons/' + iconmap[appID];
-      }
-      return 'icons/none.png';
     }
   }]);
 

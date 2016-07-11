@@ -7,56 +7,164 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _nagios = require('./nagios');
+
+var _nagios2 = _interopRequireDefault(_nagios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Station = function Station(config) {
-  _classCallCheck(this, Station);
+var Station = function () {
+  function Station(config) {
+    _classCallCheck(this, Station);
 
-  var configKeys = ['id', 'name', 'type', 'default_app', 'possible_apps'];
+    var configKeys = ['id', 'name', 'type', 'default_app', 'possible_apps'];
 
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
 
-  try {
-    for (var _iterator = configKeys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var configKey = _step.value;
-
-      if (!config.hasOwnProperty(configKey)) {
-        if (configKey === 'id') {
-          throw new Error('Attempted to initialize station with config missing id');
-        }
-        throw new Error('Attempted to initialize station ' + config.id + ' missing config key ' + configKey);
-      }
-
-      this[configKey] = config[configKey];
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
     try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
+      for (var _iterator = configKeys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var configKey = _step.value;
+
+        if (!config.hasOwnProperty(configKey)) {
+          if (configKey === 'id') {
+            throw new Error('Attempted to initialize station with config missing id');
+          }
+          throw new Error('Attempted to initialize station ' + config.id + ' missing config key ' + configKey);
+        }
+
+        this[configKey] = config[configKey];
       }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
     } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
       }
     }
+
+    this.state = Station.UNKNOWN;
+    this.status = '';
+    this.app = this.default_app;
+    this.switching_app = '';
   }
 
-  this.state = 'off';
-  this.status = '';
-  this.app = this.default_app;
-  this.icon = '';
-};
+  /**
+   * Updates the state of the station
+   *
+   * Returns true if the state was changed
+   *
+   * @param {Object} stationStatus - MKLivestatus status of the station
+   * @returns {boolean}
+   */
+
+
+  _createClass(Station, [{
+    key: 'updateFromMKLivestatus',
+    value: function updateFromMKLivestatus(stationStatus) {
+      // stationStatus:
+      // id: station.id,
+      // state: Nagios.HostState.DOWN,
+      // state_type: Nagios.StateType.HARD,
+      // app_state: Nagios.ServiceState.UNKNOWN,
+      // app_state_type: Nagios.StateType.HARD,
+      // app_id: '',
+
+      var changes = false;
+      if (this.app !== stationStatus.app_id) {
+        this.app = stationStatus.app_id;
+        changes = true;
+      }
+
+      // todo: STARTING and STOPPING timeout
+      // todo: SWITCHING_APP timeout
+
+      if (this.state === Station.ERROR) {
+        return false;
+      }
+
+      if (stationStatus.state === _nagios2.default.HostState.UNREACHABLE) {
+        this.state = Station.ERROR;
+        this.status = 'Station unreachable';
+        return true;
+      }
+
+      if (this.state === Station.UNKNOWN) {
+        if (stationStatus.state === _nagios2.default.HostState.DOWN) {
+          this.state = Station.OFF;
+          this.status = '';
+          return true;
+        } else if (stationStatus.state === _nagios2.default.HostState.UP) {
+          this.state = Station.ON;
+          this.status = '';
+          return true;
+        }
+      } else if (this.state === Station.ON) {
+        if (stationStatus.state === _nagios2.default.HostState.DOWN) {
+          this.state = Station.OFF;
+          this.status = '';
+          return true;
+        }
+      } else if (this.state === Station.OFF) {
+        if (stationStatus.state === _nagios2.default.HostState.UP) {
+          console.log('changing');
+          this.state = Station.ON;
+          this.status = '';
+          return true;
+        }
+      } else if (this.state === Station.STOPPING) {
+        if (stationStatus.state === _nagios2.default.HostState.DOWN) {
+          this.state = Station.OFF;
+          this.status = '';
+          return true;
+        }
+      } else if (this.state === Station.STARTING) {
+        if (stationStatus.state === _nagios2.default.HostState.UP) {
+          this.state = Station.ON;
+          this.status = '';
+          return true;
+        }
+      } else if (this.state === Station.SWITCHING_APP) {
+        if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
+          this.state = Station.ON;
+          this.status = '';
+          this.switching_app = '';
+        }
+
+        if (stationStatus.state === _nagios2.default.HostState.DOWN) {
+          this.state = Station.OFF;
+          this.status = '';
+          return true;
+        }
+      }
+
+      return changes;
+    }
+  }]);
+
+  return Station;
+}();
 
 // Station states
 
 exports.default = Station;
+Station.UNKNOWN = 'unk';
 Station.OFF = 'off';
 Station.ON = 'on';
-Station.BUSY = 'busy';
+Station.STOPPING = 'stopping';
+Station.STARTING = 'starting';
+Station.SWITCHING_APP = 'switching_app';
 Station.ERROR = 'error';
 //# sourceMappingURL=station.js.map

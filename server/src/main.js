@@ -1,4 +1,3 @@
-const Promise = require("bluebird");
 const appPackage = require('../package.json');
 const logger = require('winston');
 const nconf = require('nconf');
@@ -9,7 +8,10 @@ const EventEmitter = require('events').EventEmitter;
 
 import StationManager from './lib/station-manager';
 import DockAppConnector from './lib/dockapp-connector';
-import TestingConnector from './lib/testing-connector';
+import MKLivestatusConnector from './lib/mk-livestatus-connector';
+import TestBackend from './lib/test-backend';
+
+const iconmap = require('../iconmap.json');
 
 process.on('uncaughtException', (err) => {
   console.log(err);
@@ -27,6 +29,7 @@ nconf.defaults({
   max_log_length: 100,
   log_directory: './log',
   log_level: 'info', // error, warn, info, verbose, debug, silly
+  MKLivestatusPollDelay: 1000,
 });
 
 logger.add(logger.transports.File, {
@@ -38,14 +41,33 @@ logger.add(logger.transports.File, {
 
 logger.info(`Starting dockapp_dashboard server (v${appPackage.version})`);
 
-let connector = null;
+let dockAppConnector = null;
+let mkLivestatusConnector = null;
+
 if (nconf.get('test')) {
-  connector = new TestingConnector(nconf, logger);
+  const testBackend = new TestBackend(nconf, logger);
+  dockAppConnector = testBackend.getDockappConnector();
+  mkLivestatusConnector = testBackend.getMKLivestatusConnector();
 } else {
-  connector = new DockAppConnector(nconf, logger);
+  dockAppConnector = new DockAppConnector(nconf, logger);
+  mkLivestatusConnector = new MKLivestatusConnector(nconf, logger);
 }
 
-const stationManager = new StationManager(nconf, logger, connector);
+const stationManager = new StationManager(nconf, logger, dockAppConnector, mkLivestatusConnector);
+
+
+/**
+ * Return the URL of the icon of the specified app
+ *
+ * @param {string} appID - ID of the app
+ * @returns {string} - URL of the icon
+ */
+function getIconURL(appID) {
+  if (iconmap[appID] !== undefined) {
+    return `icons/${iconmap[appID]}`;
+  }
+  return 'icons/none.png';
+}
 
 // Longpoll begin
 
@@ -60,13 +82,18 @@ function respondJSON(res, data) {
 }
 
 function stationDataResponse() {
+  const stations = stationManager.getStations();
+  for (const station of stations) {
+    station.icon = getIconURL(station.app);
+  }
+
   return {
     updateID,
-    stations: stationManager.getStations(),
+    stations,
   };
 }
 
-function emptyResponse(req, res) {
+function emptyResponse() {
   return {};
 }
 
@@ -75,15 +102,15 @@ app.get('/poll.json', (req, res) => {
   if (Number(req.query.lastSeen) !== updateID) {
     respondJSON(res, stationDataResponse());
   } else {
-    // ... otherwise wait for an update to respond
+    // ... otherwise wait for an updateFromMKLivestatus to respond
 
-    // On timeout send an empty update
+    // On timeout send an empty updateFromMKLivestatus
     const pollTimeout = setTimeout(() => {
-      pollUpdateEmitter.emit('update', emptyResponse());
+      pollUpdateEmitter.emit('updateFromMKLivestatus', emptyResponse());
     }, pollTimeoutDelay);
 
-    // If there was an update respond
-    pollUpdateEmitter.once('update', (data) => {
+    // If there was an updateFromMKLivestatus respond
+    pollUpdateEmitter.once('updateFromMKLivestatus', (data) => {
       clearTimeout(pollTimeout);
       respondJSON(res, data);
     });
@@ -92,7 +119,7 @@ app.get('/poll.json', (req, res) => {
 
 stationManager.events.on('stationUpdate', () => {
   updateID++;
-  pollUpdateEmitter.emit('update', stationDataResponse());
+  pollUpdateEmitter.emit('updateFromMKLivestatus', stationDataResponse());
 });
 
 // Longpoll end

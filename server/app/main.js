@@ -11,9 +11,13 @@ var _dockappConnector = require('./lib/dockapp-connector');
 
 var _dockappConnector2 = _interopRequireDefault(_dockappConnector);
 
-var _testingConnector = require('./lib/testing-connector');
+var _mkLivestatusConnector = require('./lib/mk-livestatus-connector');
 
-var _testingConnector2 = _interopRequireDefault(_testingConnector);
+var _mkLivestatusConnector2 = _interopRequireDefault(_mkLivestatusConnector);
+
+var _testBackend = require('./lib/test-backend');
+
+var _testBackend2 = _interopRequireDefault(_testBackend);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24,6 +28,8 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var EventEmitter = require('events').EventEmitter;
+
+var iconmap = require('../iconmap.json');
 
 process.on('uncaughtException', function (err) {
   console.log(err);
@@ -37,11 +43,13 @@ nconf.defaults({
   port: '3000',
   dockapp_path: '../work/dockapp',
   test: false,
+  scriptConcurrency: 2,
   max_log_length: 100,
   log_directory: './log',
-  log_level: 'info' });
+  log_level: 'info', // error, warn, info, verbose, debug, silly
+  MKLivestatusPollDelay: 1000
+});
 
-// error, warn, info, verbose, debug, silly
 logger.add(logger.transports.File, {
   filename: nconf.get('log_directory') + '/dockapp_dashboard.log',
   level: nconf.get('log_level'),
@@ -51,14 +59,32 @@ logger.add(logger.transports.File, {
 
 logger.info('Starting dockapp_dashboard server (v' + appPackage.version + ')');
 
-var connector = null;
+var dockAppConnector = null;
+var mkLivestatusConnector = null;
+
 if (nconf.get('test')) {
-  connector = new _testingConnector2.default(nconf, logger);
+  var testBackend = new _testBackend2.default(nconf, logger);
+  dockAppConnector = testBackend.getDockappConnector();
+  mkLivestatusConnector = testBackend.getMKLivestatusConnector();
 } else {
-  connector = new _dockappConnector2.default(nconf, logger);
+  dockAppConnector = new _dockappConnector2.default(nconf, logger);
+  mkLivestatusConnector = new _mkLivestatusConnector2.default(nconf, logger);
 }
 
-var stationManager = new _stationManager2.default(nconf, logger, connector);
+var stationManager = new _stationManager2.default(nconf, logger, dockAppConnector, mkLivestatusConnector);
+
+/**
+ * Return the URL of the icon of the specified app
+ *
+ * @param {string} appID - ID of the app
+ * @returns {string} - URL of the icon
+ */
+function getIconURL(appID) {
+  if (iconmap[appID] !== undefined) {
+    return 'icons/' + iconmap[appID];
+  }
+  return 'icons/none.png';
+}
 
 // Longpoll begin
 
@@ -73,13 +99,39 @@ function respondJSON(res, data) {
 }
 
 function stationDataResponse() {
+  var stations = stationManager.getStations();
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = stations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var station = _step.value;
+
+      station.icon = getIconURL(station.app);
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
   return {
     updateID: updateID,
-    stations: stationManager.getStations()
+    stations: stations
   };
 }
 
-function emptyResponse(req, res) {
+function emptyResponse() {
   return {};
 }
 
@@ -89,15 +141,15 @@ app.get('/poll.json', function (req, res) {
     respondJSON(res, stationDataResponse());
   } else {
     (function () {
-      // ... otherwise wait for an update to respond
+      // ... otherwise wait for an updateFromMKLivestatus to respond
 
-      // On timeout send an empty update
+      // On timeout send an empty updateFromMKLivestatus
       var pollTimeout = setTimeout(function () {
-        pollUpdateEmitter.emit('update', emptyResponse());
+        pollUpdateEmitter.emit('updateFromMKLivestatus', emptyResponse());
       }, pollTimeoutDelay);
 
-      // If there was an update respond
-      pollUpdateEmitter.once('update', function (data) {
+      // If there was an updateFromMKLivestatus respond
+      pollUpdateEmitter.once('updateFromMKLivestatus', function (data) {
         clearTimeout(pollTimeout);
         respondJSON(res, data);
       });
@@ -107,7 +159,7 @@ app.get('/poll.json', function (req, res) {
 
 stationManager.events.on('stationUpdate', function () {
   updateID++;
-  pollUpdateEmitter.emit('update', stationDataResponse());
+  pollUpdateEmitter.emit('updateFromMKLivestatus', stationDataResponse());
 });
 
 // Longpoll end

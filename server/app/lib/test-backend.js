@@ -13,37 +13,30 @@ var _nagios = require('./nagios');
 
 var _nagios2 = _interopRequireDefault(_nagios);
 
+var _testDockappConnector = require('./test-dockapp-connector');
+
+var _testDockappConnector2 = _interopRequireDefault(_testDockappConnector);
+
+var _testMkLivestatusConnector = require('./test-mk-livestatus-connector');
+
+var _testMkLivestatusConnector2 = _interopRequireDefault(_testMkLivestatusConnector);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Promise = require('bluebird');
 var testStations = require('../../tests/models/test_stations.json');
 
-
-/**
- * Testing stub to replace DockAppConnector
- *
- * Simulates the dockapp commands with a random delay
- */
-
-var TestingConnector = function () {
-
-  /**
-   * Returns the state of the stations
-   * Returns an array of objects with shape
-   * {name: 'station name ', state: 0, state_type: 1,
-   * app_state: 0, app_state_type: 1, app_name: 'fg app name'}
-   *
-   * @returns {Promise}
-   * @resolve {Array}
-   */
-
-  function TestingConnector(nconf, logger) {
-    _classCallCheck(this, TestingConnector);
+var TestBackend = function () {
+  function TestBackend(nconf, logger) {
+    _classCallCheck(this, TestBackend);
 
     this.nconf = nconf;
     this.logger = logger;
+
+    this.dockAppConnector = new _testDockappConnector2.default(this, nconf, logger);
+    this.mkLivestatusConnector = new _testMkLivestatusConnector2.default(this, nconf, logger);
+
     this.state = new Map();
     this.station_cfg = new Map();
 
@@ -65,6 +58,9 @@ var TestingConnector = function () {
         });
 
         this.station_cfg.set(station.id, {
+          id: station.id,
+          name: station.name,
+          type: station.type,
           default_app: station.default_app,
           possible_apps: station.possible_apps
         });
@@ -86,46 +82,54 @@ var TestingConnector = function () {
   }
 
   /**
-   * Reads the station config
-   * @returns {Promise}
-   * @resolve {Array} - List of stations
-   * @reject {Error}
+   * Returns a DockAppConnector stub for testing
+   * @returns {TestDockAppConnector}
    */
 
 
-  _createClass(TestingConnector, [{
+  _createClass(TestBackend, [{
+    key: 'getDockappConnector',
+    value: function getDockappConnector() {
+      return this.dockAppConnector;
+    }
+
+    /**
+     * Returns a MKLivestatusConnector stub for testing
+     * @returns {TestMKLivestatusConnector}
+     */
+
+  }, {
+    key: 'getMKLivestatusConnector',
+    value: function getMKLivestatusConnector() {
+      return this.mkLivestatusConnector;
+    }
+  }, {
+    key: 'getStationState',
+    value: function getStationState() {
+      return this.state.values();
+    }
+
+    /**
+     * Reads the station config
+     * @returns {Promise}
+     * @resolve {Array} - List of stations
+     * @reject {Error}
+     */
+
+  }, {
     key: 'getStationConfig',
     value: function getStationConfig() {
       var _this = this;
 
       return new Promise(function (resolve) {
         _this.randomDelay(1000, 3000).then(function () {
-          resolve(testStations);
+          resolve(_this.station_cfg.values());
         });
       });
     }
 
     /**
-     * Returns the state of the stations
-     * Simulates the interface of MKLivestatusConnector
-     *
-     * @returns {Promise}
-     * @resolve {Array}
-     */
-
-  }, {
-    key: 'getState',
-    value: function getState() {
-      var _this2 = this;
-
-      return new Promise(function (resolve) {
-        resolve(_this2.state.values());
-      });
-    }
-
-    /**
      * Starts a station
-     * Simulates the interface of DockappConnector
      *
      * @param stationID
      * @returns {Promise}
@@ -134,12 +138,12 @@ var TestingConnector = function () {
   }, {
     key: 'startStation',
     value: function startStation(stationID) {
-      var _this3 = this;
+      var _this2 = this;
 
       return new Promise(function (resolve) {
-        _this3.randomDelay(3000, 8000).then(function () {
-          var stationState = _this3.state.get(stationID);
-          var stationCfg = _this3.station_cfg.get(stationID);
+        _this2.randomDelay(3000, 8000).then(function () {
+          var stationState = _this2.state.get(stationID);
+          var stationCfg = _this2.station_cfg.get(stationID);
           if (stationState && stationState.state === _nagios2.default.HostState.DOWN) {
             stationState.state = _nagios2.default.HostState.UP;
             stationState.app_state = _nagios2.default.ServiceState.OK;
@@ -152,7 +156,6 @@ var TestingConnector = function () {
 
     /**
      * Stops a station
-     * Simulates the interface of DockappConnector
      *
      * @param stationID
      * @returns {Promise}
@@ -161,11 +164,11 @@ var TestingConnector = function () {
   }, {
     key: 'stopStation',
     value: function stopStation(stationID) {
-      var _this4 = this;
+      var _this3 = this;
 
       return new Promise(function (resolve) {
-        _this4.randomDelay(2000, 6000).then(function () {
-          var stationState = _this4.state.get(stationID);
+        _this3.randomDelay(2000, 6000).then(function () {
+          var stationState = _this3.state.get(stationID);
           if (stationState && stationState.state === _nagios2.default.HostState.UP) {
             stationState.state = _nagios2.default.HostState.DOWN;
             stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
@@ -178,7 +181,6 @@ var TestingConnector = function () {
 
     /**
      * Change the foreground application running in a station
-     * Simulates the interface of DockappConnector
      *
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
@@ -188,12 +190,12 @@ var TestingConnector = function () {
   }, {
     key: 'changeApp',
     value: function changeApp(stationID, appID) {
-      var _this5 = this;
+      var _this4 = this;
 
       return new Promise(function (resolve, reject) {
-        _this5.randomDelay(1000, 5000).then(function () {
-          var stationState = _this5.state.get(stationID);
-          var stationCfg = _this5.station_cfg.get(stationID);
+        _this4.randomDelay(1000, 5000).then(function () {
+          var stationState = _this4.state.get(stationID);
+          var stationCfg = _this4.station_cfg.get(stationID);
 
           if (stationCfg.possible_apps.indexOf(appID) >= 0) {
             stationState.app_id = appID;
@@ -228,8 +230,8 @@ var TestingConnector = function () {
     }
   }]);
 
-  return TestingConnector;
+  return TestBackend;
 }();
 
-exports.default = TestingConnector;
-//# sourceMappingURL=testing-connector.js.map
+exports.default = TestBackend;
+//# sourceMappingURL=test-backend.js.map
