@@ -251,12 +251,28 @@ export default class Dashboard extends React.Component {
     this.deselectAll();
   }
 
+  /**
+   * Handle the server poll
+   *
+   * Implementation: Since the server uses long polling we use a very short
+   * poll time (500ms). In case of errors contacting the server the poll time
+   * increases with each error until a max poll time is reached.
+   */
   pollLoop() {
+    const minPollTime = 500;
+    let retryPollTime = minPollTime;
+    const retryIncreaseFactor = 2;
+    const maxRetryPollTime = 4000;
+
     const loop = () => {
       this.pollServer().then(() => {
-        setTimeout(loop, 500);
+        setTimeout(loop, minPollTime);
+        retryPollTime = minPollTime;
       }).catch(() => {
-        setTimeout(loop, 500);
+        setTimeout(loop, retryPollTime);
+        if (retryPollTime < maxRetryPollTime) {
+          retryPollTime = retryPollTime * retryIncreaseFactor;
+        }
       });
     };
     loop();
