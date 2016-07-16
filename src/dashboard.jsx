@@ -55,12 +55,21 @@ export default class Dashboard extends React.Component {
     throw Error(`Call to invalid command ${commandName}`);
   }
 
+  displayState(state) {
+
+    if (state === 'starting' || state === 'stopping' || state === 'switching_app') {
+      return 'busy';
+    }
+
+    return state;
+  }
+
   getVisibleStations() {
     const answer = [];
 
     for (const station of this.state.stations) {
       if ((this.state.visibleType === '' || station.type === this.state.visibleType) &&
-          (this.state.visibleState === '' || station.state === this.state.visibleState)) {
+          (this.state.visibleState === '' || this.displayState(station.state) === this.state.visibleState)) {
         answer.push(station);
       }
     }
@@ -266,7 +275,7 @@ export default class Dashboard extends React.Component {
         success: (data) => {
           if (data.stations !== undefined) {
             this.updateID = data.updateID;
-            this.setState({stations: data.stations});
+            this.setState({ stations: data.stations });
           }
           resolve();
         },
@@ -293,10 +302,10 @@ export default class Dashboard extends React.Component {
 
     const counts = {};
     this.state.stations.forEach((station) => {
-      if (!counts.hasOwnProperty(station.state)) {
-        counts[station.state] = 0;
+      if (!counts.hasOwnProperty(this.displayState(station.state))) {
+        counts[this.displayState(station.state)] = 0;
       }
-      counts[station.state]++;
+      counts[this.displayState(station.state)]++;
     });
 
     const selectedCount = this.state.selection.size;
