@@ -1,0 +1,24 @@
+$message-bar-height: 100px;
+
+.message_bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: $message-bar-height;
+  background-color: rgba(0,0,0,0.75);
+  z-index: 2000;
+}
+
+.message_bar-message {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 24px;
+  line-height: 28px;
+  padding: 20px;
+  text-align: center;
+}
+
+.with-message_bar {
+  padding-bottom: $message-bar-height;
+}

@@ -16,6 +16,7 @@ export default class Dashboard extends React.Component {
       visibleType: '',
       visibleState: '',
       log: [],
+      serverConnectionError: false,
     };
     this.selectToggle = this.selectToggle.bind(this);
     this.changeAppSelected = this.changeAppSelected.bind(this);
@@ -24,6 +25,7 @@ export default class Dashboard extends React.Component {
     this.getCommand = this.getCommand.bind(this);
     this.logViewer = null;
     this.updateID = 0;
+    this.serverConnectionRetry = 0;
   }
 
   componentDidMount() {
@@ -55,26 +57,26 @@ export default class Dashboard extends React.Component {
     throw Error(`Call to invalid command ${commandName}`);
   }
 
-  displayState(state) {
-
-    if (state === 'starting' || state === 'stopping' || state === 'switching_app') {
-      return 'busy';
-    }
-
-    return state;
-  }
-
   getVisibleStations() {
     const answer = [];
 
     for (const station of this.state.stations) {
       if ((this.state.visibleType === '' || station.type === this.state.visibleType) &&
-          (this.state.visibleState === '' || this.displayState(station.state) === this.state.visibleState)) {
+          (this.state.visibleState === '' ||
+           this.displayState(station.state) === this.state.visibleState)) {
         answer.push(station);
       }
     }
 
     return answer;
+  }
+
+  displayState(state) {
+    if (state === 'starting' || state === 'stopping' || state === 'switching_app') {
+      return 'busy';
+    }
+
+    return state;
   }
 
   attachConfirmation(text, callback) {
@@ -268,10 +270,21 @@ export default class Dashboard extends React.Component {
       this.pollServer().then(() => {
         setTimeout(loop, minPollTime);
         retryPollTime = minPollTime;
+        if (this.state.serverConnectionError) {
+          this.setState({ serverConnectionError: false });
+        }
+        this.serverConnectionRetry = 0;
       }).catch(() => {
         setTimeout(loop, retryPollTime);
         if (retryPollTime < maxRetryPollTime) {
           retryPollTime = retryPollTime * retryIncreaseFactor;
+        }
+        this.serverConnectionRetry++;
+        if (this.serverConnectionRetry > 5) {
+          this.setState({ serverConnectionError: true });
+          // Reset the updateID so the next poll returns immediately
+          // instead of being a long poll
+          this.updateID = 0;
         }
       });
     };
@@ -306,6 +319,13 @@ export default class Dashboard extends React.Component {
   render() {
     const stations = [];
     const actions = [];
+    let messageBar = '';
+
+    if (this.state.serverConnectionError) {
+      messageBar = (<div className="message_bar">
+        <div className="message_bar-message"><i className="fa fa-warning"></i>  No connection to server.</div>
+      </div>);
+    }
 
     this.getVisibleStations().forEach((station) => stations.push(
       <Station
@@ -466,7 +486,8 @@ export default class Dashboard extends React.Component {
     );
 
     return (
-      <div>
+      <div className={messageBar !== '' ? 'with-message_bar' : ''}>
+        {messageBar}
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm-6 pane-stations">
