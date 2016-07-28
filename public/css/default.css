@@ -267,4 +267,16 @@ body {
   max-height: 0px;
   overflow-y: auto; }
 
+.consoleViewer-modal .modal-body {
+  background-color: #333;
+  color: #fff;
+  max-height: 0px;
+  overflow-y: auto;
+  height: 1000px; }
+  .consoleViewer-modal .modal-body pre {
+    border: none;
+    color: #fff;
+    background-color: transparent;
+    margin-bottom: 0; }
+
 /*# sourceMappingURL=default.css.map */

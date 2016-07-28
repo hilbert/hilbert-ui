@@ -184,6 +184,13 @@ app.post('/stations.json', function (req, res) {
   }
 });
 
+app.get('/station_output.json', function (req, res) {
+  var station = stationManager.getStationByID(req.query.stationID);
+  respondJSON(res, {
+    lines: station.outputBuffer.getAll()
+  });
+});
+
 app.get('/log.json', function (req, res) {
   respondJSON(res, { entries: stationManager.getLog() });
 });

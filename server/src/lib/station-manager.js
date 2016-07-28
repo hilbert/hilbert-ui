@@ -135,7 +135,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.status = 'Starting...';
         this.signalUpdate();
-        return this.dockApp.startStation(station.id).then(() => {
+        return this.dockApp.startStation(station.id, station.outputBuffer).then(() => {
           // station.state = Station.ON;
           // station.status = '';
           this.log('message', station, 'Station started');
@@ -178,7 +178,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.status = 'Stopping...';
         this.signalUpdate();
-        return this.dockApp.stopStation(station.id).then(() => {
+        return this.dockApp.stopStation(station.id, station.outputBuffer).then(() => {
           // station.state = Station.OFF;
           // station.status = '';
           this.log('message', station, 'Station stopped');
@@ -222,7 +222,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.status = `Switching to ${appID}...`;
         this.signalUpdate();
-        return this.dockApp.changeApp(eligibleStation, appID).then(() => {
+        return this.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.log('message', station, `Launched app ${appID}`);
         })
         .catch(() => {

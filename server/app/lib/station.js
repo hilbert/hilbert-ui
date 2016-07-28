@@ -9,6 +9,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _stationOutputBuffer = require('./station-output-buffer');
+
+var _stationOutputBuffer2 = _interopRequireDefault(_stationOutputBuffer);
+
 var _nagios = require('./nagios');
 
 var _nagios2 = _interopRequireDefault(_nagios);
@@ -59,6 +63,7 @@ var Station = function () {
     this.status = '';
     this.app = this.default_app;
     this.switching_app = '';
+    this.outputBuffer = new _stationOutputBuffer2.default();
   }
 
   /**

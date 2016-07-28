@@ -43,8 +43,8 @@ var DockAppConnector = function () {
       var _this = this;
 
       return new Promise(function (resolve, reject) {
-        _this.execute(DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path')).then(function (output) {
-          resolve(JSON.parse(output));
+        _this.execute(DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path')).then(function (answer) {
+          resolve(JSON.parse(answer));
         }).catch(function (err) {
           return reject(err);
         });
@@ -54,12 +54,13 @@ var DockAppConnector = function () {
     /**
      * Start a station
      * @param {string} stationID - ID of the station
+     * @param {stream} output - Command output should be written here
      * @returns Promise
      */
 
   }, {
     key: 'startStation',
-    value: function startStation(stationID) {
+    value: function startStation(stationID, output) {
       return new Promise(function (resolve, reject) {
         resolve();
       });
@@ -68,12 +69,13 @@ var DockAppConnector = function () {
     /**
      * Stop a station
      * @param {string} stationID - ID of the station
+     * @param {stream} output - Command output should be written here
      * @returns Promise
      */
 
   }, {
     key: 'stopStation',
-    value: function stopStation(stationID) {
+    value: function stopStation(stationID, output) {
       return new Promise(function (resolve, reject) {
         resolve();
       });
@@ -83,12 +85,13 @@ var DockAppConnector = function () {
      * Change the foreground application running in a station
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: 'changeApp',
-    value: function changeApp(stationID, appID) {
+    value: function changeApp(stationID, appID, output) {
       return new Promise(function (resolve, reject) {
         resolve();
       });
@@ -98,7 +101,8 @@ var DockAppConnector = function () {
      * Executes a child process
      * @private
      *
-     * @param command
+     * @param {string} command - Command to execute
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      * @resolve {String} - stdout output
      * @reject {Error}
@@ -106,30 +110,32 @@ var DockAppConnector = function () {
 
   }, {
     key: 'execute',
-    value: function execute(command) {
+    value: function execute(command, output) {
       return new Promise(function (resolve, reject) {
         var stdoutBuf = '';
         var stderrBuf = '';
         var process = exec(command);
         process.stdout.on('data', function (data) {
           stdoutBuf += data;
+          output.write(data);
         });
         process.stderr.on('data', function (data) {
           stderrBuf += data;
+          output.write(data);
         });
         process.on('close', function (code, signal) {
           if (code === 0) {
             resolve(stdoutBuf);
           } else {
             var term = 'rc=' + code;
-            var output = '';
+            var allOutput = '';
             if (signal !== null) {
               term = term + ', ' + signal;
             }
             if (stderrBuf.length) {
-              output = '\nstderr: ' + stderrBuf;
+              allOutput = '\nstderr: ' + stderrBuf;
             }
-            reject(new Error('Command \'' + command + '\' exited with ' + term + '.' + output));
+            reject(new Error('Command \'' + command + '\' exited with ' + term + '. ' + allOutput));
           }
         });
       });

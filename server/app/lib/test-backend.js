@@ -132,16 +132,19 @@ var TestBackend = function () {
      * Starts a station
      *
      * @param stationID
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: 'startStation',
-    value: function startStation(stationID) {
+    value: function startStation(stationID, output) {
       var _this2 = this;
 
       return new Promise(function (resolve) {
+        output.write('Simulating starting station ' + stationID + '. Waiting a random delay...');
         _this2.randomDelay(3000, 8000).then(function () {
+          output.write('Wait finished.');
           var stationState = _this2.state.get(stationID);
           var stationCfg = _this2.station_cfg.get(stationID);
           if (stationState && stationState.state === _nagios2.default.HostState.DOWN) {
@@ -149,6 +152,7 @@ var TestBackend = function () {
             stationState.app_state = _nagios2.default.ServiceState.OK;
             stationState.app_state_type = _nagios2.default.StateType.HARD;
             stationState.app_id = stationCfg.default_app;
+            output.write('Station state set to UP with app ' + stationState.app_id + '.');
           }
         }).then(resolve);
       });
@@ -158,22 +162,26 @@ var TestBackend = function () {
      * Stops a station
      *
      * @param stationID
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: 'stopStation',
-    value: function stopStation(stationID) {
+    value: function stopStation(stationID, output) {
       var _this3 = this;
 
       return new Promise(function (resolve) {
+        output.write('Simulating stopping station ' + stationID + '. Waiting a random delay...');
         _this3.randomDelay(2000, 6000).then(function () {
+          output.write('Wait finished.');
           var stationState = _this3.state.get(stationID);
           if (stationState && stationState.state === _nagios2.default.HostState.UP) {
             stationState.state = _nagios2.default.HostState.DOWN;
             stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
             stationState.app_state_type = _nagios2.default.StateType.HARD;
             stationState.app_id = '';
+            output.write('Station state set to DOWN.');
           }
         }).then(resolve);
       });
@@ -184,24 +192,29 @@ var TestBackend = function () {
      *
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: 'changeApp',
-    value: function changeApp(stationID, appID) {
+    value: function changeApp(stationID, appID, output) {
       var _this4 = this;
 
       return new Promise(function (resolve, reject) {
+        output.write('Simulating changing app for station ' + stationID + ' to ' + appID + '. Waiting a random delay...');
         _this4.randomDelay(1000, 5000).then(function () {
+          output.write('Wait finished.');
           var stationState = _this4.state.get(stationID);
           var stationCfg = _this4.station_cfg.get(stationID);
 
           if (stationCfg.possible_apps.indexOf(appID) >= 0) {
             stationState.app_id = appID;
+            output.write('App changed.');
           }
         }).then(function () {
           if (appID === 'Sky explorer / Aladin lite') {
+            output.write('Simulating failure when changing app to Sky explorer');
             reject();
           } else {
             resolve();

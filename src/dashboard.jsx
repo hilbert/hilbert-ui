@@ -3,6 +3,7 @@ import Station from './station.jsx';
 import AppSelect from './appSelect.jsx';
 import ButtonFilter from './buttonFilter.jsx';
 import LogViewer from './logViewer.jsx';
+import ConsoleViewer from './consoleViewer.jsx';
 
 // const tmp_log_entries = require('./tmp_log.json').entries;
 
@@ -24,6 +25,7 @@ export default class Dashboard extends React.Component {
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
     this.logViewer = null;
+    this.consoleViewer = null;
     this.updateID = 0;
     this.serverConnectionRetry = 0;
   }
@@ -323,7 +325,9 @@ export default class Dashboard extends React.Component {
 
     if (this.state.serverConnectionError) {
       messageBar = (<div className="message_bar">
-        <div className="message_bar-message"><i className="fa fa-warning"></i>  No connection to server.</div>
+        <div className="message_bar-message">
+          <i className="fa fa-warning"></i>  No connection to server.
+        </div>
       </div>);
     }
 
@@ -459,6 +463,8 @@ export default class Dashboard extends React.Component {
       </div>
     );
 
+    const noTerminalOutputDisable = (selectedCount !== 1 ? ' disabled' : '');
+
     actions.push(
       <div key="showLog" className="action-pane">
         <div className="action-pane-separator" ></div>
@@ -482,6 +488,35 @@ export default class Dashboard extends React.Component {
             ev.preventDefault();
           }}
         >Show log</a>
+        &nbsp;
+        <a
+          className={`btn btn-default${noTerminalOutputDisable}`}
+          href="#"
+          onClick={(ev) => {
+
+            if (this.consoleViewer !== null) {
+              this.consoleViewer.openModal();
+              $.ajax({
+                url: '/api/station_output.json',
+                data: {
+                  stationID: Array.from(this.state.selection)[0],
+                },
+                method: 'get',
+                dataType: 'json',
+                contentType: 'application/json',
+                cache: false,
+                success: (data) => {
+                  this.setState({
+                    title: Array.from(this.state.selection)[0],
+                    lines: data.lines,
+                  });
+                },
+                error: (xhr, status, err) => console.error(status, err.toString()),
+              });
+            }
+            ev.preventDefault();
+          }}
+        >Terminal output</a>
       </div>
     );
 
@@ -505,6 +540,7 @@ export default class Dashboard extends React.Component {
           </div>
         </div>
         <LogViewer log={this.state.log} ref={(c) => { this.logViewer = c; }} />
+        <ConsoleViewer lines={this.state.lines} ref={(c) => { this.consoleViewer = c; }} />
       </div>
     );
   }

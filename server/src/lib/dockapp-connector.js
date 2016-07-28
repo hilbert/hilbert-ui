@@ -23,8 +23,8 @@ export default class DockAppConnector {
   getStationConfig() {
     return new Promise((resolve, reject) => {
       this.execute(`${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`)
-        .then((output) => {
-          resolve(JSON.parse(output));
+        .then((answer) => {
+          resolve(JSON.parse(answer));
         })
         .catch((err) => reject(err));
     });
@@ -33,9 +33,10 @@ export default class DockAppConnector {
   /**
    * Start a station
    * @param {string} stationID - ID of the station
+   * @param {stream} output - Command output should be written here
    * @returns Promise
    */
-  startStation(stationID) {
+  startStation(stationID, output) {
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -44,9 +45,10 @@ export default class DockAppConnector {
   /**
    * Stop a station
    * @param {string} stationID - ID of the station
+   * @param {stream} output - Command output should be written here
    * @returns Promise
    */
-  stopStation(stationID) {
+  stopStation(stationID, output) {
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -56,9 +58,10 @@ export default class DockAppConnector {
    * Change the foreground application running in a station
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
+   * @param {stream} output - Command output should be written here
    * @returns {Promise}
    */
-  changeApp(stationID, appID) {
+  changeApp(stationID, appID, output) {
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -68,35 +71,38 @@ export default class DockAppConnector {
    * Executes a child process
    * @private
    *
-   * @param command
+   * @param {string} command - Command to execute
+   * @param {stream} output - Command output should be written here
    * @returns {Promise}
    * @resolve {String} - stdout output
    * @reject {Error}
    */
-  execute(command) {
+  execute(command, output) {
     return new Promise((resolve, reject) => {
       let stdoutBuf = '';
       let stderrBuf = '';
       const process = exec(command);
       process.stdout.on('data', (data) => {
         stdoutBuf += data;
+        output.write(data);
       });
       process.stderr.on('data', (data) => {
         stderrBuf += data;
+        output.write(data);
       });
       process.on('close', (code, signal) => {
         if (code === 0) {
           resolve(stdoutBuf);
         } else {
           let term = `rc=${code}`;
-          let output = '';
+          let allOutput = '';
           if (signal !== null) {
             term = `${term}, ${signal}`;
           }
           if (stderrBuf.length) {
-            output = `\nstderr: ${stderrBuf}`;
+            allOutput = `\nstderr: ${stderrBuf}`;
           }
-          reject(new Error(`Command '${command}' exited with ${term}.${output}`));
+          reject(new Error(`Command '${command}' exited with ${term}. ${allOutput}`));
         }
       });
     });

@@ -33,21 +33,23 @@ export default class TestDockAppConnector {
   /**
    * Starts a station
    *
-   * @param stationID
+   * @param {string} stationID - ID of the station
+   * @param {stream} output - Command output should be written here
    * @returns {Promise}
    */
-  startStation(stationID) {
-    return this.testBackend.startStation(stationID);
+  startStation(stationID, output) {
+    return this.testBackend.startStation(stationID, output);
   }
 
   /**
    * Stops a station
    *
-   * @param stationID
+   * @param {string} stationID - ID of the station
+   * @param {stream} output - Command output should be written here
    * @returns {Promise}
    */
-  stopStation(stationID) {
-    return this.testBackend.stopStation(stationID);
+  stopStation(stationID, output) {
+    return this.testBackend.stopStation(stationID, output);
   }
 
   /**
@@ -55,10 +57,11 @@ export default class TestDockAppConnector {
    *
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
+   * @param {stream} output - Command output should be written here
    * @returns {Promise}
    */
-  changeApp(stationID, appID) {
-    return this.testBackend.changeApp(stationID, appID);
+  changeApp(stationID, appID, output) {
+    return this.testBackend.changeApp(stationID, appID, output);
   }
 
 }

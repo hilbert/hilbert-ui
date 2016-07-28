@@ -225,7 +225,7 @@ var StationManager = function () {
         var station = _this3.getStationByID(eligibleStation);
         station.status = 'Starting...';
         _this3.signalUpdate();
-        return _this3.dockApp.startStation(station.id).then(function () {
+        return _this3.dockApp.startStation(station.id, station.outputBuffer).then(function () {
           // station.state = Station.ON;
           // station.status = '';
           _this3.log('message', station, 'Station started');
@@ -288,7 +288,7 @@ var StationManager = function () {
         var station = _this4.getStationByID(eligibleStation);
         station.status = 'Stopping...';
         _this4.signalUpdate();
-        return _this4.dockApp.stopStation(station.id).then(function () {
+        return _this4.dockApp.stopStation(station.id, station.outputBuffer).then(function () {
           // station.state = Station.OFF;
           // station.status = '';
           _this4.log('message', station, 'Station stopped');
@@ -352,7 +352,7 @@ var StationManager = function () {
         var station = _this5.getStationByID(eligibleStation);
         station.status = 'Switching to ' + appID + '...';
         _this5.signalUpdate();
-        return _this5.dockApp.changeApp(eligibleStation, appID).then(function () {
+        return _this5.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
           _this5.log('message', station, 'Launched app ' + appID);
         }).catch(function () {
           station.app = appID;

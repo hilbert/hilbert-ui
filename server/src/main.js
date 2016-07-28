@@ -144,6 +144,13 @@ app.post('/stations.json', (req, res) => {
   }
 });
 
+app.get('/station_output.json', (req, res) => {
+  const station = stationManager.getStationByID(req.query.stationID);
+  respondJSON(res, {
+    lines: station.outputBuffer.getAll(),
+  });
+});
+
 app.get('/log.json', (req, res) => {
   respondJSON(res, { entries: stationManager.getLog() });
 });

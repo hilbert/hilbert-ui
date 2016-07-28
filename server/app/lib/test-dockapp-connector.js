@@ -54,27 +54,29 @@ var TestDockAppConnector = function () {
     /**
      * Starts a station
      *
-     * @param stationID
+     * @param {string} stationID - ID of the station
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: "startStation",
-    value: function startStation(stationID) {
-      return this.testBackend.startStation(stationID);
+    value: function startStation(stationID, output) {
+      return this.testBackend.startStation(stationID, output);
     }
 
     /**
      * Stops a station
      *
-     * @param stationID
+     * @param {string} stationID - ID of the station
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: "stopStation",
-    value: function stopStation(stationID) {
-      return this.testBackend.stopStation(stationID);
+    value: function stopStation(stationID, output) {
+      return this.testBackend.stopStation(stationID, output);
     }
 
     /**
@@ -82,13 +84,14 @@ var TestDockAppConnector = function () {
      *
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
+     * @param {stream} output - Command output should be written here
      * @returns {Promise}
      */
 
   }, {
     key: "changeApp",
-    value: function changeApp(stationID, appID) {
-      return this.testBackend.changeApp(stationID, appID);
+    value: function changeApp(stationID, appID, output) {
+      return this.testBackend.changeApp(stationID, appID, output);
     }
   }]);
 
