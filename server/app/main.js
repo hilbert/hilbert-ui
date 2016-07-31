@@ -38,6 +38,7 @@ process.on('uncaughtException', function (err) {
 
 app.use(bodyParser.json());
 
+nconf.env().argv();
 nconf.file('config.json');
 nconf.defaults({
   port: '3000',
@@ -63,6 +64,7 @@ var dockAppConnector = null;
 var mkLivestatusConnector = null;
 
 if (nconf.get('test')) {
+  logger.info('Running in Test Mode');
   var testBackend = new _testBackend2.default(nconf, logger);
   dockAppConnector = testBackend.getDockappConnector();
   mkLivestatusConnector = testBackend.getMKLivestatusConnector();
