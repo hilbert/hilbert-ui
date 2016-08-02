@@ -32,7 +32,19 @@ export default class StationManager {
     this.loadStationConfig().then(() => {
       const pollLoopBody = () => {
         const pollDelay = this.nconf.get('MKLivestatusPollDelay');
+        let consecutiveErrors = 0;
+        const errorDigestSize = 50;
         this.pollMKLivestatus().then(() => {
+          consecutiveErrors = 0;
+          this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+        }).catch((error) => {
+          if (consecutiveErrors % errorDigestSize) {
+            logger.error(error.message);
+            if (consecutiveErrors !== 0) {
+              logger.error(`Repeated polling errors (${errorDigestSize} times)`);
+            }
+          }
+          consecutiveErrors++;
           this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
         });
       };

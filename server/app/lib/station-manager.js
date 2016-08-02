@@ -55,7 +55,19 @@ var StationManager = function () {
     this.loadStationConfig().then(function () {
       var pollLoopBody = function pollLoopBody() {
         var pollDelay = _this.nconf.get('MKLivestatusPollDelay');
+        var consecutiveErrors = 0;
+        var errorDigestSize = 50;
         _this.pollMKLivestatus().then(function () {
+          consecutiveErrors = 0;
+          _this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+        }).catch(function (error) {
+          if (consecutiveErrors % errorDigestSize) {
+            logger.error(error.message);
+            if (consecutiveErrors !== 0) {
+              logger.error('Repeated polling errors (' + errorDigestSize + ' times)');
+            }
+          }
+          consecutiveErrors++;
           _this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
         });
       };

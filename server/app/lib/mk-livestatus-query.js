@@ -15,6 +15,10 @@ var Promise = require("bluebird");
 /**
  * Generates MK Livestatus queries
  *
+ * This class is responsible for formatting the query and parsing
+ * the response, but not with the actual communication. The connector
+ * that handles communication is passed on creation.
+ *
  * http://mathias-kettner.com/checkmk_livestatus.html
  */
 
@@ -28,7 +32,7 @@ var MKLivestatusQuery = function () {
   function MKLivestatusQuery(connector) {
     _classCallCheck(this, MKLivestatusQuery);
 
-    this.dockAppConnector = connector;
+    this.connector = connector;
     this.tableName = null;
     this.queryColumns = [];
     this.queryColumnAliases = null;
@@ -158,45 +162,48 @@ var MKLivestatusQuery = function () {
     value: function execute() {
       var _this = this;
 
-      return this.dockAppConnector.sendCommand(this.toString()).then(function (answer) {
-        return _this.rowsToObjects(JSON.parse(answer));
+      return this.connector.sendCommand(this.toString()).then(function (response) {
+        return _this.parseResponse(response);
       });
     }
 
     /**
-     * Converts an array of row arrays to an array of objects
+     * Parses the response arrays to an array of objects
      * Uses the first row as a list of names.
      * @private
      *
-     * @param rows {Array}
+     * @param response {String}
      * @returns {Array}
      */
 
   }, {
-    key: 'rowsToObjects',
-    value: function rowsToObjects(rows) {
-      if (rows.length < 2) {
-        return rows;
+    key: 'parseResponse',
+    value: function parseResponse(response) {
+
+      var rows = JSON.parse(response);
+
+      if (!rows instanceof Array) {
+        throw new Error('Unable to parse MKLivestatus response: ' + response);
+      }
+
+      if (rows.length < 1) {
+        throw new Error('Empty MKLivestatus response');
       }
 
       var firstRow = rows.slice(0, 1)[0];
       var nameRow = this.queryColumnAliases !== null ? this.queryColumnAliases : firstRow;
 
-      var rest = rows.slice(1);
-      var objects = [];
       var _iteratorNormalCompletion2 = true;
       var _didIteratorError2 = false;
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = rest[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var row = _step2.value;
+        for (var _iterator2 = nameRow[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var columnName = _step2.value;
 
-          var rowObject = {};
-          for (var i = 0; i !== nameRow.length && i < 100; i++) {
-            rowObject[nameRow[i]] = row[i];
+          if (this.queryColumns.indexOf(columnName) === -1) {
+            throw new Error('MKLivestatus response includes unexpected column ' + columnName);
           }
-          objects.push(rowObject);
         }
       } catch (err) {
         _didIteratorError2 = true;
@@ -209,6 +216,64 @@ var MKLivestatusQuery = function () {
         } finally {
           if (_didIteratorError2) {
             throw _iteratorError2;
+          }
+        }
+      }
+
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = this.queryColumns[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var _columnName = _step3.value;
+
+          if (nameRow.indexOf(_columnName) === -1) {
+            throw new Error('MKLivestatus response missing column ' + _columnName);
+          }
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+
+      var rest = rows.slice(1);
+      var objects = [];
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
+
+      try {
+        for (var _iterator4 = rest[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          var row = _step4.value;
+
+          var rowObject = {};
+          for (var i = 0; i !== nameRow.length && i < 100; i++) {
+            rowObject[nameRow[i]] = row[i];
+          }
+          objects.push(rowObject);
+        }
+      } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+            _iterator4.return();
+          }
+        } finally {
+          if (_didIteratorError4) {
+            throw _iteratorError4;
           }
         }
       }

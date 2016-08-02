@@ -2,6 +2,10 @@ const Promise = require("bluebird");
 /**
  * Generates MK Livestatus queries
  *
+ * This class is responsible for formatting the query and parsing
+ * the response, but not with the actual communication. The connector
+ * that handles communication is passed on creation.
+ *
  * http://mathias-kettner.com/checkmk_livestatus.html
  */
 export default class MKLivestatusQuery {
@@ -11,7 +15,7 @@ export default class MKLivestatusQuery {
    * @param {MKLivestatusConnector} connector
    */
   constructor(connector) {
-    this.dockAppConnector = connector;
+    this.connector = connector;
     this.tableName = null;
     this.queryColumns = [];
     this.queryColumnAliases = null;
@@ -99,27 +103,44 @@ export default class MKLivestatusQuery {
    * @reject {Error}
    */
   execute() {
-    return this.dockAppConnector.sendCommand(this.toString()).then((answer) => {
-      return this.rowsToObjects(JSON.parse(answer));
+    return this.connector.sendCommand(this.toString()).then((response) => {
+      return this.parseResponse(response);
     });
   }
 
-
   /**
-   * Converts an array of row arrays to an array of objects
+   * Parses the response arrays to an array of objects
    * Uses the first row as a list of names.
    * @private
    *
-   * @param rows {Array}
+   * @param response {String}
    * @returns {Array}
    */
-  rowsToObjects(rows) {
-    if (rows.length < 2) {
-      return rows;
+  parseResponse(response) {
+
+    const rows = JSON.parse(response)
+
+    if (!rows instanceof Array) {
+      throw new Error(`Unable to parse MKLivestatus response: ${response}`);
+    }
+
+    if (rows.length < 1) {
+      throw new Error('Empty MKLivestatus response');
     }
 
     const firstRow = rows.slice(0, 1)[0];
     const nameRow = this.queryColumnAliases !== null ? this.queryColumnAliases : firstRow;
+
+    for (const columnName of nameRow) {
+      if (this.queryColumns.indexOf(columnName) === -1) {
+        throw new Error(`MKLivestatus response includes unexpected column ${columnName}`);
+      }
+    }
+    for (const columnName of this.queryColumns) {
+      if (nameRow.indexOf(columnName) === -1) {
+        throw new Error(`MKLivestatus response missing column ${columnName}`);
+      }
+    }
 
     const rest = rows.slice(1);
     const objects = [];
