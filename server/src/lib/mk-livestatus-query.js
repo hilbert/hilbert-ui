@@ -1,4 +1,3 @@
-const Promise = require("bluebird");
 /**
  * Generates MK Livestatus queries
  *
@@ -103,9 +102,9 @@ export default class MKLivestatusQuery {
    * @reject {Error}
    */
   execute() {
-    return this.connector.sendCommand(this.toString()).then((response) => {
-      return this.parseResponse(response);
-    });
+    return this.connector
+      .sendCommand(this.toString())
+      .then((response) => this.parseResponse(response));
   }
 
   /**
@@ -117,8 +116,7 @@ export default class MKLivestatusQuery {
    * @returns {Array}
    */
   parseResponse(response) {
-
-    const rows = JSON.parse(response)
+    const rows = JSON.parse(response);
 
     if (!rows instanceof Array) {
       throw new Error(`Unable to parse MKLivestatus response: ${response}`);
@@ -133,12 +131,14 @@ export default class MKLivestatusQuery {
 
     for (const columnName of nameRow) {
       if (this.queryColumns.indexOf(columnName) === -1) {
-        throw new Error(`MKLivestatus response includes unexpected column ${columnName}`);
+        throw new Error(
+          `MKLivestatus response includes unexpected column ${columnName} (${nameRow})`
+        );
       }
     }
     for (const columnName of this.queryColumns) {
       if (nameRow.indexOf(columnName) === -1) {
-        throw new Error(`MKLivestatus response missing column ${columnName}`);
+        throw new Error(`MKLivestatus response missing column ${columnName} (${nameRow})`);
       }
     }
 

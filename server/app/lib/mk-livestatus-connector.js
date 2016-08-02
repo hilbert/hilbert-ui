@@ -196,7 +196,6 @@ var MKLivestatusConnector = function () {
 
     /**
      * Sends a query command to MKLivestatus
-     * @private
      *
      * @param {String} queryString
      * @returns {Promise}

@@ -28,7 +28,6 @@ export default class StationManager {
     this.logEntries = [];
     this.lastLogID = 1;
 
-    this.mkLivestatusPollTimer = null;
     this.loadStationConfig().then(() => {
       const pollLoopBody = () => {
         const pollDelay = this.nconf.get('MKLivestatusPollDelay');
@@ -36,7 +35,7 @@ export default class StationManager {
         const errorDigestSize = 50;
         this.pollMKLivestatus().then(() => {
           consecutiveErrors = 0;
-          this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+          setTimeout(pollLoopBody, pollDelay);
         }).catch((error) => {
           if (consecutiveErrors % errorDigestSize) {
             logger.error(error.message);
@@ -45,7 +44,7 @@ export default class StationManager {
             }
           }
           consecutiveErrors++;
-          this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+          setTimeout(pollLoopBody, pollDelay);
         });
       };
       pollLoopBody();

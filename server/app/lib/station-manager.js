@@ -51,7 +51,6 @@ var StationManager = function () {
     this.logEntries = [];
     this.lastLogID = 1;
 
-    this.mkLivestatusPollTimer = null;
     this.loadStationConfig().then(function () {
       var pollLoopBody = function pollLoopBody() {
         var pollDelay = _this.nconf.get('MKLivestatusPollDelay');
@@ -59,7 +58,7 @@ var StationManager = function () {
         var errorDigestSize = 50;
         _this.pollMKLivestatus().then(function () {
           consecutiveErrors = 0;
-          _this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+          setTimeout(pollLoopBody, pollDelay);
         }).catch(function (error) {
           if (consecutiveErrors % errorDigestSize) {
             logger.error(error.message);
@@ -68,7 +67,7 @@ var StationManager = function () {
             }
           }
           consecutiveErrors++;
-          _this.mkLivestatusPollTimer = setTimeout(pollLoopBody, pollDelay);
+          setTimeout(pollLoopBody, pollDelay);
         });
       };
       pollLoopBody();

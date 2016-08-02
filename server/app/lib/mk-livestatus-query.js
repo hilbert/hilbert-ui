@@ -11,7 +11,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Promise = require("bluebird");
 /**
  * Generates MK Livestatus queries
  *
@@ -179,7 +178,6 @@ var MKLivestatusQuery = function () {
   }, {
     key: 'parseResponse',
     value: function parseResponse(response) {
-
       var rows = JSON.parse(response);
 
       if (!rows instanceof Array) {
@@ -202,7 +200,7 @@ var MKLivestatusQuery = function () {
           var columnName = _step2.value;
 
           if (this.queryColumns.indexOf(columnName) === -1) {
-            throw new Error('MKLivestatus response includes unexpected column ' + columnName);
+            throw new Error('MKLivestatus response includes unexpected column ' + columnName + ' (' + nameRow + ')');
           }
         }
       } catch (err) {
@@ -229,7 +227,7 @@ var MKLivestatusQuery = function () {
           var _columnName = _step3.value;
 
           if (nameRow.indexOf(_columnName) === -1) {
-            throw new Error('MKLivestatus response missing column ' + _columnName);
+            throw new Error('MKLivestatus response missing column ' + _columnName + ' (' + nameRow + ')');
           }
         }
       } catch (err) {
