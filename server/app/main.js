@@ -74,6 +74,10 @@ if (nconf.get('test')) {
 }
 
 var stationManager = new _stationManager2.default(nconf, logger, dockAppConnector, mkLivestatusConnector);
+stationManager.init().then(function () {}).catch(function (error) {
+  logger.error(error.message);
+  process.exit(1);
+});
 
 /**
  * Return the URL of the icon of the specified app

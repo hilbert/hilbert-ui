@@ -44,7 +44,14 @@ var DockAppConnector = function () {
 
       return new Promise(function (resolve, reject) {
         _this.execute(DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path')).then(function (answer) {
-          resolve(JSON.parse(answer));
+          var stationCfg = JSON.parse(answer);
+          if (!stationCfg instanceof Array) {
+            throw new Error('Dockapp returned an invalid station config: ' + answer);
+          }
+          if (stationCfg.length === 0) {
+            throw new Error('Dockapp returned an empty station config.');
+          }
+          resolve(stationCfg);
         }).catch(function (err) {
           return reject(err);
         });

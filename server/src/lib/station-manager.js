@@ -27,8 +27,15 @@ export default class StationManager {
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
+  }
 
-    this.loadStationConfig().then(() => {
+  /**
+   * Reads the station configuration and begins polling station status
+   *
+   * @return {Promise}
+   */
+  init() {
+    return this.loadStationConfig().then(() => {
       const pollLoopBody = () => {
         const pollDelay = this.nconf.get('MKLivestatusPollDelay');
         let consecutiveErrors = 0;
@@ -38,9 +45,9 @@ export default class StationManager {
           setTimeout(pollLoopBody, pollDelay);
         }).catch((error) => {
           if (consecutiveErrors % errorDigestSize) {
-            logger.error(error.message);
+            this.logger.error(error.message);
             if (consecutiveErrors !== 0) {
-              logger.error(`Repeated polling errors (${errorDigestSize} times)`);
+              this.logger.error(`Repeated polling errors (${errorDigestSize} times)`);
             }
           }
           consecutiveErrors++;
@@ -68,8 +75,6 @@ export default class StationManager {
         this.addStation(new Station(stationCFG));
       }
       this.signalUpdate();
-    }).catch((error) => {
-      this.logger.error(error);
     });
   }
 

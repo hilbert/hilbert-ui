@@ -24,7 +24,14 @@ export default class DockAppConnector {
     return new Promise((resolve, reject) => {
       this.execute(`${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`)
         .then((answer) => {
-          resolve(JSON.parse(answer));
+          const stationCfg = JSON.parse(answer);
+          if (!stationCfg instanceof Array) {
+            throw new Error(`Dockapp returned an invalid station config: ${answer}`);
+          }
+          if (stationCfg.length === 0) {
+            throw new Error('Dockapp returned an empty station config.');
+          }
+          resolve(stationCfg);
         })
         .catch((err) => reject(err));
     });

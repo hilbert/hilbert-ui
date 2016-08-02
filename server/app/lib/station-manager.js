@@ -37,8 +37,6 @@ var StationManager = function () {
    */
 
   function StationManager(nconf, logger, dockApp, mkLivestatus) {
-    var _this = this;
-
     _classCallCheck(this, StationManager);
 
     this.nconf = nconf;
@@ -50,41 +48,53 @@ var StationManager = function () {
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
-
-    this.loadStationConfig().then(function () {
-      var pollLoopBody = function pollLoopBody() {
-        var pollDelay = _this.nconf.get('MKLivestatusPollDelay');
-        var consecutiveErrors = 0;
-        var errorDigestSize = 50;
-        _this.pollMKLivestatus().then(function () {
-          consecutiveErrors = 0;
-          setTimeout(pollLoopBody, pollDelay);
-        }).catch(function (error) {
-          if (consecutiveErrors % errorDigestSize) {
-            logger.error(error.message);
-            if (consecutiveErrors !== 0) {
-              logger.error('Repeated polling errors (' + errorDigestSize + ' times)');
-            }
-          }
-          consecutiveErrors++;
-          setTimeout(pollLoopBody, pollDelay);
-        });
-      };
-      pollLoopBody();
-    });
   }
 
   /**
-   * Loads the station configuration.
+   * Reads the station configuration and begins polling station status
    *
-   * If the configuration was already loaded this method clears it
-   * and reloads everything
-   *
-   * @returns {Promise}
+   * @return {Promise}
    */
 
 
   _createClass(StationManager, [{
+    key: 'init',
+    value: function init() {
+      var _this = this;
+
+      return this.loadStationConfig().then(function () {
+        var pollLoopBody = function pollLoopBody() {
+          var pollDelay = _this.nconf.get('MKLivestatusPollDelay');
+          var consecutiveErrors = 0;
+          var errorDigestSize = 50;
+          _this.pollMKLivestatus().then(function () {
+            consecutiveErrors = 0;
+            setTimeout(pollLoopBody, pollDelay);
+          }).catch(function (error) {
+            if (consecutiveErrors % errorDigestSize) {
+              _this.logger.error(error.message);
+              if (consecutiveErrors !== 0) {
+                _this.logger.error('Repeated polling errors (' + errorDigestSize + ' times)');
+              }
+            }
+            consecutiveErrors++;
+            setTimeout(pollLoopBody, pollDelay);
+          });
+        };
+        pollLoopBody();
+      });
+    }
+
+    /**
+     * Loads the station configuration.
+     *
+     * If the configuration was already loaded this method clears it
+     * and reloads everything
+     *
+     * @returns {Promise}
+     */
+
+  }, {
     key: 'loadStationConfig',
     value: function loadStationConfig() {
       var _this2 = this;
@@ -119,8 +129,6 @@ var StationManager = function () {
         }
 
         _this2.signalUpdate();
-      }).catch(function (error) {
-        _this2.logger.error(error);
       });
     }
 
