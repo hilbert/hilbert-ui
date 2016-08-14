@@ -115,7 +115,7 @@ export default class MKLivestatusConnector {
    */
   sendCommand(queryString) {
     return new Promise((resolve) => {
-      const process = exec('ssh elondaits@supernova.mfo.de "nc localhost 6557"');
+      const process = exec(this.nconf.get('mkls_cmd'));
 
       let stdoutBuf = '';
 
@@ -133,10 +133,12 @@ export default class MKLivestatusConnector {
     });
   }
 }
-//
-// const dockAppConnector = new MKLivestatusConnector();
-// console.log('Querying');
-// dockAppConnector.getState().then((state) => {
-//   console.log(state);
-// });
 
+// When executed directly it performs a query
+if (require.main === module) {
+  const mkLivestatusConnector = new MKLivestatusConnector();
+  console.log('Querying');
+  mkLivestatusConnector.getState().then((state) => {
+    console.log(state);
+  });
+}

@@ -206,8 +206,10 @@ var MKLivestatusConnector = function () {
   }, {
     key: 'sendCommand',
     value: function sendCommand(queryString) {
+      var _this2 = this;
+
       return new Promise(function (resolve) {
-        var process = (0, _child_process.exec)('ssh elondaits@supernova.mfo.de "nc localhost 6557"');
+        var process = (0, _child_process.exec)(_this2.nconf.get('mkls_cmd'));
 
         var stdoutBuf = '';
 
@@ -228,13 +230,16 @@ var MKLivestatusConnector = function () {
 
   return MKLivestatusConnector;
 }();
-//
-// const dockAppConnector = new MKLivestatusConnector();
-// console.log('Querying');
-// dockAppConnector.getState().then((state) => {
-//   console.log(state);
-// });
+
+// When executed directly it performs a query
 
 
 exports.default = MKLivestatusConnector;
+if (require.main === module) {
+  var mkLivestatusConnector = new MKLivestatusConnector();
+  console.log('Querying');
+  mkLivestatusConnector.getState().then(function (state) {
+    console.log(state);
+  });
+}
 //# sourceMappingURL=mk-livestatus-connector.js.map

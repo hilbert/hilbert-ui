@@ -37,7 +37,7 @@ export default class StationManager {
   init() {
     return this.loadStationConfig().then(() => {
       const pollLoopBody = () => {
-        const pollDelay = this.nconf.get('MKLivestatusPollDelay');
+        const pollDelay = this.nconf.get('mkls_poll_delay');
         let consecutiveErrors = 0;
         const errorDigestSize = 50;
         this.pollMKLivestatus().then(() => {

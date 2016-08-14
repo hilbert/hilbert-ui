@@ -30,7 +30,8 @@ nconf.defaults({
   max_log_length: 100,
   log_directory: './log',
   log_level: 'info', // error, warn, info, verbose, debug, silly
-  MKLivestatusPollDelay: 1000,
+  mkls_poll_delay: 1000,
+  mkls_cmd: 'nc localhost 6557',
 });
 
 logger.add(logger.transports.File, {

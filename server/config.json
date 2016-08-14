@@ -1,5 +1,6 @@
 {
   "test": true,
   "port": "3000",
-  "dockapp_path": "../work/dockapp"
+  "dockapp_path": "../work/dockapp",
+  "mkls_cmd": "ssh ur@supernova.mfo.de \"nc localhost 6557\""
 }

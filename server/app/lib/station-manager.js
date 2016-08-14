@@ -64,7 +64,7 @@ var StationManager = function () {
 
       return this.loadStationConfig().then(function () {
         var pollLoopBody = function pollLoopBody() {
-          var pollDelay = _this.nconf.get('MKLivestatusPollDelay');
+          var pollDelay = _this.nconf.get('mkls_poll_delay');
           var consecutiveErrors = 0;
           var errorDigestSize = 50;
           _this.pollMKLivestatus().then(function () {
