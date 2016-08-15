@@ -1,6 +1,6 @@
 const Writable = require('stream').Writable;
 
-export default class StationOutputBuffer extends Writable {
+export default class TerminalOutputBuffer extends Writable {
 
   constructor(options) {
     super(options);
@@ -21,8 +21,8 @@ export default class StationOutputBuffer extends Writable {
       data: chunk.toString(),
     });
 
-    if (this.lines.length > StationOutputBuffer.DEFAULT_MAX_LINES) {
-      this.lines.splice(0, this.lines.length - StationOutputBuffer.DEFAULT_MAX_LINES);
+    if (this.lines.length > TerminalOutputBuffer.DEFAULT_MAX_LINES) {
+      this.lines.splice(0, this.lines.length - TerminalOutputBuffer.DEFAULT_MAX_LINES);
     }
     callback();
   }
@@ -52,4 +52,4 @@ export default class StationOutputBuffer extends Writable {
   }
 }
 
-StationOutputBuffer.DEFAULT_MAX_LINES = 80;
+TerminalOutputBuffer.DEFAULT_MAX_LINES = 80;

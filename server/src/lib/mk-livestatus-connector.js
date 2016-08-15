@@ -25,9 +25,11 @@ export default class MKLivestatusConnector {
    * @resolve {Array}
    */
   getState() {
+    this.logger.debug('MKLivestatus: Querying');
     const state = new Map();
     return this.getStationState()
       .then((stations) => {
+        this.logger.debug('MKLivestatus: host state response received. Updating stations.');
         for (const station of stations) {
           if (station.hasOwnProperty('id')) {
             state.set(station.id, station);
@@ -36,6 +38,7 @@ export default class MKLivestatusConnector {
         return this.getForegroundApps();
       })
       .then((stations) => {
+        this.logger.debug('MKLivestatus: app state response received. Updating stations.');
         for (const station of stations) {
           if (station.hasOwnProperty('id') &&
               state.has(station.id)) {
@@ -47,6 +50,10 @@ export default class MKLivestatusConnector {
         }
 
         return state.values();
+      })
+      .catch((err) => {
+        this.logger.error(`MKLivestatus: Error querying '${err.message}'`);
+        throw err;
       });
   }
 
@@ -61,6 +68,7 @@ export default class MKLivestatusConnector {
    * @reject {Error}
    */
   getStationState() {
+    this.logger.debug('MKLivestatus: Querying host state');
     return this.query()
       .get('hosts')
       .columns(['name', 'state', 'state_type'])
@@ -77,6 +85,7 @@ export default class MKLivestatusConnector {
    * @returns {Promise}
    */
   getForegroundApps() {
+    this.logger.debug('MKLivestatus: Querying app state');
     return this.query()
       .get('services')
       .columns(['host_name', 'state', 'state_type', 'plugin_output'])
@@ -115,18 +124,22 @@ export default class MKLivestatusConnector {
    */
   sendCommand(queryString) {
     return new Promise((resolve) => {
-      const process = exec(this.nconf.get('mkls_cmd'));
+      const MKLivestatusCommand = this.nconf.get('mkls_cmd');
+      this.logger.debug(`MKLivestatus: executing query through '${MKLivestatusCommand}'`);
+      this.logger.debug(`sending query '${queryString}'`);
+      const process = exec(MKLivestatusCommand);
 
       let stdoutBuf = '';
 
       process.stdout.on('data', (data) => {
         stdoutBuf += data;
       }).on('end', () => {
+        this.logger.debug(`MKLivestatus stdout: '${stdoutBuf}'`);
         resolve(stdoutBuf);
       });
 
       process.stderr.on('data', (data) => {
-        console.error(data);
+        this.logger.error(`MKLivestatus stderr: ${data}`);
       });
 
       process.stdin.end(`${queryString}\n\n`);

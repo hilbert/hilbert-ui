@@ -20,9 +20,11 @@ export default class DockAppConnector {
    * @resolve {Array} - List of stations
    * @reject {Error}
    */
-  getStationConfig() {
+  getStationConfig(output) {
+    this.logger.debug('DockApp: Getting station config');
     return new Promise((resolve, reject) => {
-      this.execute(`${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`)
+      const cmd = `${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`;
+      this.execute(cmd, output)
         .then((answer) => {
           const stationCfg = JSON.parse(answer);
           if (!stationCfg instanceof Array) {
@@ -33,7 +35,10 @@ export default class DockAppConnector {
           }
           resolve(stationCfg);
         })
-        .catch((err) => reject(err));
+        .catch((err) => {
+          this.logger.error(`DockApp: Error getting station config '${err.message}'`);
+          reject(err);
+        });
     });
   }
 
@@ -44,8 +49,18 @@ export default class DockAppConnector {
    * @returns Promise
    */
   startStation(stationID, output) {
+    this.logger.debug(`DockApp: Starting station ${stationID}`);
     return new Promise((resolve, reject) => {
-      resolve();
+      const cmd =
+        `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_START_STATION}`;
+      this.execute(`${cmd} ${stationID}`, output)
+        .then(() => {
+          resolve();
+        })
+        .catch((err) => {
+          this.logger.error(`DockApp: Error starting station ${stationID}, '${err.message}'`);
+          reject(err);
+        });
     });
   }
 
@@ -56,8 +71,18 @@ export default class DockAppConnector {
    * @returns Promise
    */
   stopStation(stationID, output) {
+    this.logger.debug(`DockApp: Stopping station ${stationID}`);
     return new Promise((resolve, reject) => {
-      resolve();
+      const cmd =
+        `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION}`;
+      this.execute(`${cmd} ${stationID}`, output)
+        .then(() => {
+          resolve();
+        })
+        .catch((err) => {
+          this.logger.error(`DockApp: Error stopping station ${stationID}, '${err.message}'`);
+          reject(err);
+        });
     });
   }
 
@@ -69,8 +94,19 @@ export default class DockAppConnector {
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {
+    this.logger.debug(`DockApp: Changing app of station ${stationID} to ${appID}`);
     return new Promise((resolve, reject) => {
-      resolve();
+      const cmd =
+        `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP}`;
+      this.execute(`${cmd} ${stationID} ${appID}`, output)
+        .then(() => {
+          resolve();
+        })
+        .catch((err) => {
+          this.logger.error(
+            `DockApp: Error changing station ${stationID} to app ${appID}, '${err.message}'`);
+          reject(err);
+        });
     });
   }
 
@@ -87,33 +123,38 @@ export default class DockAppConnector {
   execute(command, output) {
     return new Promise((resolve, reject) => {
       let stdoutBuf = '';
-      let stderrBuf = '';
+      let alloutBuf = '';
+      this.logger.debug(`Executing '${command}'`);
       const process = exec(command);
       process.stdout.on('data', (data) => {
         stdoutBuf += data;
+        alloutBuf += data;
         output.write(data);
       });
       process.stderr.on('data', (data) => {
-        stderrBuf += data;
+        alloutBuf += data;
         output.write(data);
       });
       process.on('close', (code, signal) => {
         if (code === 0) {
+          this.logger.debug(`Execution of ${command} finished with code 0 (success).`);
           resolve(stdoutBuf);
         } else {
           let term = `rc=${code}`;
-          let allOutput = '';
           if (signal !== null) {
             term = `${term}, ${signal}`;
           }
-          if (stderrBuf.length) {
-            allOutput = `\nstderr: ${stderrBuf}`;
-          }
-          reject(new Error(`Command '${command}' exited with ${term}. ${allOutput}`));
+          this.logger.error(`Execution of ${command} finished with ${term}.`);
+          this.logger.debug('Output:');
+          this.logger.debug(alloutBuf);
+          reject(new Error(`Command '${command}' exited with ${term}. ${alloutBuf}`));
         }
       });
     });
   }
 }
 
-DockAppConnector.SCRIPT_LIST_STATIONS = 'scripts/list_stations.sh';
+DockAppConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
+DockAppConnector.DOCKAPP_SCRIPT_START_STATION = 'mng/start.sh';
+DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION = 'mng/shutdown.sh';
+DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP = 'mng/topswitch.sh';

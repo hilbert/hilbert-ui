@@ -53,8 +53,10 @@ var MKLivestatusConnector = function () {
     value: function getState() {
       var _this = this;
 
+      this.logger.debug('MKLivestatus: Querying');
       var state = new Map();
       return this.getStationState().then(function (stations) {
+        _this.logger.debug('MKLivestatus: host state response received. Updating stations.');
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -84,6 +86,7 @@ var MKLivestatusConnector = function () {
 
         return _this.getForegroundApps();
       }).then(function (stations) {
+        _this.logger.debug('MKLivestatus: app state response received. Updating stations.');
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
         var _iteratorError2 = undefined;
@@ -115,6 +118,9 @@ var MKLivestatusConnector = function () {
         }
 
         return state.values();
+      }).catch(function (err) {
+        _this.logger.error('MKLivestatus: Error querying \'' + err.message + '\'');
+        throw err;
       });
     }
 
@@ -132,6 +138,7 @@ var MKLivestatusConnector = function () {
   }, {
     key: 'getStationState',
     value: function getStationState() {
+      this.logger.debug('MKLivestatus: Querying host state');
       return this.query().get('hosts').columns(['name', 'state', 'state_type']).asColumns(['id', 'state', 'state_type']).execute();
     }
 
@@ -147,6 +154,7 @@ var MKLivestatusConnector = function () {
   }, {
     key: 'getForegroundApps',
     value: function getForegroundApps() {
+      this.logger.debug('MKLivestatus: Querying app state');
       return this.query().get('services').columns(['host_name', 'state', 'state_type', 'plugin_output']).asColumns(['id', 'app_state', 'app_state_type', 'app_id']).filter('description = dockapp_top1').execute().then(function (stations) {
         var _iteratorNormalCompletion3 = true;
         var _didIteratorError3 = false;
@@ -209,18 +217,22 @@ var MKLivestatusConnector = function () {
       var _this2 = this;
 
       return new Promise(function (resolve) {
-        var process = (0, _child_process.exec)(_this2.nconf.get('mkls_cmd'));
+        var MKLivestatusCommand = _this2.nconf.get('mkls_cmd');
+        _this2.logger.debug('MKLivestatus: executing query through \'' + MKLivestatusCommand + '\'');
+        _this2.logger.debug('sending query \'' + queryString + '\'');
+        var process = (0, _child_process.exec)(MKLivestatusCommand);
 
         var stdoutBuf = '';
 
         process.stdout.on('data', function (data) {
           stdoutBuf += data;
         }).on('end', function () {
+          _this2.logger.debug('MKLivestatus stdout: \'' + stdoutBuf + '\'');
           resolve(stdoutBuf);
         });
 
         process.stderr.on('data', function (data) {
-          console.error(data);
+          _this2.logger.error('MKLivestatus stderr: ' + data);
         });
 
         process.stdin.end(queryString + '\n\n');

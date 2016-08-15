@@ -1,4 +1,4 @@
-import StationOutputBuffer from './station-output-buffer';
+import TerminalOutputBuffer from './terminal-output-buffer';
 import Nagios from './nagios';
 
 export default class Station {
@@ -23,7 +23,7 @@ export default class Station {
     this.status = '';
     this.app = this.default_app;
     this.switching_app = '';
-    this.outputBuffer = new StationOutputBuffer();
+    this.outputBuffer = new TerminalOutputBuffer();
   }
 
   /**

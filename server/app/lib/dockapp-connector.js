@@ -39,11 +39,13 @@ var DockAppConnector = function () {
 
   _createClass(DockAppConnector, [{
     key: 'getStationConfig',
-    value: function getStationConfig() {
+    value: function getStationConfig(output) {
       var _this = this;
 
+      this.logger.debug('DockApp: Getting station config');
       return new Promise(function (resolve, reject) {
-        _this.execute(DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path')).then(function (answer) {
+        var cmd = DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path');
+        _this.execute(cmd, output).then(function (answer) {
           var stationCfg = JSON.parse(answer);
           if (!stationCfg instanceof Array) {
             throw new Error('Dockapp returned an invalid station config: ' + answer);
@@ -53,7 +55,8 @@ var DockAppConnector = function () {
           }
           resolve(stationCfg);
         }).catch(function (err) {
-          return reject(err);
+          _this.logger.error('DockApp: Error getting station config \'' + err.message + '\'');
+          reject(err);
         });
       });
     }
@@ -68,8 +71,17 @@ var DockAppConnector = function () {
   }, {
     key: 'startStation',
     value: function startStation(stationID, output) {
+      var _this2 = this;
+
+      this.logger.debug('DockApp: Starting station ' + stationID);
       return new Promise(function (resolve, reject) {
-        resolve();
+        var cmd = _this2.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_START_STATION;
+        _this2.execute(cmd + ' ' + stationID, output).then(function () {
+          resolve();
+        }).catch(function (err) {
+          _this2.logger.error('DockApp: Error starting station ' + stationID + ', \'' + err.message + '\'');
+          reject(err);
+        });
       });
     }
 
@@ -83,8 +95,17 @@ var DockAppConnector = function () {
   }, {
     key: 'stopStation',
     value: function stopStation(stationID, output) {
+      var _this3 = this;
+
+      this.logger.debug('DockApp: Stopping station ' + stationID);
       return new Promise(function (resolve, reject) {
-        resolve();
+        var cmd = _this3.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION;
+        _this3.execute(cmd + ' ' + stationID, output).then(function () {
+          resolve();
+        }).catch(function (err) {
+          _this3.logger.error('DockApp: Error stopping station ' + stationID + ', \'' + err.message + '\'');
+          reject(err);
+        });
       });
     }
 
@@ -99,8 +120,17 @@ var DockAppConnector = function () {
   }, {
     key: 'changeApp',
     value: function changeApp(stationID, appID, output) {
+      var _this4 = this;
+
+      this.logger.debug('DockApp: Changing app of station ' + stationID + ' to ' + appID);
       return new Promise(function (resolve, reject) {
-        resolve();
+        var cmd = _this4.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP;
+        _this4.execute(cmd + ' ' + stationID + ' ' + appID, output).then(function () {
+          resolve();
+        }).catch(function (err) {
+          _this4.logger.error('DockApp: Error changing station ' + stationID + ' to app ' + appID + ', \'' + err.message + '\'');
+          reject(err);
+        });
       });
     }
 
@@ -118,31 +148,35 @@ var DockAppConnector = function () {
   }, {
     key: 'execute',
     value: function execute(command, output) {
+      var _this5 = this;
+
       return new Promise(function (resolve, reject) {
         var stdoutBuf = '';
-        var stderrBuf = '';
+        var alloutBuf = '';
+        _this5.logger.debug('Executing \'' + command + '\'');
         var process = exec(command);
         process.stdout.on('data', function (data) {
           stdoutBuf += data;
+          alloutBuf += data;
           output.write(data);
         });
         process.stderr.on('data', function (data) {
-          stderrBuf += data;
+          alloutBuf += data;
           output.write(data);
         });
         process.on('close', function (code, signal) {
           if (code === 0) {
+            _this5.logger.debug('Execution of ' + command + ' finished with code 0 (success).');
             resolve(stdoutBuf);
           } else {
             var term = 'rc=' + code;
-            var allOutput = '';
             if (signal !== null) {
               term = term + ', ' + signal;
             }
-            if (stderrBuf.length) {
-              allOutput = '\nstderr: ' + stderrBuf;
-            }
-            reject(new Error('Command \'' + command + '\' exited with ' + term + '. ' + allOutput));
+            _this5.logger.error('Execution of ' + command + ' finished with ' + term + '.');
+            _this5.logger.debug('Output:');
+            _this5.logger.debug(alloutBuf);
+            reject(new Error('Command \'' + command + '\' exited with ' + term + '. ' + alloutBuf));
           }
         });
       });
@@ -155,5 +189,8 @@ var DockAppConnector = function () {
 exports.default = DockAppConnector;
 
 
-DockAppConnector.SCRIPT_LIST_STATIONS = 'scripts/list_stations.sh';
+DockAppConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
+DockAppConnector.DOCKAPP_SCRIPT_START_STATION = 'mng/start.sh';
+DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION = 'mng/shutdown.sh';
+DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP = 'mng/topswitch.sh';
 //# sourceMappingURL=dockapp-connector.js.map

@@ -13,6 +13,10 @@ var _station = require('./station');
 
 var _station2 = _interopRequireDefault(_station);
 
+var _terminalOutputBuffer = require('./terminal-output-buffer');
+
+var _terminalOutputBuffer2 = _interopRequireDefault(_terminalOutputBuffer);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -48,6 +52,10 @@ var StationManager = function () {
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
+
+    this.globalDockAppOutputBuffer = new _terminalOutputBuffer2.default();
+
+    this.clearStations();
   }
 
   /**
@@ -70,9 +78,8 @@ var StationManager = function () {
           _this.pollMKLivestatus().then(function () {
             consecutiveErrors = 0;
             setTimeout(pollLoopBody, pollDelay);
-          }).catch(function (error) {
+          }).catch(function () {
             if (consecutiveErrors % errorDigestSize) {
-              _this.logger.error(error.message);
               if (consecutiveErrors !== 0) {
                 _this.logger.error('Repeated polling errors (' + errorDigestSize + ' times)');
               }
@@ -102,7 +109,7 @@ var StationManager = function () {
       this.clearStations();
       this.signalUpdate();
 
-      return this.dockApp.getStationConfig().then(function (stationsCFG) {
+      return this.dockApp.getStationConfig(this.globalDockAppOutputBuffer).then(function (stationsCFG) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -241,14 +248,17 @@ var StationManager = function () {
       this.signalUpdate();
 
       return Promise.map(eligibleStations, function (eligibleStation) {
+        _this3.logger.debug('Station manager: Starting station ' + eligibleStation);
         var station = _this3.getStationByID(eligibleStation);
         station.status = 'Starting...';
         _this3.signalUpdate();
         return _this3.dockApp.startStation(station.id, station.outputBuffer).then(function () {
           // station.state = Station.ON;
           // station.status = '';
+          _this3.logger.debug('Station manager: Station ' + eligibleStation + ' started');
           _this3.log('message', station, 'Station started');
         }).catch(function () {
+          _this3.logger.debug('Station manager: Station ' + eligibleStation + ' failed to start');
           station.state = _station2.default.ERROR;
           station.status = 'Failure starting the station';
           _this3.log('error', station, 'Error starting station');
@@ -304,14 +314,17 @@ var StationManager = function () {
       this.signalUpdate();
 
       return Promise.map(eligibleStations, function (eligibleStation) {
+        _this4.logger.debug('Station manager: Stopping station ' + eligibleStation);
         var station = _this4.getStationByID(eligibleStation);
         station.status = 'Stopping...';
         _this4.signalUpdate();
         return _this4.dockApp.stopStation(station.id, station.outputBuffer).then(function () {
           // station.state = Station.OFF;
           // station.status = '';
+          _this4.logger.debug('Station manager: Station ' + eligibleStation + ' stopped');
           _this4.log('message', station, 'Station stopped');
         }).catch(function () {
+          _this4.logger.debug('Station manager: Station ' + eligibleStation + ' failed to stop');
           station.state = _station2.default.ERROR;
           station.status = 'Failure stopping the station';
           _this4.log('error', station, 'Error stopping station');
@@ -324,7 +337,7 @@ var StationManager = function () {
     /**
      * Change the application running in indicated stations
      *
-     * @param {iterable} stationIDs - IDs of stations in which to change the appID
+     * @param {Iterable} stationIDs - IDs of stations in which to change the appID
      * @param {string} appID - Name of the appID to run
      */
 
@@ -368,12 +381,15 @@ var StationManager = function () {
       this.signalUpdate();
 
       return Promise.map(eligibleStations, function (eligibleStation) {
+        _this5.logger.debug('Station manager: Changing app of station ' + eligibleStation + ' to ' + appID);
         var station = _this5.getStationByID(eligibleStation);
         station.status = 'Switching to ' + appID + '...';
         _this5.signalUpdate();
         return _this5.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
+          _this5.logger.debug('Station manager: Changed app of station ' + eligibleStation + ' to ' + appID);
           _this5.log('message', station, 'Launched app ' + appID);
         }).catch(function () {
+          _this5.logger.debug('Station manager: Failed changing app of station ' + eligibleStation + ' to ' + appID);
           station.app = appID;
           station.state = _station2.default.ERROR;
           station.status = 'Failure launching app';

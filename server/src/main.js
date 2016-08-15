@@ -13,11 +13,6 @@ import TestBackend from './lib/test-backend';
 
 const iconmap = require('../iconmap.json');
 
-process.on('uncaughtException', (err) => {
-  console.log(err);
-  process.exitCode = 1;
-});
-
 app.use(bodyParser.json());
 
 nconf.env().argv();
@@ -41,6 +36,11 @@ logger.add(logger.transports.File, {
   json: false,
 });
 
+process.on('uncaughtException', (err) => {
+  logger.error(`Uncaught exception: ${err.message}. Exiting process.`);
+  process.exitCode = 1;
+});
+
 logger.info(`Starting dockapp_dashboard server (v${appPackage.version})`);
 
 let dockAppConnector = null;
@@ -59,8 +59,8 @@ if (nconf.get('test')) {
 const stationManager = new StationManager(nconf, logger, dockAppConnector, mkLivestatusConnector);
 stationManager.init().then(() => {
 
-}).catch((error) => {
-  logger.error(error.message);
+}).catch((err) => {
+  logger.error(`Error initializing Station Manager: ${err.message}. Exiting process.`);
   process.exit(1);
 });
 
@@ -138,21 +138,27 @@ app.get('/stations.json', (req, res) => {
 
 app.post('/stations.json', (req, res) => {
   if (req.body.action === 'start') {
+    logger.debug(`HTTP request received: Start stations ${req.body.stationIDs}`);
     stationManager.startStations(req.body.stationIDs);
     respondJSON(res, emptyResponse());
   } else if (req.body.action === 'stop') {
+    logger.debug(`HTTP request received: Stop stations ${req.body.stationIDs}`);
     stationManager.stopStations(req.body.stationIDs);
     respondJSON(res, emptyResponse());
   } else if (req.body.action === 'change_app') {
+    logger.debug(
+      `HTTP request received: Change app of stations ${req.body.stationIDs} to ${req.body.app}`);
     stationManager.changeApp(req.body.stationIDs, req.body.app);
     respondJSON(res, emptyResponse());
   } else {
+    logger.error(`HTTP request received: Invalid POST request with action ${req.body.action}`);
     res.writeHead(404, 'Action not found');
     res.end();
   }
 });
 
 app.get('/station_output.json', (req, res) => {
+  logger.debug(`HTTP request received: Get output of station ${req.query.stationID}`);
   const station = stationManager.getStationByID(req.query.stationID);
   respondJSON(res, {
     lines: station.outputBuffer.getAll(),
@@ -160,6 +166,7 @@ app.get('/station_output.json', (req, res) => {
 });
 
 app.get('/log.json', (req, res) => {
+  logger.debug('HTTP request received: Get log');
   respondJSON(res, { entries: stationManager.getLog() });
 });
 
