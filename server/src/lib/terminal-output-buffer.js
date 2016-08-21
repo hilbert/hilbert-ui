@@ -43,7 +43,7 @@ export default class TerminalOutputBuffer extends Writable {
   getSince(aTime) {
     const data = [];
     for (const lineData of this.lines) {
-      if (lineData.time > aTime) {
+      if (lineData.time >= aTime) {
         data.push(lineData.data);
       }
     }

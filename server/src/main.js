@@ -158,10 +158,33 @@ app.post('/stations.json', (req, res) => {
 });
 
 app.get('/station_output.json', (req, res) => {
-  logger.debug(`HTTP request received: Get output of station ${req.query.stationID}`);
-  const station = stationManager.getStationByID(req.query.stationID);
+  let outputBuffer = null;
+  if (req.query.hasOwnProperty('stationID')) {
+    logger.debug(`HTTP request received: Get output of station ${req.query.stationID}`);
+    const station = stationManager.getStationByID(req.query.stationID);
+    if (station) {
+      outputBuffer = station.outputBuffer;
+    }
+  } else {
+    logger.debug('HTTP request received: Get global terminal output');
+    outputBuffer = stationManager.globalDockAppOutputBuffer;
+  }
+
+  if (outputBuffer) {
+    respondJSON(res, {
+      lines: outputBuffer.getAll(),
+    });
+  } else {
+    logger.error(`Requested output of non existant station ${req.query.stationID}`);
+    res.writeHead(404, 'Station not found');
+    res.end();
+  }
+});
+
+app.get('/mklivestatus.json', (req, res) => {
+  logger.debug('HTTP request received: Get last MKLivestatus state');
   respondJSON(res, {
-    lines: station.outputBuffer.getAll(),
+    lastState: stationManager.lastMKLivestatusDump,
   });
 });
 

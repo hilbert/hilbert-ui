@@ -47,8 +47,8 @@ var TestDockAppConnector = function () {
 
   _createClass(TestDockAppConnector, [{
     key: "getStationConfig",
-    value: function getStationConfig() {
-      return this.testBackend.getStationConfig();
+    value: function getStationConfig(output) {
+      return this.testBackend.getStationConfig(output);
     }
 
     /**

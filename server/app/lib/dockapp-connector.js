@@ -31,6 +31,7 @@ var DockAppConnector = function () {
 
   /**
    * Reads the station config
+   * @param {TerminalOutputBuffer} output
    * @returns {Promise}
    * @resolve {Array} - List of stations
    * @reject {Error}
@@ -46,6 +47,7 @@ var DockAppConnector = function () {
       return new Promise(function (resolve, reject) {
         var cmd = DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path');
         _this.execute(cmd, output).then(function (answer) {
+          _this.logger.debug('DockApp: Station config read:\n' + answer);
           var stationCfg = JSON.parse(answer);
           if (!stationCfg instanceof Array) {
             throw new Error('Dockapp returned an invalid station config: ' + answer);

@@ -81,7 +81,7 @@ var TerminalOutputBuffer = function (_Writable) {
         for (var _iterator = this.lines[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var lineData = _step.value;
 
-          if (lineData.time > aTime) {
+          if (lineData.time >= aTime) {
             data.push(lineData.data);
           }
         }

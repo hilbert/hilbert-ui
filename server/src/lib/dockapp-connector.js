@@ -16,6 +16,7 @@ export default class DockAppConnector {
 
   /**
    * Reads the station config
+   * @param {TerminalOutputBuffer} output
    * @returns {Promise}
    * @resolve {Array} - List of stations
    * @reject {Error}
@@ -26,6 +27,8 @@ export default class DockAppConnector {
       const cmd = `${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`;
       this.execute(cmd, output)
         .then((answer) => {
+          this.logger.debug(`DockApp: Station config read:
+${answer}`);
           const stationCfg = JSON.parse(answer);
           if (!stationCfg instanceof Array) {
             throw new Error(`Dockapp returned an invalid station config: ${answer}`);

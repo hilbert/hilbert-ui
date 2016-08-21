@@ -118,11 +118,13 @@ var TestBackend = function () {
 
   }, {
     key: 'getStationConfig',
-    value: function getStationConfig() {
+    value: function getStationConfig(output) {
       var _this = this;
 
       return new Promise(function (resolve) {
+        output.write('Simulating reading station configuration. Waiting a random delay...');
         _this.randomDelay(1000, 3000).then(function () {
+          output.write('Wait finished.');
           resolve(_this.station_cfg.values());
         });
       });

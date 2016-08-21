@@ -30,6 +30,7 @@ export default class StationManager {
     this.lastLogID = 1;
 
     this.globalDockAppOutputBuffer = new TerminalOutputBuffer();
+    this.lastMKLivestatusDump = [];
 
     this.clearStations();
   }
@@ -51,7 +52,8 @@ export default class StationManager {
         }).catch(() => {
           if (consecutiveErrors % errorDigestSize) {
             if (consecutiveErrors !== 0) {
-              this.logger.error(`Repeated polling errors (${errorDigestSize} times)`);
+              this.logger.error(
+                `Station manager: Repeated MKLivestatus polling errors (${errorDigestSize} times)`);
             }
           }
           consecutiveErrors++;
@@ -87,6 +89,7 @@ export default class StationManager {
    * @param {Station} aStation
    */
   addStation(aStation) {
+    this.logger.debug(`Station manager: Adding station ${aStation.id}`);
     this.stationList.push(aStation);
     this.stationIndex.set(aStation.id, aStation);
   }
@@ -96,6 +99,7 @@ export default class StationManager {
    * @param {Station} aStation
    */
   removeStation(aStation) {
+    this.logger.debug(`Station manager: Removing station ${aStation.id}`);
     const i = this.stationList.indexOf(aStation);
     if (i !== -1) {
       this.stationList.splice(i, 1);
@@ -108,6 +112,7 @@ export default class StationManager {
    * Removes all the stations
    */
   clearStations() {
+    this.logger.debug('Station manager: Clearing all stations');
     this.stationIndex = new Map();
     this.stationList = [];
   }
@@ -322,9 +327,10 @@ export default class StationManager {
    */
   pollMKLivestatus() {
     return this.mkLivestatus.getState().then((allStationsStatus) => {
+      const lastState = [];
       let changes = false;
-
       for (const stationStatus of allStationsStatus) {
+        lastState.push(stationStatus);
         const station = this.getStationByID(stationStatus.id);
         if (station) {
           if (station.updateFromMKLivestatus(stationStatus)) {
@@ -332,6 +338,7 @@ export default class StationManager {
           }
         }
       }
+      this.lastMKLivestatusDump = lastState;
 
       if (changes) {
         this.signalUpdate();

@@ -62,9 +62,11 @@ export default class TestBackend {
    * @resolve {Array} - List of stations
    * @reject {Error}
    */
-  getStationConfig() {
+  getStationConfig(output) {
     return new Promise((resolve) => {
+      output.write(`Simulating reading station configuration. Waiting a random delay...`);
       this.randomDelay(1000, 3000).then(() => {
+        output.write('Wait finished.');
         resolve(this.station_cfg.values());
       });
     });

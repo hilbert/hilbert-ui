@@ -26,8 +26,8 @@ export default class TestDockAppConnector {
    * @resolve {Array} - List of stations
    * @reject {Error}
    */
-  getStationConfig() {
-    return this.testBackend.getStationConfig();
+  getStationConfig(output) {
+    return this.testBackend.getStationConfig(output);
   }
 
   /**

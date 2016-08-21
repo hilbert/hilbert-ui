@@ -54,6 +54,7 @@ var StationManager = function () {
     this.lastLogID = 1;
 
     this.globalDockAppOutputBuffer = new _terminalOutputBuffer2.default();
+    this.lastMKLivestatusDump = [];
 
     this.clearStations();
   }
@@ -81,7 +82,7 @@ var StationManager = function () {
           }).catch(function () {
             if (consecutiveErrors % errorDigestSize) {
               if (consecutiveErrors !== 0) {
-                _this.logger.error('Repeated polling errors (' + errorDigestSize + ' times)');
+                _this.logger.error('Station manager: Repeated MKLivestatus polling errors (' + errorDigestSize + ' times)');
               }
             }
             consecutiveErrors++;
@@ -147,6 +148,7 @@ var StationManager = function () {
   }, {
     key: 'addStation',
     value: function addStation(aStation) {
+      this.logger.debug('Station manager: Adding station ' + aStation.id);
       this.stationList.push(aStation);
       this.stationIndex.set(aStation.id, aStation);
     }
@@ -159,6 +161,7 @@ var StationManager = function () {
   }, {
     key: 'removeStation',
     value: function removeStation(aStation) {
+      this.logger.debug('Station manager: Removing station ' + aStation.id);
       var i = this.stationList.indexOf(aStation);
       if (i !== -1) {
         this.stationList.splice(i, 1);
@@ -174,6 +177,7 @@ var StationManager = function () {
   }, {
     key: 'clearStations',
     value: function clearStations() {
+      this.logger.debug('Station manager: Clearing all stations');
       this.stationIndex = new Map();
       this.stationList = [];
     }
@@ -461,8 +465,8 @@ var StationManager = function () {
       var _this6 = this;
 
       return this.mkLivestatus.getState().then(function (allStationsStatus) {
+        var lastState = [];
         var changes = false;
-
         var _iteratorNormalCompletion5 = true;
         var _didIteratorError5 = false;
         var _iteratorError5 = undefined;
@@ -471,6 +475,7 @@ var StationManager = function () {
           for (var _iterator5 = allStationsStatus[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
             var stationStatus = _step5.value;
 
+            lastState.push(stationStatus);
             var station = _this6.getStationByID(stationStatus.id);
             if (station) {
               if (station.updateFromMKLivestatus(stationStatus)) {
@@ -492,6 +497,8 @@ var StationManager = function () {
             }
           }
         }
+
+        _this6.lastMKLivestatusDump = lastState;
 
         if (changes) {
           _this6.signalUpdate();
