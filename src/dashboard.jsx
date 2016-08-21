@@ -493,7 +493,6 @@ export default class Dashboard extends React.Component {
           className={`btn btn-default${noTerminalOutputDisable}`}
           href="#"
           onClick={(ev) => {
-
             if (this.consoleViewer !== null) {
               this.consoleViewer.openModal();
               $.ajax({
@@ -517,6 +516,33 @@ export default class Dashboard extends React.Component {
             ev.preventDefault();
           }}
         >Terminal output</a>
+        &nbsp;
+        <a
+          className={'btn btn-default'}
+          href="#"
+          onClick={(ev) => {
+            if (this.consoleViewer !== null) {
+              this.consoleViewer.openModal();
+              $.ajax({
+                url: '/api/station_output.json',
+                data: {
+                },
+                method: 'get',
+                dataType: 'json',
+                contentType: 'application/json',
+                cache: false,
+                success: (data) => {
+                  this.setState({
+                    title: 'Global output',
+                    lines: data.lines,
+                  });
+                },
+                error: (xhr, status, err) => console.error(status, err.toString()),
+              });
+            }
+            ev.preventDefault();
+          }}
+        >Global output</a>
       </div>
     );
 

@@ -61,6 +61,6 @@ ConsoleViewer.propTypes = {
 };
 
 ConsoleViewer.defaultProps = {
-  lines: [],
   title: 'Terminal Output',
+  lines: [],
 };
