@@ -158,6 +158,6 @@ ${answer}`);
 }
 
 DockAppConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
-DockAppConnector.DOCKAPP_SCRIPT_START_STATION = 'mng/start.sh';
-DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION = 'mng/shutdown.sh';
-DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP = 'mng/topswitch.sh';
+DockAppConnector.DOCKAPP_SCRIPT_START_STATION = 'start.sh';
+DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION = 'shutdown.sh';
+DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP = 'topswitch.sh';
