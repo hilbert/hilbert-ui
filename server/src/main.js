@@ -36,6 +36,8 @@ logger.add(logger.transports.File, {
   json: false,
 });
 
+logger.level = nconf.get('log_level');
+
 process.on('uncaughtException', (err) => {
   logger.error(`Uncaught exception: ${err.message}. Exiting process.`);
   process.exitCode = 1;
