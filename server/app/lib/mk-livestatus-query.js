@@ -196,11 +196,11 @@ var MKLivestatusQuery = function () {
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = nameRow[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        for (var _iterator2 = firstRow[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var columnName = _step2.value;
 
           if (this.queryColumns.indexOf(columnName) === -1) {
-            throw new Error('MKLivestatus response includes unexpected column ' + columnName + ' (' + nameRow + ')');
+            throw new Error('MKLivestatus response includes unexpected column ' + columnName + ' (' + firstRow + ')');
           }
         }
       } catch (err) {
@@ -226,8 +226,8 @@ var MKLivestatusQuery = function () {
         for (var _iterator3 = this.queryColumns[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
           var _columnName = _step3.value;
 
-          if (nameRow.indexOf(_columnName) === -1) {
-            throw new Error('MKLivestatus response missing column ' + _columnName + ' (' + nameRow + ')');
+          if (firstRow.indexOf(_columnName) === -1) {
+            throw new Error('MKLivestatus response missing column ' + _columnName + ' (' + firstRow + ')');
           }
         }
       } catch (err) {

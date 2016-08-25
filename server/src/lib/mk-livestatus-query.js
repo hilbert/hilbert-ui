@@ -129,16 +129,16 @@ export default class MKLivestatusQuery {
     const firstRow = rows.slice(0, 1)[0];
     const nameRow = this.queryColumnAliases !== null ? this.queryColumnAliases : firstRow;
 
-    for (const columnName of nameRow) {
+    for (const columnName of firstRow) {
       if (this.queryColumns.indexOf(columnName) === -1) {
         throw new Error(
-          `MKLivestatus response includes unexpected column ${columnName} (${nameRow})`
+          `MKLivestatus response includes unexpected column ${columnName} (${firstRow})`
         );
       }
     }
     for (const columnName of this.queryColumns) {
-      if (nameRow.indexOf(columnName) === -1) {
-        throw new Error(`MKLivestatus response missing column ${columnName} (${nameRow})`);
+      if (firstRow.indexOf(columnName) === -1) {
+        throw new Error(`MKLivestatus response missing column ${columnName} (${firstRow})`);
       }
     }
 
