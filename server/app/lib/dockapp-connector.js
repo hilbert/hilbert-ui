@@ -43,7 +43,7 @@ var DockAppConnector = function () {
     value: function getStationConfig(output) {
       var _this = this;
 
-      this.logger.debug('DockApp: Getting station config');
+      this.logger.verbose('DockApp: Getting station config');
       return new Promise(function (resolve, reject) {
         var cmd = DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path');
         _this.execute(cmd, output).then(function (answer) {
@@ -75,7 +75,7 @@ var DockAppConnector = function () {
     value: function startStation(stationID, output) {
       var _this2 = this;
 
-      this.logger.debug('DockApp: Starting station ' + stationID);
+      this.logger.verbose('DockApp: Starting station ' + stationID);
       return new Promise(function (resolve, reject) {
         var cmd = _this2.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_START_STATION;
         _this2.execute(cmd + ' ' + stationID, output).then(function () {
@@ -99,7 +99,7 @@ var DockAppConnector = function () {
     value: function stopStation(stationID, output) {
       var _this3 = this;
 
-      this.logger.debug('DockApp: Stopping station ' + stationID);
+      this.logger.verbose('DockApp: Stopping station ' + stationID);
       return new Promise(function (resolve, reject) {
         var cmd = _this3.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION;
         _this3.execute(cmd + ' ' + stationID, output).then(function () {
@@ -124,7 +124,7 @@ var DockAppConnector = function () {
     value: function changeApp(stationID, appID, output) {
       var _this4 = this;
 
-      this.logger.debug('DockApp: Changing app of station ' + stationID + ' to ' + appID);
+      this.logger.verbose('DockApp: Changing app of station ' + stationID + ' to ' + appID);
       return new Promise(function (resolve, reject) {
         var cmd = _this4.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP;
         _this4.execute(cmd + ' ' + stationID + ' ' + appID, output).then(function () {
@@ -155,7 +155,7 @@ var DockAppConnector = function () {
       return new Promise(function (resolve, reject) {
         var stdoutBuf = '';
         var alloutBuf = '';
-        _this5.logger.debug('Executing \'' + command + '\'');
+        _this5.logger.verbose('Executing \'' + command + '\'');
         var process = exec(command);
         process.stdout.on('data', function (data) {
           stdoutBuf += data;
@@ -168,7 +168,7 @@ var DockAppConnector = function () {
         });
         process.on('close', function (code, signal) {
           if (code === 0) {
-            _this5.logger.debug('Execution of ' + command + ' finished with code 0 (success).');
+            _this5.logger.verbose('Execution of ' + command + ' finished with code 0 (success).');
             resolve(stdoutBuf);
           } else {
             var term = 'rc=' + code;
@@ -176,8 +176,8 @@ var DockAppConnector = function () {
               term = term + ', ' + signal;
             }
             _this5.logger.error('Execution of ' + command + ' finished with ' + term + '.');
-            _this5.logger.debug('Output:');
-            _this5.logger.debug(alloutBuf);
+            _this5.logger.verbose('Output:');
+            _this5.logger.verbose(alloutBuf);
             reject(new Error('Command \'' + command + '\' exited with ' + term + '. ' + alloutBuf));
           }
         });

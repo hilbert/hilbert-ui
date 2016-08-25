@@ -22,7 +22,7 @@ export default class DockAppConnector {
    * @reject {Error}
    */
   getStationConfig(output) {
-    this.logger.debug('DockApp: Getting station config');
+    this.logger.verbose('DockApp: Getting station config');
     return new Promise((resolve, reject) => {
       const cmd = `${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`;
       this.execute(cmd, output)
@@ -52,7 +52,7 @@ ${answer}`);
    * @returns Promise
    */
   startStation(stationID, output) {
-    this.logger.debug(`DockApp: Starting station ${stationID}`);
+    this.logger.verbose(`DockApp: Starting station ${stationID}`);
     return new Promise((resolve, reject) => {
       const cmd =
         `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_START_STATION}`;
@@ -74,7 +74,7 @@ ${answer}`);
    * @returns Promise
    */
   stopStation(stationID, output) {
-    this.logger.debug(`DockApp: Stopping station ${stationID}`);
+    this.logger.verbose(`DockApp: Stopping station ${stationID}`);
     return new Promise((resolve, reject) => {
       const cmd =
         `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION}`;
@@ -97,7 +97,7 @@ ${answer}`);
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {
-    this.logger.debug(`DockApp: Changing app of station ${stationID} to ${appID}`);
+    this.logger.verbose(`DockApp: Changing app of station ${stationID} to ${appID}`);
     return new Promise((resolve, reject) => {
       const cmd =
         `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP}`;
@@ -127,7 +127,7 @@ ${answer}`);
     return new Promise((resolve, reject) => {
       let stdoutBuf = '';
       let alloutBuf = '';
-      this.logger.debug(`Executing '${command}'`);
+      this.logger.verbose(`Executing '${command}'`);
       const process = exec(command);
       process.stdout.on('data', (data) => {
         stdoutBuf += data;
@@ -140,7 +140,7 @@ ${answer}`);
       });
       process.on('close', (code, signal) => {
         if (code === 0) {
-          this.logger.debug(`Execution of ${command} finished with code 0 (success).`);
+          this.logger.verbose(`Execution of ${command} finished with code 0 (success).`);
           resolve(stdoutBuf);
         } else {
           let term = `rc=${code}`;
@@ -148,8 +148,8 @@ ${answer}`);
             term = `${term}, ${signal}`;
           }
           this.logger.error(`Execution of ${command} finished with ${term}.`);
-          this.logger.debug('Output:');
-          this.logger.debug(alloutBuf);
+          this.logger.verbose('Output:');
+          this.logger.verbose(alloutBuf);
           reject(new Error(`Command '${command}' exited with ${term}. ${alloutBuf}`));
         }
       });
