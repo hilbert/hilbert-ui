@@ -166,8 +166,14 @@ var MKLivestatusConnector = function () {
 
             // todo: replace for better regexp / parsing
             var matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-            if (matches.hasOwnProperty('length') && matches.length > 1) {
+            if (matches !== null && matches.hasOwnProperty('length') && matches.length > 1) {
               station.app_id = matches[1];
+            } else {
+              if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+                station.app_id = '';
+              } else {
+                throw new Error('Error parsing app_id of station ' + station.id + ': ' + station.app_id);
+              }
             }
           }
         } catch (err) {
