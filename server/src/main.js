@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 const appPackage = require('../package.json');
 const logger = require('winston');
 const nconf = require('nconf');

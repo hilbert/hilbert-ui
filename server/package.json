@@ -6,6 +6,7 @@
   "main": "app/main.js",
   "private": true,
   "dependencies": {
+    "babel-polyfill": "^6.13.0",
     "bluebird": "^3.4.1",
     "body-parser": "^1.15.1",
     "express": "^4.13.4",

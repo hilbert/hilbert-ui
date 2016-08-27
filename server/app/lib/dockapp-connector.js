@@ -45,8 +45,7 @@ var DockAppConnector = function () {
 
       this.logger.verbose('DockApp: Getting station config');
       return new Promise(function (resolve, reject) {
-        var cmd = DockAppConnector.SCRIPT_LIST_STATIONS + ' ' + _this.nconf.get('dockapp_path');
-        _this.execute(cmd, output).then(function (answer) {
+        _this.execute(DockAppConnector.SCRIPT_LIST_STATIONS, output).then(function (answer) {
           _this.logger.debug('DockApp: Station config read:\n' + answer);
           var stationCfg = JSON.parse(answer);
           if (!stationCfg instanceof Array) {
@@ -77,8 +76,7 @@ var DockAppConnector = function () {
 
       this.logger.verbose('DockApp: Starting station ' + stationID);
       return new Promise(function (resolve, reject) {
-        var cmd = _this2.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_START_STATION;
-        _this2.execute(cmd + ' ' + stationID, output).then(function () {
+        _this2.execute(DockAppConnector.SCRIPT_START_STATION + ' ' + stationID, output).then(function () {
           resolve();
         }).catch(function (err) {
           _this2.logger.error('DockApp: Error starting station ' + stationID + ', \'' + err.message + '\'');
@@ -101,8 +99,7 @@ var DockAppConnector = function () {
 
       this.logger.verbose('DockApp: Stopping station ' + stationID);
       return new Promise(function (resolve, reject) {
-        var cmd = _this3.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION;
-        _this3.execute(cmd + ' ' + stationID, output).then(function () {
+        _this3.execute(DockAppConnector.SCRIPT_STOP_STATION + ' ' + stationID, output).then(function () {
           resolve();
         }).catch(function (err) {
           _this3.logger.error('DockApp: Error stopping station ' + stationID + ', \'' + err.message + '\'');
@@ -126,8 +123,7 @@ var DockAppConnector = function () {
 
       this.logger.verbose('DockApp: Changing app of station ' + stationID + ' to ' + appID);
       return new Promise(function (resolve, reject) {
-        var cmd = _this4.nconf.get('dockapp_path') + '/' + DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP;
-        _this4.execute(cmd + ' ' + stationID + ' ' + appID, output).then(function () {
+        _this4.execute(DockAppConnector.SCRIPT_CHANGE_APP + ' ' + stationID + ' ' + appID, output).then(function () {
           resolve();
         }).catch(function (err) {
           _this4.logger.error('DockApp: Error changing station ' + stationID + ' to app ' + appID + ', \'' + err.message + '\'');
@@ -142,6 +138,7 @@ var DockAppConnector = function () {
      *
      * @param {string} command - Command to execute
      * @param {stream} output - Command output should be written here
+     * @param {object} options - Options to pass child_process.exec
      * @returns {Promise}
      * @resolve {String} - stdout output
      * @reject {Error}
@@ -149,14 +146,24 @@ var DockAppConnector = function () {
 
   }, {
     key: 'execute',
-    value: function execute(command, output) {
+    value: function execute(command, output, options) {
       var _this5 = this;
 
       return new Promise(function (resolve, reject) {
         var stdoutBuf = '';
         var alloutBuf = '';
         _this5.logger.verbose('Executing \'' + command + '\'');
-        var process = exec(command);
+
+        var execOptions = Object.assign({}, options); // clone
+
+        if (!execOptions.hasOwnProperty('env')) {
+          execOptions.env = {};
+        }
+        if (!execOptions.env.hasOwnProperty('DOCKAPP_PATH')) {
+          execOptions.env.DOCKAPP_PATH = _this5.nconf.get('dockapp_path');
+        }
+
+        var process = exec(command, execOptions);
         process.stdout.on('data', function (data) {
           stdoutBuf += data;
           alloutBuf += data;
@@ -192,7 +199,7 @@ exports.default = DockAppConnector;
 
 
 DockAppConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
-DockAppConnector.DOCKAPP_SCRIPT_START_STATION = 'start.sh';
-DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION = 'shutdown.sh';
-DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP = 'topswitch.sh';
+DockAppConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
+DockAppConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
+DockAppConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';
 //# sourceMappingURL=dockapp-connector.js.map

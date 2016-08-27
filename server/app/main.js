@@ -3,6 +3,8 @@
 //
 'use strict';
 
+require('babel-polyfill');
+
 var _stationManager = require('./lib/station-manager');
 
 var _stationManager2 = _interopRequireDefault(_stationManager);

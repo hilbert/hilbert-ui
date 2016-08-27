@@ -24,8 +24,7 @@ export default class DockAppConnector {
   getStationConfig(output) {
     this.logger.verbose('DockApp: Getting station config');
     return new Promise((resolve, reject) => {
-      const cmd = `${DockAppConnector.SCRIPT_LIST_STATIONS} ${this.nconf.get('dockapp_path')}`;
-      this.execute(cmd, output)
+      this.execute(DockAppConnector.SCRIPT_LIST_STATIONS, output)
         .then((answer) => {
           this.logger.debug(`DockApp: Station config read:
 ${answer}`);
@@ -54,9 +53,7 @@ ${answer}`);
   startStation(stationID, output) {
     this.logger.verbose(`DockApp: Starting station ${stationID}`);
     return new Promise((resolve, reject) => {
-      const cmd =
-        `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_START_STATION}`;
-      this.execute(`${cmd} ${stationID}`, output)
+      this.execute(`${DockAppConnector.SCRIPT_START_STATION} ${stationID}`, output)
         .then(() => {
           resolve();
         })
@@ -76,9 +73,7 @@ ${answer}`);
   stopStation(stationID, output) {
     this.logger.verbose(`DockApp: Stopping station ${stationID}`);
     return new Promise((resolve, reject) => {
-      const cmd =
-        `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION}`;
-      this.execute(`${cmd} ${stationID}`, output)
+      this.execute(`${DockAppConnector.SCRIPT_STOP_STATION} ${stationID}`, output)
         .then(() => {
           resolve();
         })
@@ -99,9 +94,7 @@ ${answer}`);
   changeApp(stationID, appID, output) {
     this.logger.verbose(`DockApp: Changing app of station ${stationID} to ${appID}`);
     return new Promise((resolve, reject) => {
-      const cmd =
-        `${this.nconf.get('dockapp_path')}/${DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP}`;
-      this.execute(`${cmd} ${stationID} ${appID}`, output)
+      this.execute(`${DockAppConnector.SCRIPT_CHANGE_APP} ${stationID} ${appID}`, output)
         .then(() => {
           resolve();
         })
@@ -119,16 +112,27 @@ ${answer}`);
    *
    * @param {string} command - Command to execute
    * @param {stream} output - Command output should be written here
+   * @param {object} options - Options to pass child_process.exec
    * @returns {Promise}
    * @resolve {String} - stdout output
    * @reject {Error}
    */
-  execute(command, output) {
+  execute(command, output, options) {
     return new Promise((resolve, reject) => {
       let stdoutBuf = '';
       let alloutBuf = '';
       this.logger.verbose(`Executing '${command}'`);
-      const process = exec(command);
+
+      const execOptions = Object.assign({}, options); // clone
+
+      if (!execOptions.hasOwnProperty('env')) {
+        execOptions.env = {};
+      }
+      if (!execOptions.env.hasOwnProperty('DOCKAPP_PATH')) {
+        execOptions.env.DOCKAPP_PATH = this.nconf.get('dockapp_path');
+      }
+
+      const process = exec(command, execOptions);
       process.stdout.on('data', (data) => {
         stdoutBuf += data;
         alloutBuf += data;
@@ -158,6 +162,6 @@ ${answer}`);
 }
 
 DockAppConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
-DockAppConnector.DOCKAPP_SCRIPT_START_STATION = 'start.sh';
-DockAppConnector.DOCKAPP_SCRIPT_STOP_STATION = 'shutdown.sh';
-DockAppConnector.DOCKAPP_SCRIPT_CHANGE_APP = 'topswitch.sh';
+DockAppConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
+DockAppConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
+DockAppConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';
