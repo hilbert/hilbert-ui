@@ -208,12 +208,14 @@ body {
 .station-state-on .station-state-light {
   background-color: #9EFD93; }
 
-.station-state-starting .station-state-light,
+.station-state-starting_station .station-state-light,
+.station-state-starting_app .station-state-light,
 .station-state-stopping .station-state-light,
 .station-state-switching_app .station-state-light {
   background-color: #FFCF42; }
 
-.station-state-starting .station-icon,
+.station-state-starting_station .station-icon,
+.station-state-starting_app .station-icon,
 .station-state-stopping .station-icon,
 .station-state-switching_app .station-icon {
   opacity: 0.5; }

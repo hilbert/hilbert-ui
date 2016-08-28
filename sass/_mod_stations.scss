@@ -117,7 +117,8 @@ $station-light-width: 28px;
   }
 }
 
-.station-state-starting,
+.station-state-starting_station,
+.station-state-starting_app,
 .station-state-stopping,
 .station-state-switching_app {
   .station-state-light {

@@ -229,7 +229,7 @@ var StationManager = function () {
 
           var station = this.getStationByID(stationID);
           if (station && station.state === _station2.default.OFF) {
-            station.state = _station2.default.STARTING;
+            station.state = _station2.default.STARTING_STATION;
             station.status = 'Waiting to start...';
             eligibleStations.push(stationID);
           }

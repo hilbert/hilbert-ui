@@ -49,7 +49,7 @@ export default class Station {
       changes = true;
     }
 
-    // todo: STARTING and STOPPING timeout
+    // todo: STARTING_STATION, STARTING_APP and STOPPING timeout
     // todo: SWITCHING_APP timeout
 
     if (this.state === Station.ERROR) {
@@ -91,8 +91,14 @@ export default class Station {
         this.status = '';
         return true;
       }
-    } else if (this.state === Station.STARTING) {
+    } else if (this.state === Station.STARTING_STATION) {
       if (stationStatus.state === Nagios.HostState.UP) {
+        this.state = Station.STARTING_APP;
+        this.status = 'Waiting for app...';
+        return true;
+      }
+    } else if (this.state === Station.STARTING_APP) {
+      if (stationStatus.app_state === Nagios.ServiceState.OK ) {
         this.state = Station.ON;
         this.status = '';
         return true;
@@ -121,6 +127,7 @@ Station.UNKNOWN = 'unk';
 Station.OFF = 'off';
 Station.ON = 'on';
 Station.STOPPING = 'stopping';
-Station.STARTING = 'starting';
+Station.STARTING_STATION = 'starting_station';
+Station.STARTING_APP = 'starting_app';
 Station.SWITCHING_APP = 'switching_app';
 Station.ERROR = 'error';

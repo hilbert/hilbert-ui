@@ -146,7 +146,7 @@ export default class StationManager {
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
       if (station && station.state === Station.OFF) {
-        station.state = Station.STARTING;
+        station.state = Station.STARTING_STATION;
         station.status = 'Waiting to start...';
         eligibleStations.push(stationID);
       }

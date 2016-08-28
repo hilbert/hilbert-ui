@@ -74,7 +74,10 @@ export default class Dashboard extends React.Component {
   }
 
   displayState(state) {
-    if (state === 'starting' || state === 'stopping' || state === 'switching_app') {
+    if (state === 'starting_station' ||
+      state === 'starting_app' ||
+      state === 'stopping' ||
+      state === 'switching_app') {
       return 'busy';
     }
 
