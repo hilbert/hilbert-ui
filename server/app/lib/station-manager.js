@@ -228,9 +228,7 @@ var StationManager = function () {
           var stationID = _step2.value;
 
           var station = this.getStationByID(stationID);
-          if (station && station.state === _station2.default.OFF) {
-            station.state = _station2.default.STARTING_STATION;
-            station.status = 'Waiting to start...';
+          if (station && station.setQueuedToStartState()) {
             eligibleStations.push(stationID);
           }
         }
@@ -254,18 +252,15 @@ var StationManager = function () {
       return Promise.map(eligibleStations, function (eligibleStation) {
         _this3.logger.verbose('Station manager: Starting station ' + eligibleStation);
         var station = _this3.getStationByID(eligibleStation);
-        station.status = 'Starting...';
+        station.setStartingState();
         _this3.signalUpdate();
         return _this3.dockApp.startStation(station.id, station.outputBuffer).then(function () {
-          // station.state = Station.ON;
-          // station.status = '';
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' started');
           _this3.log('message', station, 'Station started');
         }).catch(function () {
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to start');
-          station.state = _station2.default.ERROR;
-          station.status = 'Failure starting the station';
           _this3.log('error', station, 'Error starting station');
+          station.setErrorState('Failure starting the station');
         }).then(function () {
           _this3.signalUpdate();
         });
@@ -294,9 +289,7 @@ var StationManager = function () {
           var stationID = _step3.value;
 
           var station = this.getStationByID(stationID);
-          if (station && station.state === _station2.default.ON) {
-            station.state = _station2.default.STOPPING;
-            station.status = 'Waiting to stop...';
+          if (station && station.setQueuedToStopState()) {
             eligibleStations.push(stationID);
           }
         }
@@ -320,18 +313,15 @@ var StationManager = function () {
       return Promise.map(eligibleStations, function (eligibleStation) {
         _this4.logger.verbose('Station manager: Stopping station ' + eligibleStation);
         var station = _this4.getStationByID(eligibleStation);
-        station.status = 'Stopping...';
+        station.setStoppingState();
         _this4.signalUpdate();
         return _this4.dockApp.stopStation(station.id, station.outputBuffer).then(function () {
-          // station.state = Station.OFF;
-          // station.status = '';
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' stopped');
           _this4.log('message', station, 'Station stopped');
         }).catch(function () {
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to stop');
-          station.state = _station2.default.ERROR;
-          station.status = 'Failure stopping the station';
           _this4.log('error', station, 'Error stopping station');
+          station.setErrorState('Failure stopping the station');
         }).then(function () {
           _this4.signalUpdate();
         });
@@ -360,10 +350,7 @@ var StationManager = function () {
           var stationID = _step4.value;
 
           var station = this.getStationByID(stationID);
-          if (station && station.state === _station2.default.ON && appID !== station.app) {
-            station.state = _station2.default.SWITCHING_APP;
-            station.status = 'Waiting to change app...';
-            station.switching_app = appID;
+          if (station && station.setQueuedToChangeAppState(appID)) {
             eligibleStations.push(stationID);
           }
         }
@@ -387,17 +374,15 @@ var StationManager = function () {
       return Promise.map(eligibleStations, function (eligibleStation) {
         _this5.logger.verbose('Station manager: Changing app of station ' + eligibleStation + ' to ' + appID);
         var station = _this5.getStationByID(eligibleStation);
-        station.status = 'Switching to ' + appID + '...';
+        station.setChangingAppState(appID);
         _this5.signalUpdate();
         return _this5.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
           _this5.logger.verbose('Station manager: Changed app of station ' + eligibleStation + ' to ' + appID);
           _this5.log('message', station, 'Launched app ' + appID);
         }).catch(function () {
           _this5.logger.verbose('Station manager: Failed changing app of station ' + eligibleStation + ' to ' + appID);
-          station.app = appID;
-          station.state = _station2.default.ERROR;
-          station.status = 'Failure launching app';
           _this5.log('error', station, 'Failed to launch app ' + appID);
+          station.setErrorState('Failed to open ' + appID);
         }).then(function () {
           _this5.signalUpdate();
         });

@@ -145,9 +145,7 @@ export default class StationManager {
     const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station && station.state === Station.OFF) {
-        station.state = Station.STARTING_STATION;
-        station.status = 'Waiting to start...';
+      if (station && station.setQueuedToStartState()) {
         eligibleStations.push(stationID);
       }
     }
@@ -159,19 +157,16 @@ export default class StationManager {
       (eligibleStation) => {
         this.logger.verbose(`Station manager: Starting station ${eligibleStation}`);
         const station = this.getStationByID(eligibleStation);
-        station.status = 'Starting...';
+        station.setStartingState();
         this.signalUpdate();
         return this.dockApp.startStation(station.id, station.outputBuffer).then(() => {
-          // station.state = Station.ON;
-          // station.status = '';
           this.logger.verbose(`Station manager: Station ${eligibleStation} started`);
           this.log('message', station, 'Station started');
         })
         .catch(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} failed to start`);
-          station.state = Station.ERROR;
-          station.status = 'Failure starting the station';
           this.log('error', station, 'Error starting station');
+          station.setErrorState('Failure starting the station');
         })
         .then(() => {
           this.signalUpdate();
@@ -191,9 +186,7 @@ export default class StationManager {
     const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station && station.state === Station.ON) {
-        station.state = Station.STOPPING;
-        station.status = 'Waiting to stop...';
+      if (station && station.setQueuedToStopState()) {
         eligibleStations.push(stationID);
       }
     }
@@ -205,19 +198,16 @@ export default class StationManager {
       (eligibleStation) => {
         this.logger.verbose(`Station manager: Stopping station ${eligibleStation}`);
         const station = this.getStationByID(eligibleStation);
-        station.status = 'Stopping...';
+        station.setStoppingState();
         this.signalUpdate();
         return this.dockApp.stopStation(station.id, station.outputBuffer).then(() => {
-          // station.state = Station.OFF;
-          // station.status = '';
           this.logger.verbose(`Station manager: Station ${eligibleStation} stopped`);
           this.log('message', station, 'Station stopped');
         })
           .catch(() => {
             this.logger.verbose(`Station manager: Station ${eligibleStation} failed to stop`);
-            station.state = Station.ERROR;
-            station.status = 'Failure stopping the station';
             this.log('error', station, 'Error stopping station');
+            station.setErrorState('Failure stopping the station');
           })
           .then(() => {
             this.signalUpdate();
@@ -237,10 +227,7 @@ export default class StationManager {
     const eligibleStations = [];
     for (const stationID of stationIDs) {
       const station = this.getStationByID(stationID);
-      if (station && station.state === Station.ON && appID !== station.app) {
-        station.state = Station.SWITCHING_APP;
-        station.status = 'Waiting to change app...';
-        station.switching_app = appID;
+      if (station && station.setQueuedToChangeAppState(appID)) {
         eligibleStations.push(stationID);
       }
     }
@@ -253,7 +240,7 @@ export default class StationManager {
         this.logger.verbose(
           `Station manager: Changing app of station ${eligibleStation} to ${appID}`);
         const station = this.getStationByID(eligibleStation);
-        station.status = `Switching to ${appID}...`;
+        station.setChangingAppState(appID);
         this.signalUpdate();
         return this.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.logger.verbose(
@@ -263,10 +250,8 @@ export default class StationManager {
         .catch(() => {
           this.logger.verbose(
             `Station manager: Failed changing app of station ${eligibleStation} to ${appID}`);
-          station.app = appID;
-          station.state = Station.ERROR;
-          station.status = 'Failure launching app';
           this.log('error', station, `Failed to launch app ${appID}`);
+          station.setErrorState(`Failed to open ${appID}`);
         })
         .then(() => {
           this.signalUpdate();

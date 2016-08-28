@@ -57,67 +57,180 @@ export default class Station {
     }
 
     if (stationStatus.state === Nagios.HostState.UNREACHABLE) {
-      this.state = Station.ERROR;
-      this.status = 'Station unreachable';
+      this.setErrorState('Station unreachable');
       return true;
     }
 
-    if ((this.state === Station.UNKNOWN)) {
+    if (this.state === Station.UNKNOWN) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.state = Station.OFF;
-        this.status = '';
+        this.setOffState();
         return true;
       } else if (stationStatus.state === Nagios.HostState.UP) {
-        this.state = Station.ON;
-        this.status = '';
+        this.setOnState();
         return true;
       }
     } else if (this.state === Station.ON) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.state = Station.OFF;
-        this.status = '';
+        this.setOffState();
         return true;
       }
     } else if (this.state === Station.OFF) {
       if (stationStatus.state === Nagios.HostState.UP) {
-        console.log('changing');
-        this.state = Station.ON;
-        this.status = '';
+        this.setOnState();
         return true;
       }
     } else if (this.state === Station.STOPPING) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.state = Station.OFF;
-        this.status = '';
+        this.setOffState();
         return true;
       }
     } else if (this.state === Station.STARTING_STATION) {
       if (stationStatus.state === Nagios.HostState.UP) {
-        this.state = Station.STARTING_APP;
-        this.status = 'Waiting for app...';
+        this.setStartingAppState();
         return true;
       }
     } else if (this.state === Station.STARTING_APP) {
       if (stationStatus.app_state === Nagios.ServiceState.OK ) {
-        this.state = Station.ON;
-        this.status = '';
+        this.setOnState();
         return true;
       }
     } else if (this.state === Station.SWITCHING_APP) {
       if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
-        this.state = Station.ON;
-        this.status = '';
-        this.switching_app = '';
+        this.setOnState();
+        return true;
       }
 
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.state = Station.OFF;
-        this.status = '';
+        this.setOffState();
         return true;
       }
     }
 
     return changes;
+  }
+
+  /**
+   * Transitions the station to the "waiting to start" state
+   *
+   * @return {boolean} The transition was successful
+   */
+  setQueuedToStartState() {
+    if (this.state === Station.OFF) {
+      this.state = Station.STARTING_STATION;
+      this.status = 'Waiting to start...';
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "starting" state
+   *
+   * @return {boolean} The transition was successful
+   */
+  setStartingState() {
+    if (this.state === Station.OFF || this.state === Station.STARTING_STATION) {
+      this.state = Station.STARTING_STATION;
+      this.status = 'Starting...';
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "starting app" state
+   *
+   * @return {boolean} The transition was sucessful
+   */
+  setStartingAppState() {
+    if (this.state === Station.STARTING_STATION) {
+      this.state = Station.STARTING_APP;
+      this.status = 'Waiting for app...';
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "waiting to stop" state
+   *
+   * @return {boolean} The transition was succesful
+   */
+  setQueuedToStopState() {
+    if (this.state === Station.ON) {
+      this.state = Station.STOPPING;
+      this.status = 'Waiting to stop...';
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "stopping" state
+   *
+   * @return {boolean} The transition was successful
+   */
+  setStoppingState() {
+    if (this.state === Station.OFF || this.state === Station.STOPPING) {
+      this.state = Station.STOPPING;
+      this.status = 'Stopping...';
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "queued to change app" state
+   *
+   * @param appID {string}
+   * @return {boolean} The transition was successful
+   */
+  setQueuedToChangeAppState(appID) {
+    if (this.state === Station.ON && appID !== this.app) {
+      this.state = Station.SWITCHING_APP;
+      this.status = 'Waiting to change app...';
+      this.switching_app = appID;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "changing app" state
+   *
+   * @param appID {string}
+   * @return {boolean} The transition was successful
+   */
+  setChangingAppState(appID) {
+    if ((this.state === Station.ON || this.state === Station.SWITCHING_APP) && appID !== this.app) {
+      this.state = Station.SWITCHING_APP;
+      this.status = `Opening ${appID}...`;
+      this.switching_app = appID;
+      return true;
+    }
+    return false;
+  }
+
+  setOnState() {
+    this.state = Station.ON;
+    this.status = '';
+    this.switching_app = '';
+  }
+
+  setOffState() {
+    this.state = Station.OFF;
+    this.status = '';
+    this.switching_app = '';
+  }
+
+  /**
+   * Transitions the station to the "error" state
+   *
+   * @param reason {string} Description of the error
+   */
+  setErrorState(reason) {
+    this.state = Station.ERROR;
+    this.status = reason;
   }
 }
 

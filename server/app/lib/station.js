@@ -101,67 +101,206 @@ var Station = function () {
       }
 
       if (stationStatus.state === _nagios2.default.HostState.UNREACHABLE) {
-        this.state = Station.ERROR;
-        this.status = 'Station unreachable';
+        this.setErrorState('Station unreachable');
         return true;
       }
 
       if (this.state === Station.UNKNOWN) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.state = Station.OFF;
-          this.status = '';
+          this.setOffState();
           return true;
         } else if (stationStatus.state === _nagios2.default.HostState.UP) {
-          this.state = Station.ON;
-          this.status = '';
+          this.setOnState();
           return true;
         }
       } else if (this.state === Station.ON) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.state = Station.OFF;
-          this.status = '';
+          this.setOffState();
           return true;
         }
       } else if (this.state === Station.OFF) {
         if (stationStatus.state === _nagios2.default.HostState.UP) {
-          console.log('changing');
-          this.state = Station.ON;
-          this.status = '';
+          this.setOnState();
           return true;
         }
       } else if (this.state === Station.STOPPING) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.state = Station.OFF;
-          this.status = '';
+          this.setOffState();
           return true;
         }
       } else if (this.state === Station.STARTING_STATION) {
         if (stationStatus.state === _nagios2.default.HostState.UP) {
-          this.state = Station.STARTING_APP;
-          this.status = 'Waiting for app...';
+          this.setStartingAppState();
           return true;
         }
       } else if (this.state === Station.STARTING_APP) {
         if (stationStatus.app_state === _nagios2.default.ServiceState.OK) {
-          this.state = Station.ON;
-          this.status = '';
+          this.setOnState();
           return true;
         }
       } else if (this.state === Station.SWITCHING_APP) {
         if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
-          this.state = Station.ON;
-          this.status = '';
-          this.switching_app = '';
+          this.setOnState();
+          return true;
         }
 
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.state = Station.OFF;
-          this.status = '';
+          this.setOffState();
           return true;
         }
       }
 
       return changes;
+    }
+
+    /**
+     * Transitions the station to the "waiting to start" state
+     *
+     * @return {boolean} The transition was successful
+     */
+
+  }, {
+    key: 'setQueuedToStartState',
+    value: function setQueuedToStartState() {
+      if (this.state === Station.OFF) {
+        this.state = Station.STARTING_STATION;
+        this.status = 'Waiting to start...';
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Transitions the station to the "starting" state
+     *
+     * @return {boolean} The transition was successful
+     */
+
+  }, {
+    key: 'setStartingState',
+    value: function setStartingState() {
+      if (this.state === Station.OFF || this.state === Station.STARTING_STATION) {
+        this.state = Station.STARTING_STATION;
+        this.status = 'Starting...';
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Transitions the station to the "starting app" state
+     *
+     * @return {boolean} The transition was sucessful
+     */
+
+  }, {
+    key: 'setStartingAppState',
+    value: function setStartingAppState() {
+      if (this.state === Station.STARTING_STATION) {
+        this.state = Station.STARTING_APP;
+        this.status = 'Waiting for app...';
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Transitions the station to the "waiting to stop" state
+     *
+     * @return {boolean} The transition was succesful
+     */
+
+  }, {
+    key: 'setQueuedToStopState',
+    value: function setQueuedToStopState() {
+      if (this.state === Station.ON) {
+        this.state = Station.STOPPING;
+        this.status = 'Waiting to stop...';
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Transitions the station to the "stopping" state
+     *
+     * @return {boolean} The transition was successful
+     */
+
+  }, {
+    key: 'setStoppingState',
+    value: function setStoppingState() {
+      if (this.state === Station.OFF || this.state === Station.STOPPING) {
+        this.state = Station.STOPPING;
+        this.status = 'Stopping...';
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Transitions the station to the "queued to change app" state
+     *
+     * @param appID {string}
+     * @return {boolean} The transition was successful
+     */
+
+  }, {
+    key: 'setQueuedToChangeAppState',
+    value: function setQueuedToChangeAppState(appID) {
+      if (this.state === Station.ON && appID !== this.app) {
+        this.state = Station.SWITCHING_APP;
+        this.status = 'Waiting to change app...';
+        this.switching_app = appID;
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Transitions the station to the "changing app" state
+     *
+     * @param appID {string}
+     * @return {boolean} The transition was successful
+     */
+
+  }, {
+    key: 'setChangingAppState',
+    value: function setChangingAppState(appID) {
+      if ((this.state === Station.ON || this.state === Station.SWITCHING_APP) && appID !== this.app) {
+        this.state = Station.SWITCHING_APP;
+        this.status = 'Opening ' + appID + '...';
+        this.switching_app = appID;
+        return true;
+      }
+      return false;
+    }
+  }, {
+    key: 'setOnState',
+    value: function setOnState() {
+      this.state = Station.ON;
+      this.status = '';
+      this.switching_app = '';
+    }
+  }, {
+    key: 'setOffState',
+    value: function setOffState() {
+      this.state = Station.OFF;
+      this.status = '';
+      this.switching_app = '';
+    }
+
+    /**
+     * Transitions the station to the "error" state
+     *
+     * @param reason {string} Description of the error
+     */
+
+  }, {
+    key: 'setErrorState',
+    value: function setErrorState(reason) {
+      this.state = Station.ERROR;
+      this.status = reason;
     }
   }]);
 
