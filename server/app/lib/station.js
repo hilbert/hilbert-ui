@@ -115,7 +115,7 @@ var Station = function () {
         }
       } else if (this.state === Station.ON) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.setOffState();
+          this.setOffState('Unexpectedly shut down (' + this.currentTime() + ')');
           return true;
         }
       } else if (this.state === Station.OFF) {
@@ -125,7 +125,7 @@ var Station = function () {
         }
       } else if (this.state === Station.STOPPING) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.setOffState();
+          this.setOffState('Manually turned off (' + this.currentTime() + ')');
           return true;
         }
       } else if (this.state === Station.STARTING_STATION) {
@@ -145,7 +145,7 @@ var Station = function () {
         }
 
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.setOffState();
+          this.setOffState('Unexpectedly shut down (' + this.currentTime() + ')');
           return true;
         }
       }
@@ -284,9 +284,9 @@ var Station = function () {
     }
   }, {
     key: 'setOffState',
-    value: function setOffState() {
+    value: function setOffState(reason) {
       this.state = Station.OFF;
-      this.status = '';
+      this.status = reason;
       this.switching_app = '';
     }
 
@@ -301,6 +301,18 @@ var Station = function () {
     value: function setErrorState(reason) {
       this.state = Station.ERROR;
       this.status = reason;
+    }
+
+    /**
+     * Prints the current time
+     * @private
+     */
+
+  }, {
+    key: 'currentTime',
+    value: function currentTime() {
+      var now = new Date();
+      return now.getDate() + '/' + now.getMonth() + ' ' + now.getHours() + ':' + now.getMinutes();
     }
   }]);
 

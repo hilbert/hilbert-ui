@@ -71,7 +71,7 @@ export default class Station {
       }
     } else if (this.state === Station.ON) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState();
+        this.setOffState(`Unexpectedly shut down (${this.currentTime()})`);
         return true;
       }
     } else if (this.state === Station.OFF) {
@@ -81,7 +81,7 @@ export default class Station {
       }
     } else if (this.state === Station.STOPPING) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState();
+        this.setOffState(`Manually turned off (${this.currentTime()})`);
         return true;
       }
     } else if (this.state === Station.STARTING_STATION) {
@@ -90,7 +90,7 @@ export default class Station {
         return true;
       }
     } else if (this.state === Station.STARTING_APP) {
-      if (stationStatus.app_state === Nagios.ServiceState.OK ) {
+      if (stationStatus.app_state === Nagios.ServiceState.OK) {
         this.setOnState();
         return true;
       }
@@ -101,7 +101,7 @@ export default class Station {
       }
 
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState();
+        this.setOffState(`Unexpectedly shut down (${this.currentTime()})`);
         return true;
       }
     }
@@ -217,9 +217,9 @@ export default class Station {
     this.switching_app = '';
   }
 
-  setOffState() {
+  setOffState(reason) {
     this.state = Station.OFF;
-    this.status = '';
+    this.status = reason;
     this.switching_app = '';
   }
 
@@ -231,6 +231,15 @@ export default class Station {
   setErrorState(reason) {
     this.state = Station.ERROR;
     this.status = reason;
+  }
+
+  /**
+   * Prints the current time
+   * @private
+   */
+  currentTime() {
+    const now = new Date();
+    return `${now.getDate()}/${now.getMonth()} ${now.getHours()}:${now.getMinutes()}`;
   }
 }
 
