@@ -21,6 +21,7 @@ export default class Dashboard extends React.Component {
     };
     this.selectToggle = this.selectToggle.bind(this);
     this.changeAppSelected = this.changeAppSelected.bind(this);
+    this.showTerminalLog = this.showTerminalLog.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -258,6 +259,29 @@ export default class Dashboard extends React.Component {
     this.deselectAll();
   }
 
+  showTerminalLog(stationID) {
+    if (this.consoleViewer !== null) {
+      this.consoleViewer.openModal();
+      $.ajax({
+        url: '/api/station_output.json',
+        data: {
+          stationID,
+        },
+        method: 'get',
+        dataType: 'json',
+        contentType: 'application/json',
+        cache: false,
+        success: (data) => {
+          this.setState({
+            title: stationID,
+            lines: data.lines,
+          });
+        },
+        error: (xhr, status, err) => console.error(status, err.toString()),
+      });
+    }
+  }
+
   /**
    * Handle the server poll
    *
@@ -340,6 +364,7 @@ export default class Dashboard extends React.Component {
         key={station.id}
         selected={this.state.selection.has(station.id)}
         onClickStation={this.selectToggle}
+        onOpenTerminalLog={this.showTerminalLog}
       />
     ));
 
@@ -493,34 +518,6 @@ export default class Dashboard extends React.Component {
         >Show log</a>
         &nbsp;
         <a
-          className={`btn btn-default${noTerminalOutputDisable}`}
-          href="#"
-          onClick={(ev) => {
-            if (this.consoleViewer !== null) {
-              this.consoleViewer.openModal();
-              $.ajax({
-                url: '/api/station_output.json',
-                data: {
-                  stationID: Array.from(this.state.selection)[0],
-                },
-                method: 'get',
-                dataType: 'json',
-                contentType: 'application/json',
-                cache: false,
-                success: (data) => {
-                  this.setState({
-                    title: Array.from(this.state.selection)[0],
-                    lines: data.lines,
-                  });
-                },
-                error: (xhr, status, err) => console.error(status, err.toString()),
-              });
-            }
-            ev.preventDefault();
-          }}
-        >Terminal output</a>
-        &nbsp;
-        <a
           className={'btn btn-default'}
           href="#"
           onClick={(ev) => {
@@ -545,7 +542,7 @@ export default class Dashboard extends React.Component {
             }
             ev.preventDefault();
           }}
-        >Global output</a>
+        ><i className="fa fa-desktop"></i> Global output</a>
       </div>
     );
 

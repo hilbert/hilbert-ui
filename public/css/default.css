@@ -186,6 +186,18 @@ body {
     width: 28px;
     height: 100%;
     background-color: #afafaf; }
+  .station .station-output-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 20px;
+    color: #91a8ba; }
+    .station .station-output-button:hover {
+      color: #5D5D5D; }
 
 .station-state-unk .station-state-light {
   background-color: #96bdda; }

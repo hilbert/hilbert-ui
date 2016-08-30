@@ -4,10 +4,17 @@ export default class Station extends React.Component {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
+    this.handleOpenTerminalLog = this.handleOpenTerminalLog.bind(this);
   }
 
   handleClick() {
     this.props.onClickStation(this.props.station.id);
+  }
+
+  handleOpenTerminalLog(ev) {
+    this.props.onOpenTerminalLog(this.props.station.id);
+    ev.preventDefault();
+    ev.stopPropagation();
   }
 
   render() {
@@ -35,6 +42,9 @@ export default class Station extends React.Component {
         <div className="station-type">{this.props.station.type}</div>
         <div className="station-app">{this.props.station.app}</div>
         <div className="station-status">{this.props.station.status}</div>
+        <a className="station-output-button" onClick={(ev) => { this.handleOpenTerminalLog(ev); }}>
+          <i className="fa fa-desktop"></i>
+        </a>
       </div>
     );
   }
@@ -52,4 +62,5 @@ Station.propTypes = {
   }).isRequired,
   selected: React.PropTypes.bool,
   onClickStation: React.PropTypes.func,
+  onOpenTerminalLog: React.PropTypes.func,
 };
