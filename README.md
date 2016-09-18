@@ -60,9 +60,12 @@ The back end configuration file is `server/config.json`. It supports the followi
 - `port`: (default '3000') Port number the back-end server will run in
 - `dockapp_path`: Path to the **dockapp** installation
 - `test`: (default: false) Set to `true` to run in test mode, which simulates dockapp.
+- `scriptConcurrency`: (default: 20) Number of simultaneous child processes that will be run.
 - `max_log_length`: (default: 100) Max number of log entries to send through the web service
 - `log_directory`: (default: './log') Directory where logs will be saved.
 - `log_level`: (default: 'info') Log level. Set to one of `error`, `warn`, `info`, `verbose`, `debug` or `silly`.`
+- `mkls_poll_delay`: (default: 1000) Number of milliseconds to wait between polls to MKLivestatus
+- `mkls_cmd`: (default: 'nc localhost 6557') Command line used to connect to MKLivestatus 
 
 ## System description
 
