@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.8] 2016-09-24
+### Changed
+- The project was renamed to hilbert-ui.
+- The client files were moved to the `client` directory.
+- Updated documentation.
+
 ## [0.7.1] 2016-09-17
 ### Added
 - This changelog was added. Some version numbers don't perfectly adhere
