@@ -68,10 +68,8 @@ gulp.task('scripts:prod', function (){
 });
 
 gulp.task('scripts:watch', function () {
-  gulp.watch(['./src/*.jsx'], ['scripts']);
+  gulp.watch(['./src/*.jsx'], ['scripts:dev']);
 });
-
-gulp.task('scripts', ['scripts:dev', 'scripts:watch']);
 
 gulp.task('sass', function () {
   gulp.src('./sass/**/*.scss')

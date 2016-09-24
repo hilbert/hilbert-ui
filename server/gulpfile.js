@@ -27,7 +27,7 @@ gulp.task('compile:watch', function () {
   gulp.watch(['src/**/*.js'], ['compile']);
 });
 
-gulp.task('default', ['compile', 'compile:watch']);
+gulp.task('default', ['compile']);
 
 gulp.task('server', function (cb) {
   // I could use nodemon to watch + restart the server
