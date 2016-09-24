@@ -1,5 +1,5 @@
 import Nagios from './nagios';
-import TestDockAppConnector from './test-dockapp-connector';
+import TestHilbertCLIConnector from './test-hilbert-cli-connector';
 import TestMKLivestatusConnector from './test-mk-livestatus-connector';
 
 const testStations = require('../../tests/models/test_stations.json');
@@ -10,7 +10,7 @@ export default class TestBackend {
     this.nconf = nconf;
     this.logger = logger;
 
-    this.dockAppConnector = new TestDockAppConnector(this, nconf, logger);
+    this.hilbertCLIConnector = new TestHilbertCLIConnector(this, nconf, logger);
     this.mkLivestatusConnector = new TestMKLivestatusConnector(this, nconf, logger);
 
     this.state = new Map();
@@ -37,11 +37,11 @@ export default class TestBackend {
   }
 
   /**
-   * Returns a DockAppConnector stub for testing
-   * @returns {TestDockAppConnector}
+   * Returns a HilbertCLIConnector stub for testing
+   * @returns {TestHilbertCLIConnector}
    */
-  getDockappConnector() {
-    return this.dockAppConnector;
+  getHilbertCLIConnector() {
+    return this.hilbertCLIConnector;
   }
 
   /**

@@ -14,7 +14,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * Testing stub for MKLivestatusConnector
  */
-
 var TestMKLivestatusConnector = function () {
   function TestMKLivestatusConnector(testBackend, nconf, logger) {
     _classCallCheck(this, TestMKLivestatusConnector);

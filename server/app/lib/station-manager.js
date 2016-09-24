@@ -25,10 +25,9 @@ var Promise = require('bluebird');
 var EventEmitter = require('events').EventEmitter;
 
 /**
- * Service Layer to the DockApp system
+ * Service Layer for hilbert
  * Dispatches requests asynchronously and keeps cached state
  */
-
 var StationManager = function () {
 
   /**
@@ -36,24 +35,23 @@ var StationManager = function () {
    *
    * @param {Object} nconf - Instance of nconf configuration
    * @param {Object} logger - Instance of winston logger
-   * @param {DockAppConnector} dockApp - DockApp connector
+   * @param {HilbertCLIConnector} hilbertCLI - hilbert-cli connector
    * @param {MKLivestatusConnector} mkLivestatus - MKLivestatus connector
    */
-
-  function StationManager(nconf, logger, dockApp, mkLivestatus) {
+  function StationManager(nconf, logger, hilbertCLI, mkLivestatus) {
     _classCallCheck(this, StationManager);
 
     this.nconf = nconf;
     this.logger = logger;
 
-    this.dockApp = dockApp;
+    this.hilbertCLI = hilbertCLI;
     this.mkLivestatus = mkLivestatus;
 
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
 
-    this.globalDockAppOutputBuffer = new _terminalOutputBuffer2.default();
+    this.globalHilbertCLIOutputBuffer = new _terminalOutputBuffer2.default();
     this.lastMKLivestatusDump = [];
 
     this.clearStations();
@@ -110,7 +108,7 @@ var StationManager = function () {
       this.clearStations();
       this.signalUpdate();
 
-      return this.dockApp.getStationConfig(this.globalDockAppOutputBuffer).then(function (stationsCFG) {
+      return this.hilbertCLI.getStationConfig(this.globalHilbertCLIOutputBuffer).then(function (stationsCFG) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -254,7 +252,7 @@ var StationManager = function () {
         var station = _this3.getStationByID(eligibleStation);
         station.setStartingState();
         _this3.signalUpdate();
-        return _this3.dockApp.startStation(station.id, station.outputBuffer).then(function () {
+        return _this3.hilbertCLI.startStation(station.id, station.outputBuffer).then(function () {
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' started');
           _this3.log('message', station, 'Station started');
         }).catch(function () {
@@ -315,7 +313,7 @@ var StationManager = function () {
         var station = _this4.getStationByID(eligibleStation);
         station.setStoppingState();
         _this4.signalUpdate();
-        return _this4.dockApp.stopStation(station.id, station.outputBuffer).then(function () {
+        return _this4.hilbertCLI.stopStation(station.id, station.outputBuffer).then(function () {
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' stopped');
           _this4.log('message', station, 'Station stopped');
         }).catch(function () {
@@ -333,6 +331,7 @@ var StationManager = function () {
      *
      * @param {Iterable} stationIDs - IDs of stations in which to change the appID
      * @param {string} appID - Name of the appID to run
+     * @return {Promise}
      */
 
   }, {
@@ -376,7 +375,7 @@ var StationManager = function () {
         var station = _this5.getStationByID(eligibleStation);
         station.setChangingAppState(appID);
         _this5.signalUpdate();
-        return _this5.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
+        return _this5.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
           _this5.logger.verbose('Station manager: Changed app of station ' + eligibleStation + ' to ' + appID);
           _this5.log('message', station, 'Launched app ' + appID);
         }).catch(function () {

@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 const EventEmitter = require('events').EventEmitter;
 
 import StationManager from './lib/station-manager';
-import DockAppConnector from './lib/dockapp-connector';
+import HilbertCLIConnector from './lib/hilbert-cli-connector';
 import MKLivestatusConnector from './lib/mk-livestatus-connector';
 import TestBackend from './lib/test-backend';
 
@@ -21,7 +21,7 @@ nconf.env().argv();
 nconf.file('config.json');
 nconf.defaults({
   port: '3000',
-  dockapp_path: '../work/dockapp',
+  hilbert_cli_path: '../work/dockapp',
   test: false,
   scriptConcurrency: 20,
   max_log_length: 100,
@@ -32,7 +32,7 @@ nconf.defaults({
 });
 
 logger.add(logger.transports.File, {
-  filename: `${nconf.get('log_directory')}/dockapp_dashboard.log`,
+  filename: `${nconf.get('log_directory')}/hilbert-ui.log`,
   level: nconf.get('log_level'),
   handleExceptions: true,
   json: false,
@@ -45,22 +45,22 @@ process.on('uncaughtException', (err) => {
   process.exitCode = 1;
 });
 
-logger.info(`Starting dockapp_dashboard server (v${appPackage.version})`);
+logger.info(`Starting hilbert-ui server (v${appPackage.version})`);
 
-let dockAppConnector = null;
+let hilbertCLIConnector = null;
 let mkLivestatusConnector = null;
 
 if (nconf.get('test')) {
   logger.info('Running in Test Mode');
   const testBackend = new TestBackend(nconf, logger);
-  dockAppConnector = testBackend.getDockappConnector();
+  hilbertCLIConnector = testBackend.getHilbertCLIConnector();
   mkLivestatusConnector = testBackend.getMKLivestatusConnector();
 } else {
-  dockAppConnector = new DockAppConnector(nconf, logger);
+  hilbertCLIConnector = new HilbertCLIConnector(nconf, logger);
   mkLivestatusConnector = new MKLivestatusConnector(nconf, logger);
 }
 
-const stationManager = new StationManager(nconf, logger, dockAppConnector, mkLivestatusConnector);
+const stationManager = new StationManager(nconf, logger, hilbertCLIConnector, mkLivestatusConnector);
 stationManager.init().then(() => {
 
 }).catch((err) => {
@@ -171,7 +171,7 @@ app.get('/station_output.json', (req, res) => {
     }
   } else {
     logger.debug('HTTP request received: Get global terminal output');
-    outputBuffer = stationManager.globalDockAppOutputBuffer;
+    outputBuffer = stationManager.globalHilbertCLIOutputBuffer;
   }
 
   if (outputBuffer) {

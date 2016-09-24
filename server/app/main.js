@@ -9,9 +9,9 @@ var _stationManager = require('./lib/station-manager');
 
 var _stationManager2 = _interopRequireDefault(_stationManager);
 
-var _dockappConnector = require('./lib/dockapp-connector');
+var _hilbertCliConnector = require('./lib/hilbert-cli-connector');
 
-var _dockappConnector2 = _interopRequireDefault(_dockappConnector);
+var _hilbertCliConnector2 = _interopRequireDefault(_hilbertCliConnector);
 
 var _mkLivestatusConnector = require('./lib/mk-livestatus-connector');
 
@@ -39,7 +39,7 @@ nconf.env().argv();
 nconf.file('config.json');
 nconf.defaults({
   port: '3000',
-  dockapp_path: '../work/dockapp',
+  hilbert_cli_path: '../work/dockapp',
   test: false,
   scriptConcurrency: 20,
   max_log_length: 100,
@@ -50,7 +50,7 @@ nconf.defaults({
 });
 
 logger.add(logger.transports.File, {
-  filename: nconf.get('log_directory') + '/dockapp_dashboard.log',
+  filename: nconf.get('log_directory') + '/hilbert-ui.log',
   level: nconf.get('log_level'),
   handleExceptions: true,
   json: false
@@ -63,22 +63,22 @@ process.on('uncaughtException', function (err) {
   process.exitCode = 1;
 });
 
-logger.info('Starting dockapp_dashboard server (v' + appPackage.version + ')');
+logger.info('Starting hilbert-ui server (v' + appPackage.version + ')');
 
-var dockAppConnector = null;
+var hilbertCLIConnector = null;
 var mkLivestatusConnector = null;
 
 if (nconf.get('test')) {
   logger.info('Running in Test Mode');
   var testBackend = new _testBackend2.default(nconf, logger);
-  dockAppConnector = testBackend.getDockappConnector();
+  hilbertCLIConnector = testBackend.getHilbertCLIConnector();
   mkLivestatusConnector = testBackend.getMKLivestatusConnector();
 } else {
-  dockAppConnector = new _dockappConnector2.default(nconf, logger);
+  hilbertCLIConnector = new _hilbertCliConnector2.default(nconf, logger);
   mkLivestatusConnector = new _mkLivestatusConnector2.default(nconf, logger);
 }
 
-var stationManager = new _stationManager2.default(nconf, logger, dockAppConnector, mkLivestatusConnector);
+var stationManager = new _stationManager2.default(nconf, logger, hilbertCLIConnector, mkLivestatusConnector);
 stationManager.init().then(function () {}).catch(function (err) {
   logger.error('Error initializing Station Manager: ' + err.message + '. Exiting process.');
   process.exit(1);
@@ -209,7 +209,7 @@ app.get('/station_output.json', function (req, res) {
     }
   } else {
     logger.debug('HTTP request received: Get global terminal output');
-    outputBuffer = stationManager.globalDockAppOutputBuffer;
+    outputBuffer = stationManager.globalHilbertCLIOutputBuffer;
   }
 
   if (outputBuffer) {

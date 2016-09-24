@@ -12,11 +12,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * Testing stub for DockAppConnector
+ * Testing stub for HilbertCLIConnector
  *
- * Simulates the dockapp commands with a random delay
+ * Simulates the hilbert-cli operations with a random delay
  */
-var TestDockAppConnector = function () {
+var TestHilbertCLIConnector = function () {
 
   /**
    * Returns the state of the stations
@@ -27,8 +27,8 @@ var TestDockAppConnector = function () {
    * @returns {Promise}
    * @resolve {Array}
    */
-  function TestDockAppConnector(testBackend, nconf, logger) {
-    _classCallCheck(this, TestDockAppConnector);
+  function TestHilbertCLIConnector(testBackend, nconf, logger) {
+    _classCallCheck(this, TestHilbertCLIConnector);
 
     this.nconf = nconf;
     this.logger = logger;
@@ -43,7 +43,7 @@ var TestDockAppConnector = function () {
    */
 
 
-  _createClass(TestDockAppConnector, [{
+  _createClass(TestHilbertCLIConnector, [{
     key: "getStationConfig",
     value: function getStationConfig(output) {
       return this.testBackend.getStationConfig(output);
@@ -93,8 +93,8 @@ var TestDockAppConnector = function () {
     }
   }]);
 
-  return TestDockAppConnector;
+  return TestHilbertCLIConnector;
 }();
 
-exports.default = TestDockAppConnector;
-//# sourceMappingURL=test-dockapp-connector.js.map
+exports.default = TestHilbertCLIConnector;
+//# sourceMappingURL=test-hilbert-cli-connector.js.map

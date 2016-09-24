@@ -21,14 +21,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Promise = require('bluebird');
 
-
 /**
  * Connects to the MK Livestatus service and
  * retrieves status data
  *
  * http://mathias-kettner.com/checkmk_livestatus.html
  */
-
 var MKLivestatusConnector = function () {
   function MKLivestatusConnector(nconf, logger) {
     _classCallCheck(this, MKLivestatusConnector);

@@ -1,9 +1,9 @@
 /**
- * Testing stub for DockAppConnector
+ * Testing stub for HilbertCLIConnector
  *
- * Simulates the dockapp commands with a random delay
+ * Simulates the hilbert-cli operations with a random delay
  */
-export default class TestDockAppConnector {
+export default class TestHilbertCLIConnector {
 
   /**
    * Returns the state of the stations

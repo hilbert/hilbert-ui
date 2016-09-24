@@ -23,7 +23,7 @@ var TerminalOutputBuffer = function (_Writable) {
   function TerminalOutputBuffer(options) {
     _classCallCheck(this, TerminalOutputBuffer);
 
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TerminalOutputBuffer).call(this, options));
+    var _this = _possibleConstructorReturn(this, (TerminalOutputBuffer.__proto__ || Object.getPrototypeOf(TerminalOutputBuffer)).call(this, options));
 
     _this.lines = [];
     return _this;

@@ -13,9 +13,9 @@ var _nagios = require('./nagios');
 
 var _nagios2 = _interopRequireDefault(_nagios);
 
-var _testDockappConnector = require('./test-dockapp-connector');
+var _testHilbertCliConnector = require('./test-hilbert-cli-connector');
 
-var _testDockappConnector2 = _interopRequireDefault(_testDockappConnector);
+var _testHilbertCliConnector2 = _interopRequireDefault(_testHilbertCliConnector);
 
 var _testMkLivestatusConnector = require('./test-mk-livestatus-connector');
 
@@ -34,7 +34,7 @@ var TestBackend = function () {
     this.nconf = nconf;
     this.logger = logger;
 
-    this.dockAppConnector = new _testDockappConnector2.default(this, nconf, logger);
+    this.hilbertCLIConnector = new _testHilbertCliConnector2.default(this, nconf, logger);
     this.mkLivestatusConnector = new _testMkLivestatusConnector2.default(this, nconf, logger);
 
     this.state = new Map();
@@ -82,15 +82,15 @@ var TestBackend = function () {
   }
 
   /**
-   * Returns a DockAppConnector stub for testing
-   * @returns {TestDockAppConnector}
+   * Returns a HilbertCLIConnector stub for testing
+   * @returns {TestHilbertCLIConnector}
    */
 
 
   _createClass(TestBackend, [{
-    key: 'getDockappConnector',
-    value: function getDockappConnector() {
-      return this.dockAppConnector;
+    key: 'getHilbertCLIConnector',
+    value: function getHilbertCLIConnector() {
+      return this.hilbertCLIConnector;
     }
 
     /**

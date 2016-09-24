@@ -5,7 +5,7 @@ import Station from './station';
 import TerminalOutputBuffer from './terminal-output-buffer';
 
 /**
- * Service Layer to the DockApp system
+ * Service Layer for hilbert
  * Dispatches requests asynchronously and keeps cached state
  */
 export default class StationManager {
@@ -15,21 +15,21 @@ export default class StationManager {
    *
    * @param {Object} nconf - Instance of nconf configuration
    * @param {Object} logger - Instance of winston logger
-   * @param {DockAppConnector} dockApp - DockApp connector
+   * @param {HilbertCLIConnector} hilbertCLI - hilbert-cli connector
    * @param {MKLivestatusConnector} mkLivestatus - MKLivestatus connector
    */
-  constructor(nconf, logger, dockApp, mkLivestatus) {
+  constructor(nconf, logger, hilbertCLI, mkLivestatus) {
     this.nconf = nconf;
     this.logger = logger;
 
-    this.dockApp = dockApp;
+    this.hilbertCLI = hilbertCLI;
     this.mkLivestatus = mkLivestatus;
 
     this.events = new EventEmitter();
     this.logEntries = [];
     this.lastLogID = 1;
 
-    this.globalDockAppOutputBuffer = new TerminalOutputBuffer();
+    this.globalHilbertCLIOutputBuffer = new TerminalOutputBuffer();
     this.lastMKLivestatusDump = [];
 
     this.clearStations();
@@ -76,7 +76,7 @@ export default class StationManager {
     this.clearStations();
     this.signalUpdate();
 
-    return this.dockApp.getStationConfig(this.globalDockAppOutputBuffer).then((stationsCFG) => {
+    return this.hilbertCLI.getStationConfig(this.globalHilbertCLIOutputBuffer).then((stationsCFG) => {
       for (const stationCFG of stationsCFG) {
         this.addStation(new Station(stationCFG));
       }
@@ -159,7 +159,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.setStartingState();
         this.signalUpdate();
-        return this.dockApp.startStation(station.id, station.outputBuffer).then(() => {
+        return this.hilbertCLI.startStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} started`);
           this.log('message', station, 'Station started');
         })
@@ -200,7 +200,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.setStoppingState();
         this.signalUpdate();
-        return this.dockApp.stopStation(station.id, station.outputBuffer).then(() => {
+        return this.hilbertCLI.stopStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} stopped`);
           this.log('message', station, 'Station stopped');
         })
@@ -222,6 +222,7 @@ export default class StationManager {
    *
    * @param {Iterable} stationIDs - IDs of stations in which to change the appID
    * @param {string} appID - Name of the appID to run
+   * @return {Promise}
    */
   changeApp(stationIDs, appID) {
     const eligibleStations = [];
@@ -242,7 +243,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.setChangingAppState(appID);
         this.signalUpdate();
-        return this.dockApp.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
+        return this.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.logger.verbose(
             `Station manager: Changed app of station ${eligibleStation} to ${appID}`);
           this.log('message', station, `Launched app ${appID}`);

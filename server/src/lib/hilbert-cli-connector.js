@@ -2,12 +2,12 @@ const Promise = require('bluebird');
 const exec = require('child_process').exec;
 
 /**
- * Interface with DockApp via scripts
+ * Interface with hilbert-cli
  *
  * This class doesn't check the state of the stations before dispatching
  * the commands.
  */
-export default class DockAppConnector {
+export default class HilbertCLIConnector {
 
   constructor(nconf, logger) {
     this.nconf = nconf;
@@ -22,23 +22,23 @@ export default class DockAppConnector {
    * @reject {Error}
    */
   getStationConfig(output) {
-    this.logger.verbose('DockApp: Getting station config');
+    this.logger.verbose('hilbert-cli: Getting station config');
     return new Promise((resolve, reject) => {
-      this.execute(DockAppConnector.SCRIPT_LIST_STATIONS, output)
+      this.execute(HilbertCLIConnector.SCRIPT_LIST_STATIONS, output)
         .then((answer) => {
-          this.logger.debug(`DockApp: Station config read:
+          this.logger.debug(`hilbert-cli: Station config read:
 ${answer}`);
           const stationCfg = JSON.parse(answer);
           if (!stationCfg instanceof Array) {
-            throw new Error(`Dockapp returned an invalid station config: ${answer}`);
+            throw new Error(`hilbert-cli returned an invalid station config: ${answer}`);
           }
           if (stationCfg.length === 0) {
-            throw new Error('Dockapp returned an empty station config.');
+            throw new Error('hilbert-cli returned an empty station config.');
           }
           resolve(stationCfg);
         })
         .catch((err) => {
-          this.logger.error(`DockApp: Error getting station config '${err.message}'`);
+          this.logger.error(`hilbert-cli: Error getting station config '${err.message}'`);
           reject(err);
         });
     });
@@ -51,14 +51,14 @@ ${answer}`);
    * @returns Promise
    */
   startStation(stationID, output) {
-    this.logger.verbose(`DockApp: Starting station ${stationID}`);
+    this.logger.verbose(`hilbert-cli: Starting station ${stationID}`);
     return new Promise((resolve, reject) => {
-      this.execute(`${DockAppConnector.SCRIPT_START_STATION} ${stationID}`, output)
+      this.execute(`${HilbertCLIConnector.SCRIPT_START_STATION} ${stationID}`, output)
         .then(() => {
           resolve();
         })
         .catch((err) => {
-          this.logger.error(`DockApp: Error starting station ${stationID}, '${err.message}'`);
+          this.logger.error(`hilbert-cli: Error starting station ${stationID}, '${err.message}'`);
           reject(err);
         });
     });
@@ -71,14 +71,14 @@ ${answer}`);
    * @returns Promise
    */
   stopStation(stationID, output) {
-    this.logger.verbose(`DockApp: Stopping station ${stationID}`);
+    this.logger.verbose(`hilbert-cli: Stopping station ${stationID}`);
     return new Promise((resolve, reject) => {
-      this.execute(`${DockAppConnector.SCRIPT_STOP_STATION} ${stationID}`, output)
+      this.execute(`${HilbertCLIConnector.SCRIPT_STOP_STATION} ${stationID}`, output)
         .then(() => {
           resolve();
         })
         .catch((err) => {
-          this.logger.error(`DockApp: Error stopping station ${stationID}, '${err.message}'`);
+          this.logger.error(`hilbert-cli: Error stopping station ${stationID}, '${err.message}'`);
           reject(err);
         });
     });
@@ -92,15 +92,15 @@ ${answer}`);
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {
-    this.logger.verbose(`DockApp: Changing app of station ${stationID} to ${appID}`);
+    this.logger.verbose(`hilbert-cli: Changing app of station ${stationID} to ${appID}`);
     return new Promise((resolve, reject) => {
-      this.execute(`${DockAppConnector.SCRIPT_CHANGE_APP} ${stationID} ${appID}`, output)
+      this.execute(`${HilbertCLIConnector.SCRIPT_CHANGE_APP} ${stationID} ${appID}`, output)
         .then(() => {
           resolve();
         })
         .catch((err) => {
           this.logger.error(
-            `DockApp: Error changing station ${stationID} to app ${appID}, '${err.message}'`);
+            `hilbert-cli: Error changing station ${stationID} to app ${appID}, '${err.message}'`);
           reject(err);
         });
     });
@@ -128,8 +128,8 @@ ${answer}`);
       if (!execOptions.hasOwnProperty('env')) {
         execOptions.env = {};
       }
-      if (!execOptions.env.hasOwnProperty('DOCKAPP_PATH')) {
-        execOptions.env.DOCKAPP_PATH = this.nconf.get('dockapp_path');
+      if (!execOptions.env.hasOwnProperty('HILBERT_CLI_PATH')) {
+        execOptions.env.HILBERT_CLI_PATH = this.nconf.get('hilbert_cli_path');
       }
 
       const process = exec(command, execOptions);
@@ -161,7 +161,7 @@ ${answer}`);
   }
 }
 
-DockAppConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
-DockAppConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
-DockAppConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
-DockAppConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';
+HilbertCLIConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
+HilbertCLIConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
+HilbertCLIConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
+HilbertCLIConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';

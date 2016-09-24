@@ -20,14 +20,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  *
  * http://mathias-kettner.com/checkmk_livestatus.html
  */
-
 var MKLivestatusQuery = function () {
 
   /**
    * Constructor
    * @param {MKLivestatusConnector} connector
    */
-
   function MKLivestatusQuery(connector) {
     _classCallCheck(this, MKLivestatusQuery);
 
