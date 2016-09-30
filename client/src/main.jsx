@@ -7,7 +7,7 @@ window.dashboard = null;
 // onReady
 $(() => {
   window.dashboard = ReactDOM.render(
-    <Dashboard url="/api/stations.json" />,
+    <Dashboard url="/api/stations" />,
     document.getElementById('dashboardContainer')
   );
 

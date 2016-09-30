@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.9] 2016-09-30
+### Added
+- Documented HTTP API
+- Test entry point with dummy test
+### Changed
+- New HTTP API in server
+
 ## [0.8] 2016-09-24
 ### Changed
 - The project was renamed to hilbert-ui.

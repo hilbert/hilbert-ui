@@ -5,8 +5,6 @@ import ButtonFilter from './buttonFilter.jsx';
 import LogViewer from './logViewer.jsx';
 import ConsoleViewer from './consoleViewer.jsx';
 
-// const tmp_log_entries = require('./tmp_log.json').entries;
-
 export default class Dashboard extends React.Component {
 
   constructor(props) {
@@ -193,12 +191,11 @@ export default class Dashboard extends React.Component {
 
   stopStations(stationIDs) {
     $.ajax({
-      url: '/api/stations.json',
+      url: '/api/stations/stop',
       method: 'post',
       contentType: 'application/json',
       data: JSON.stringify({
-        action: 'stop',
-        stationIDs: Array.from(stationIDs),
+        ids: Array.from(stationIDs),
       }),
       dataType: 'json',
       cache: false,
@@ -218,12 +215,11 @@ export default class Dashboard extends React.Component {
 
   startStations(stationIDs) {
     $.ajax({
-      url: '/api/stations.json',
+      url: '/api/stations/start',
       method: 'post',
       contentType: 'application/json',
       data: JSON.stringify({
-        action: 'start',
-        stationIDs: Array.from(stationIDs),
+        ids: Array.from(stationIDs),
       }),
       dataType: 'json',
       cache: false,
@@ -243,12 +239,11 @@ export default class Dashboard extends React.Component {
 
   changeAppSelected(app) {
     $.ajax({
-      url: '/api/stations.json',
+      url: '/api/stations/change_app',
       method: 'post',
       contentType: 'application/json',
       data: JSON.stringify({
-        action: 'change_app',
-        stationIDs: Array.from(this.state.selection),
+        ids: Array.from(this.state.selection),
         app,
       }),
       dataType: 'json',
@@ -263,10 +258,7 @@ export default class Dashboard extends React.Component {
     if (this.consoleViewer !== null) {
       this.consoleViewer.openModal();
       $.ajax({
-        url: '/api/station_output.json',
-        data: {
-          stationID,
-        },
+        url: `/api/station/${stationID}/output`,
         method: 'get',
         dataType: 'json',
         contentType: 'application/json',
@@ -323,9 +315,9 @@ export default class Dashboard extends React.Component {
   pollServer() {
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: '/api/poll.json',
+        url: '/api/stations/poll',
         data: {
-          lastSeen: this.updateID,
+          lastUpdateID: this.updateID,
         },
         dataType: 'json',
         cache: false,
@@ -491,8 +483,6 @@ export default class Dashboard extends React.Component {
       </div>
     );
 
-    const noTerminalOutputDisable = (selectedCount !== 1 ? ' disabled' : '');
-
     actions.push(
       <div key="showLog" className="action-pane">
         <div className="action-pane-separator" ></div>
@@ -503,12 +493,12 @@ export default class Dashboard extends React.Component {
             if (this.logViewer !== null) {
               this.logViewer.openModal();
               $.ajax({
-                url: '/api/log.json',
+                url: '/api/notifications',
                 method: 'get',
                 contentType: 'application/json',
                 cache: false,
                 success: (data) => {
-                  this.setState({ log: data.entries.reverse() });
+                  this.setState({ log: data.notifications.reverse() });
                 },
                 error: (xhr, status, err) => console.error(status, err.toString()),
               });
@@ -524,9 +514,7 @@ export default class Dashboard extends React.Component {
             if (this.consoleViewer !== null) {
               this.consoleViewer.openModal();
               $.ajax({
-                url: '/api/station_output.json',
-                data: {
-                },
+                url: '/api/server/output',
                 method: 'get',
                 dataType: 'json',
                 contentType: 'application/json',

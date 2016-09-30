@@ -2,7 +2,7 @@ import Nagios from './nagios';
 import TestHilbertCLIConnector from './test-hilbert-cli-connector';
 import TestMKLivestatusConnector from './test-mk-livestatus-connector';
 
-const testStations = require('../../tests/models/test_stations.json');
+const testStations = require('../../data/test_mode/test_stations.json');
 
 export default class TestBackend {
 

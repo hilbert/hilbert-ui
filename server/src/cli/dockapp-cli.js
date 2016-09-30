@@ -8,7 +8,7 @@ function listStations() {
     hostname,
     port,
     method: 'GET',
-    path: '/api/stations.json',
+    path: '/api/stations',
   },
   (res) => {
     let body = '';
@@ -27,15 +27,14 @@ function listStations() {
 
 function startStation(stationID) {
   const postData = JSON.stringify({
-    action: 'start',
-    stationIDs: [stationID],
+    ids: [stationID],
   });
 
-  var req = http.request({
+  const req = http.request({
     hostname,
     port,
     method: 'POST',
-    path: '/api/stations.json',
+    path: '/api/stations/start',
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(postData),
@@ -52,17 +51,13 @@ function startStation(stationID) {
     });
   });
 
-  req.write(postData)
+  req.write(postData);
   req.end();
 
   console.log(`Starting station ${stationID}`);
 }
 
-function stopStation(stationID) {
-
-}
-
-// listStations();
+listStations();
 startStation('station_interactive_1');
 
 // Interface
