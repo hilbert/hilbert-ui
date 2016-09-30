@@ -13,7 +13,7 @@ function listStations() {
     hostname: hostname,
     port: port,
     method: 'GET',
-    path: '/api/stations.json'
+    path: '/api/stations'
   }, function (res) {
     var body = '';
     res.on('data', function (chunk) {
@@ -52,15 +52,14 @@ function listStations() {
 
 function startStation(stationID) {
   var postData = JSON.stringify({
-    action: 'start',
-    stationIDs: [stationID]
+    ids: [stationID]
   });
 
   var req = http.request({
     hostname: hostname,
     port: port,
     method: 'POST',
-    path: '/api/stations.json',
+    path: '/api/stations/start',
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(postData)
@@ -80,9 +79,7 @@ function startStation(stationID) {
   console.log('Starting station ' + stationID);
 }
 
-function stopStation(stationID) {}
-
-// listStations();
+listStations();
 startStation('station_interactive_1');
 
 // Interface

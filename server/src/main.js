@@ -15,6 +15,10 @@ import TestBackend from './lib/test-backend';
 
 const iconmap = require('../iconmap.json');
 
+/**
+ ** Setup
+ **/
+
 app.use(bodyParser.json());
 
 nconf.env().argv();
@@ -81,6 +85,14 @@ function getIconURL(appID) {
   return 'icons/none.png';
 }
 
+/**
+ ** Routes
+ **/
+
+app.get('/stations', (req, res) => {
+  writeJSONResponse(res, stationDataResponse());
+});
+
 // Longpoll begin
 
 const pollUpdateEmitter = new EventEmitter();
@@ -88,7 +100,7 @@ pollUpdateEmitter.setMaxListeners(100);
 let updateID = 1;
 const pollTimeoutDelay = 15000;
 
-function respondJSON(res, data) {
+function writeJSONResponse(res, data) {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(data));
 }
@@ -109,10 +121,10 @@ function emptyResponse() {
   return {};
 }
 
-app.get('/poll.json', (req, res) => {
+app.get('/stations/poll', (req, res) => {
   // if the client is out of sync respond immediately
-  if (Number(req.query.lastSeen) !== updateID) {
-    respondJSON(res, stationDataResponse());
+  if (Number(req.query.lastUpdateID) !== updateID) {
+    writeJSONResponse(res, stationDataResponse());
   } else {
     // ... otherwise wait for an updateFromMKLivestatus to respond
 
@@ -124,7 +136,7 @@ app.get('/poll.json', (req, res) => {
     // If there was an updateFromMKLivestatus respond
     pollUpdateEmitter.once('updateFromMKLivestatus', (data) => {
       clearTimeout(pollTimeout);
-      respondJSON(res, data);
+      writeJSONResponse(res, data);
     });
   }
 });
@@ -136,65 +148,56 @@ stationManager.events.on('stationUpdate', () => {
 
 // Longpoll end
 
-app.get('/stations.json', (req, res) => {
-  respondJSON(res, stationDataResponse());
+app.post('/stations/start', (req, res) => {
+  logger.debug(`HTTP request received: Start stations ${req.body.ids}`);
+  stationManager.startStations(req.body.ids);
+  writeJSONResponse(res, emptyResponse());
 });
 
-app.post('/stations.json', (req, res) => {
-  if (req.body.action === 'start') {
-    logger.debug(`HTTP request received: Start stations ${req.body.stationIDs}`);
-    stationManager.startStations(req.body.stationIDs);
-    respondJSON(res, emptyResponse());
-  } else if (req.body.action === 'stop') {
-    logger.debug(`HTTP request received: Stop stations ${req.body.stationIDs}`);
-    stationManager.stopStations(req.body.stationIDs);
-    respondJSON(res, emptyResponse());
-  } else if (req.body.action === 'change_app') {
-    logger.debug(
-      `HTTP request received: Change app of stations ${req.body.stationIDs} to ${req.body.app}`);
-    stationManager.changeApp(req.body.stationIDs, req.body.app);
-    respondJSON(res, emptyResponse());
-  } else {
-    logger.error(`HTTP request received: Invalid POST request with action ${req.body.action}`);
-    res.writeHead(404, 'Action not found');
-    res.end();
-  }
+app.post('/stations/stop', (req, res) => {
+  logger.debug(`HTTP request received: Stop stations ${req.body.ids}`);
+  stationManager.stopStations(req.body.ids);
+  writeJSONResponse(res, emptyResponse());
 });
 
-app.get('/station_output.json', (req, res) => {
-  let outputBuffer = null;
-  if (req.query.hasOwnProperty('stationID')) {
-    logger.debug(`HTTP request received: Get output of station ${req.query.stationID}`);
-    const station = stationManager.getStationByID(req.query.stationID);
-    if (station) {
-      outputBuffer = station.outputBuffer;
-    }
-  } else {
-    logger.debug('HTTP request received: Get global terminal output');
-    outputBuffer = stationManager.globalHilbertCLIOutputBuffer;
-  }
+app.post('/stations/change_app', (req, res) => {
+  logger.debug(
+    `HTTP request received: Change app of stations ${req.body.ids} to ${req.body.app}`);
+  stationManager.changeApp(req.body.ids, req.body.app);
+  writeJSONResponse(res, emptyResponse());
+});
 
-  if (outputBuffer) {
-    respondJSON(res, {
-      lines: outputBuffer.getAll(),
+app.get('/station/:id/output', (req, res) => {
+  logger.debug(`HTTP request received: Get output of station ${req.params.id}`);
+  const station = stationManager.getStationByID(req.params.id);
+  if (station) {
+    writeJSONResponse(res, {
+      lines: station.outputBuffer.getAll(),
     });
   } else {
-    logger.error(`Requested output of non existant station ${req.query.stationID}`);
+    logger.error(`Requested output of non existant station ${req.params.id}`);
     res.writeHead(404, 'Station not found');
     res.end();
   }
 });
 
-app.get('/mklivestatus.json', (req, res) => {
+app.get('/server/output', (req, res) => {
+  logger.debug(`HTTP request received: Get output of station ${req.params.id}`);
+  writeJSONResponse(res, {
+    lines: stationManager.globalHilbertCLIOutputBuffer.getAll(),
+  });
+});
+
+app.get('/server/mklivestatus', (req, res) => {
   logger.debug('HTTP request received: Get last MKLivestatus state');
-  respondJSON(res, {
+  writeJSONResponse(res, {
     lastState: stationManager.lastMKLivestatusDump,
   });
 });
 
-app.get('/log.json', (req, res) => {
-  logger.debug('HTTP request received: Get log');
-  respondJSON(res, { entries: stationManager.getLog() });
+app.get('/notifications', (req, res) => {
+  logger.debug('HTTP request received: Get notifications');
+  writeJSONResponse(res, { notifications: stationManager.getLog() });
 });
 
 // Spawn server

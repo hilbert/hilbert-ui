@@ -1,0 +1,228 @@
+# hilbert-ui server HTTP API
+
+## GET /stations
+
+Returns the list of stations with their attributes.
+
+    {
+        updateID: [integer],
+        stations: [  
+            {  
+                "id": [string],
+                "name": [string],
+                "type": [string],
+                "default_app": [string],
+                "possible_apps":[array of strings],
+                "state": [string],
+                "app": [string],
+                "icon": [string]
+            }
+        ]
+    }
+
+### arguments
+
+none
+
+### output
+
+- **updateID**: An integer that identifies the current state of the system.
+ Each time there's a change in the state of a station this ID is incremented.
+ The client can send back the updateID in poll requests to indicate the last 
+ state received so the server knows if there are any updates to send.
+ 
+- **stations**: Array of stations
+
+    - **id**: The id of the station
+    - **name**: The name of the station
+    - **type**: The type of the station
+    - **default_app**: ID of the default app for this station
+    - **possible_apps**: Array with the IDs of the apps that can be run
+     in this station.
+    - **app**: ID of the app running in the station
+    - **icon**: url of the icon that identifies the app currently running 
+    - **state**: Current state of the station. Can be one of:
+        - Station.UNKNOWN: 'unk'
+        - Station.OFF: 'off'
+        - Station.ON: 'on'
+        - Station.STOPPING: 'stopping'
+        - Station.STARTING_STATION: 'starting_station'
+        - Station.STARTING_APP: 'starting_app'
+        - Station.SWITCHING_APP: 'switching_app'
+        - Station.ERROR: 'error'
+  
+## GET /stations/poll
+
+Do a "long poll" of the state of the stations.
+
+If there has been any updates since the last poll they will be sent 
+ immediately. Otherwise the response will be delayed until there are
+ updates or until a timeout is reached.
+
+### arguments
+
+- **lastUpdateID**: [integer] Last updateID received from a `/stations` or 
+  `/stations/poll` request.
+
+### output
+
+Same as `GET /stations` (see above) or an empty response ({}) if the
+request timed out with no updates.
+
+## POST /stations/start
+
+Start one or more stations.
+
+The method will return immediately. The state of the system has to be
+ polled to see when the operation is finished.
+
+### arguments
+
+- **ids**: [array of strings] IDs of the stations to start.
+
+### output
+
+An empty response ({}).
+
+## POST /stations/stop
+
+Stop one or more stations.
+
+The method will return immediately. The state of the system has to be
+ polled to see when the operation is finished.
+
+### arguments
+
+- **ids**: [array of strings] IDs of the stations to stop.
+
+### output
+
+An empty response ({}).
+
+## POST /stations/change_app
+
+Change the application running on one or more stations.
+
+The method will return immediately. The state of the system has to be
+ polled to see when the operation is finished.
+
+### arguments
+
+- **ids**: [array of strings] IDs of the stations to start.
+- **app**: [string] ID of the app to start on the stations.
+
+### output
+
+An empty response ({}).
+
+## GET /station/[id]/output
+
+Returns the output of the operations performed in a station.
+ 
+The output is stored in a line buffer of limited size so only the output
+might be truncated.
+
+- **id**: [string] ID of the station.
+
+### arguments
+
+none.
+
+### output
+
+    {
+        lines: [array of strings] 
+    }
+
+- **lines**: Each string in the array is a line of output.
+
+## GET /server/output
+
+Returns the output of the operations performed in the hilbert server.
+
+The output is stored in a line buffer of limited size so only the output
+might be truncated.
+
+### arguments
+
+none.
+
+### output
+
+    {
+        lines: [array of strings] 
+    }
+
+- **lines**: Each string in the array is a line of output.
+
+## GET /server/mklivestatus
+
+Returns the results of the last query to MKLivestatus.
+
+### arguments
+
+none.
+
+### output
+
+    {
+        lastState: [
+            {
+                id: [string],
+                state: [integer],
+                state_type: [integer],
+                app_id: [string],
+                app_state: [integer],
+                app_state_type: [integer]
+            }
+        ]
+    }
+
+- **lastState**: array of station states
+    - **id**: ID of the station
+    - **state**: State of the station. One of:
+        - Nagios.HostState.UP: 0
+        - Nagios.HostState.DOWN: 1
+        - Nagios.HostState.UNREACHABLE: 2
+    - **state_type**: Type of the state. One of:
+        - Nagios.StateType.SOFT: 0
+        - Nagios.StateType.HARD: 1
+    - **app_id**: ID of the app running in the station
+    - **app_state**: State of the app. Same values as `state`.
+    - **app_state_type**: State of the app. Same values as `state_type`.
+ 
+## GET /notifications
+
+Returns the latest notifications generated by the ui.
+
+    {  
+       "entries":[  
+          {  
+             "id": [integer],
+             "time": [timestamp],
+             "type": [string],
+             "message": [string],
+             "station_id": [string],
+             "station_name": [string]
+          }
+       ]
+    }
+ 
+### arguments
+ 
+none.
+ 
+### output
+ 
+- **notifications**: Array of notifications
+    - **id**: Unique ID of the notification
+    - **time**: Date and time in ISO format
+    - **type**: Type of notification. Can be one of:
+        - message
+        - warning
+        - error
+    - **station_id**: ID of the station associated to the notification, 
+      if any.
+    - **station_name**: Name of the station associated to the notification,
+      if any.
+  

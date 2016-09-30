@@ -11,6 +11,9 @@ the ui-client.
 operations for changing the state of stations, initializing them, 
 destroying them, etc.
 
+**hilbert server**: The system which monitors and dispatches commands to the
+stations.
+
 **station**: A computer system controlled and monitored by hilbert.
 Stations run applications deployed through containers.
  
