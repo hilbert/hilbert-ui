@@ -64,7 +64,13 @@ if (nconf.get('test')) {
   mkLivestatusConnector = new MKLivestatusConnector(nconf, logger);
 }
 
-const stationManager = new StationManager(nconf, logger, hilbertCLIConnector, mkLivestatusConnector);
+const stationManager = new StationManager(
+  nconf,
+  logger,
+  hilbertCLIConnector,
+  mkLivestatusConnector
+);
+
 stationManager.init().then(() => {
 
 }).catch((err) => {
@@ -85,13 +91,14 @@ function getIconURL(appID) {
   return 'icons/none.png';
 }
 
+function writeJSONResponse(res, data) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
 /**
  ** Routes
  **/
-
-app.get('/stations', (req, res) => {
-  writeJSONResponse(res, stationDataResponse());
-});
 
 // Longpoll begin
 
@@ -99,11 +106,6 @@ const pollUpdateEmitter = new EventEmitter();
 pollUpdateEmitter.setMaxListeners(100);
 let updateID = 1;
 const pollTimeoutDelay = 15000;
-
-function writeJSONResponse(res, data) {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(data));
-}
 
 function stationDataResponse() {
   const stations = stationManager.getStations();
@@ -147,6 +149,10 @@ stationManager.events.on('stationUpdate', () => {
 });
 
 // Longpoll end
+
+app.get('/stations', (req, res) => {
+  writeJSONResponse(res, stationDataResponse());
+});
 
 app.post('/stations/start', (req, res) => {
   logger.debug(`HTTP request received: Start stations ${req.body.ids}`);
