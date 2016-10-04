@@ -17,6 +17,10 @@ var _mkLivestatusConnector = require('./lib/mk-livestatus-connector');
 
 var _mkLivestatusConnector2 = _interopRequireDefault(_mkLivestatusConnector);
 
+var _httpApiServer = require('./lib/http-api-server');
+
+var _httpApiServer2 = _interopRequireDefault(_httpApiServer);
+
 var _testBackend = require('./lib/test-backend');
 
 var _testBackend2 = _interopRequireDefault(_testBackend);
@@ -26,18 +30,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var appPackage = require('../package.json');
 var logger = require('winston');
 var nconf = require('nconf');
-var express = require('express');
-var app = express();
-var bodyParser = require('body-parser');
-var EventEmitter = require('events').EventEmitter;
-
-var iconmap = require('../iconmap.json');
-
-/**
- ** Setup
- **/
-
-app.use(bodyParser.json());
 
 nconf.env().argv();
 nconf.file('config.json');
@@ -84,187 +76,11 @@ if (nconf.get('test')) {
 
 var stationManager = new _stationManager2.default(nconf, logger, hilbertCLIConnector, mkLivestatusConnector);
 
-stationManager.init().then(function () {}).catch(function (err) {
+stationManager.init().then(function () {
+  var server = new _httpApiServer2.default(stationManager, logger);
+  server.listen(nconf.get('port'));
+}).catch(function (err) {
   logger.error('Error initializing Station Manager: ' + err.message + '. Exiting process.');
   process.exit(1);
 });
-
-/**
- * Return the URL of the icon of the specified app
- *
- * @param {string} appID - ID of the app
- * @returns {string} - URL of the icon
- */
-function getIconURL(appID) {
-  if (iconmap[appID] !== undefined) {
-    return 'icons/' + iconmap[appID];
-  }
-  return 'icons/none.png';
-}
-
-function writeJSONResponse(res, data) {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(data));
-}
-
-/**
- ** Routes
- **/
-
-// Longpoll begin
-
-var pollUpdateEmitter = new EventEmitter();
-pollUpdateEmitter.setMaxListeners(100);
-var updateID = 1;
-var pollTimeoutDelay = 15000;
-
-function stationDataResponse() {
-  var stations = stationManager.getStations();
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
-
-  try {
-    for (var _iterator = stations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var station = _step.value;
-
-      station.icon = getIconURL(station.app);
-    }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
-
-  return {
-    updateID: updateID,
-    stations: stations
-  };
-}
-
-function emptyResponse() {
-  return {};
-}
-
-app.get('/stations/poll', function (req, res) {
-  // if the client is out of sync respond immediately
-  if (Number(req.query.lastUpdateID) !== updateID) {
-    writeJSONResponse(res, stationDataResponse());
-  } else {
-    (function () {
-      // ... otherwise wait for an updateFromMKLivestatus to respond
-
-      // On timeout send an empty updateFromMKLivestatus
-      var pollTimeout = setTimeout(function () {
-        pollUpdateEmitter.emit('updateFromMKLivestatus', emptyResponse());
-      }, pollTimeoutDelay);
-
-      // If there was an updateFromMKLivestatus respond
-      pollUpdateEmitter.once('updateFromMKLivestatus', function (data) {
-        clearTimeout(pollTimeout);
-        writeJSONResponse(res, data);
-      });
-    })();
-  }
-});
-
-stationManager.events.on('stationUpdate', function () {
-  updateID++;
-  pollUpdateEmitter.emit('updateFromMKLivestatus', stationDataResponse());
-});
-
-// Longpoll end
-
-app.get('/stations', function (req, res) {
-  writeJSONResponse(res, stationDataResponse());
-});
-
-app.post('/stations/start', function (req, res) {
-  if (!req.body.ids) {
-    logger.debug("HTTP request received: Start stations missing required 'ids' argument");
-    res.writeHead(400, "Missing 'ids' argument");
-    res.end();
-    return;
-  }
-  logger.debug('HTTP request received: Start stations ' + req.body.ids);
-  stationManager.startStations(req.body.ids);
-  writeJSONResponse(res, emptyResponse());
-});
-
-app.post('/stations/stop', function (req, res) {
-  if (!req.body.ids) {
-    logger.debug("HTTP request received: Stop stations missing required 'ids' argument");
-    res.writeHead(400, "Missing 'ids' argument");
-    res.end();
-    return;
-  }
-  logger.debug('HTTP request received: Stop stations ' + req.body.ids);
-  stationManager.stopStations(req.body.ids);
-  writeJSONResponse(res, emptyResponse());
-});
-
-app.post('/stations/change_app', function (req, res) {
-  if (!req.body.ids) {
-    logger.debug("HTTP request received: Change app missing required 'ids' argument");
-    res.writeHead(400, "Missing 'ids' argument");
-    res.end();
-    return;
-  }
-  if (!req.body.app) {
-    logger.debug("HTTP request received: Change app missing required 'app' argument");
-    res.writeHead(400, "Missing 'app' argument");
-    res.end();
-    return;
-  }
-  logger.debug('HTTP request received: Change app of stations ' + req.body.ids + ' to ' + req.body.app);
-  stationManager.changeApp(req.body.ids, req.body.app);
-  writeJSONResponse(res, emptyResponse());
-});
-
-app.get('/station/:id/output', function (req, res) {
-  logger.debug('HTTP request received: Get output of station ' + req.params.id);
-  var station = stationManager.getStationByID(req.params.id);
-  if (station) {
-    writeJSONResponse(res, {
-      lines: station.outputBuffer.getAll()
-    });
-  } else {
-    logger.error('Requested output of non existant station ' + req.params.id);
-    res.writeHead(404, 'Station not found');
-    res.end();
-  }
-});
-
-app.get('/server/output', function (req, res) {
-  logger.debug('HTTP request received: Get output of station ' + req.params.id);
-  writeJSONResponse(res, {
-    lines: stationManager.globalHilbertCLIOutputBuffer.getAll()
-  });
-});
-
-app.get('/server/mklivestatus', function (req, res) {
-  logger.debug('HTTP request received: Get last MKLivestatus state');
-  writeJSONResponse(res, {
-    lastState: stationManager.lastMKLivestatusDump
-  });
-});
-
-app.get('/notifications', function (req, res) {
-  logger.debug('HTTP request received: Get notifications');
-  writeJSONResponse(res, { notifications: stationManager.getLog() });
-});
-
-// Spawn server
-var port = nconf.get('port');
-app.listen(port);
-logger.info('Server listening on port ' + port + '.');
 //# sourceMappingURL=main.js.map
