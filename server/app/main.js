@@ -83,6 +83,7 @@ if (nconf.get('test')) {
 }
 
 var stationManager = new _stationManager2.default(nconf, logger, hilbertCLIConnector, mkLivestatusConnector);
+
 stationManager.init().then(function () {}).catch(function (err) {
   logger.error('Error initializing Station Manager: ' + err.message + '. Exiting process.');
   process.exit(1);
@@ -101,13 +102,14 @@ function getIconURL(appID) {
   return 'icons/none.png';
 }
 
+function writeJSONResponse(res, data) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
 /**
  ** Routes
  **/
-
-app.get('/stations', function (req, res) {
-  writeJSONResponse(res, stationDataResponse());
-});
 
 // Longpoll begin
 
@@ -115,11 +117,6 @@ var pollUpdateEmitter = new EventEmitter();
 pollUpdateEmitter.setMaxListeners(100);
 var updateID = 1;
 var pollTimeoutDelay = 15000;
-
-function writeJSONResponse(res, data) {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(data));
-}
 
 function stationDataResponse() {
   var stations = stationManager.getStations();
@@ -187,19 +184,47 @@ stationManager.events.on('stationUpdate', function () {
 
 // Longpoll end
 
+app.get('/stations', function (req, res) {
+  writeJSONResponse(res, stationDataResponse());
+});
+
 app.post('/stations/start', function (req, res) {
+  if (!req.body.ids) {
+    logger.debug("HTTP request received: Start stations missing required 'ids' argument");
+    res.writeHead(400, "Missing 'ids' argument");
+    res.end();
+    return;
+  }
   logger.debug('HTTP request received: Start stations ' + req.body.ids);
   stationManager.startStations(req.body.ids);
   writeJSONResponse(res, emptyResponse());
 });
 
 app.post('/stations/stop', function (req, res) {
+  if (!req.body.ids) {
+    logger.debug("HTTP request received: Stop stations missing required 'ids' argument");
+    res.writeHead(400, "Missing 'ids' argument");
+    res.end();
+    return;
+  }
   logger.debug('HTTP request received: Stop stations ' + req.body.ids);
   stationManager.stopStations(req.body.ids);
   writeJSONResponse(res, emptyResponse());
 });
 
 app.post('/stations/change_app', function (req, res) {
+  if (!req.body.ids) {
+    logger.debug("HTTP request received: Change app missing required 'ids' argument");
+    res.writeHead(400, "Missing 'ids' argument");
+    res.end();
+    return;
+  }
+  if (!req.body.app) {
+    logger.debug("HTTP request received: Change app missing required 'app' argument");
+    res.writeHead(400, "Missing 'app' argument");
+    res.end();
+    return;
+  }
   logger.debug('HTTP request received: Change app of stations ' + req.body.ids + ' to ' + req.body.app);
   stationManager.changeApp(req.body.ids, req.body.app);
   writeJSONResponse(res, emptyResponse());

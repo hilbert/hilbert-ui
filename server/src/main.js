@@ -155,18 +155,42 @@ app.get('/stations', (req, res) => {
 });
 
 app.post('/stations/start', (req, res) => {
+  if (!req.body.ids) {
+    logger.debug("HTTP request received: Start stations missing required 'ids' argument");
+    res.writeHead(400, "Missing 'ids' argument");
+    res.end();
+    return;
+  }
   logger.debug(`HTTP request received: Start stations ${req.body.ids}`);
   stationManager.startStations(req.body.ids);
   writeJSONResponse(res, emptyResponse());
 });
 
 app.post('/stations/stop', (req, res) => {
+  if (!req.body.ids) {
+    logger.debug("HTTP request received: Stop stations missing required 'ids' argument");
+    res.writeHead(400, "Missing 'ids' argument");
+    res.end();
+    return;
+  }
   logger.debug(`HTTP request received: Stop stations ${req.body.ids}`);
   stationManager.stopStations(req.body.ids);
   writeJSONResponse(res, emptyResponse());
 });
 
 app.post('/stations/change_app', (req, res) => {
+  if (!req.body.ids) {
+    logger.debug("HTTP request received: Change app missing required 'ids' argument");
+    res.writeHead(400, "Missing 'ids' argument");
+    res.end();
+    return;
+  }
+  if (!req.body.app) {
+    logger.debug("HTTP request received: Change app missing required 'app' argument");
+    res.writeHead(400, "Missing 'app' argument");
+    res.end();
+    return;
+  }
   logger.debug(
     `HTTP request received: Change app of stations ${req.body.ids} to ${req.body.app}`);
   stationManager.changeApp(req.body.ids, req.body.app);
@@ -188,7 +212,7 @@ app.get('/station/:id/output', (req, res) => {
 });
 
 app.get('/server/output', (req, res) => {
-  logger.debug(`HTTP request received: Get output of station ${req.params.id}`);
+  logger.debug('HTTP request received: Get global output');
   writeJSONResponse(res, {
     lines: stationManager.globalHilbertCLIOutputBuffer.getAll(),
   });
