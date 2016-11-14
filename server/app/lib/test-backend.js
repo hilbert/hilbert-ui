@@ -29,6 +29,7 @@ var TestBackend = function () {
   function TestBackend(nconf, logger) {
     _classCallCheck(this, TestBackend);
 
+    this.simulateDelays = false;
     this.nconf = nconf;
     this.logger = logger;
 
@@ -280,12 +281,17 @@ var TestBackend = function () {
   }, {
     key: 'randomDelay',
     value: function randomDelay(min, max) {
-      return new Promise(function (resolve) {
-        var delay = Math.floor(Math.random() * (max - min)) + min;
-        setTimeout(function () {
-          resolve();
-        }, delay);
-      });
+
+      if (this.simulateDelays) {
+        return new Promise(function (resolve) {
+          var delay = Math.floor(Math.random() * (max - min)) + min;
+          setTimeout(function () {
+            resolve();
+          }, delay);
+        });
+      } else {
+        return Promise.resolve();
+      }
     }
   }]);
 

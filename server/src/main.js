@@ -47,6 +47,7 @@ let mkLivestatusConnector = null;
 if (nconf.get('test')) {
   logger.info('Running in Test Mode');
   const testBackend = new TestBackend(nconf, logger);
+  testBackend.simulateDelays = true;
   testBackend.load(testData);
   hilbertCLIConnector = testBackend.getHilbertCLIConnector();
   mkLivestatusConnector = testBackend.getMKLivestatusConnector();

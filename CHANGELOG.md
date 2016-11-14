@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added tests for the HTTP API layer
 - Added interface to the Test Backend for defining test data programmatically 
+### Changed
+- Makes delays in test mode optional
 ### Fixed
 - HTTP Api returns error instead of throwing exceptions when required
   arguments are missing.

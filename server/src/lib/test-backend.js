@@ -5,6 +5,7 @@ import TestMKLivestatusConnector from './test-mk-livestatus-connector';
 export default class TestBackend {
 
   constructor(nconf, logger) {
+    this.simulateDelays = false;
     this.nconf = nconf;
     this.logger = logger;
 
@@ -196,9 +197,16 @@ export default class TestBackend {
    * @returns {Promise}
    */
   randomDelay(min, max) {
-    return new Promise((resolve) => {
-      const delay = Math.floor(Math.random() * (max - min)) + min;
-      setTimeout(() => { resolve(); }, delay);
-    });
+
+    if (this.simulateDelays) {
+      return new Promise((resolve) => {
+        const delay = Math.floor(Math.random() * (max - min)) + min;
+        setTimeout(() => {
+          resolve();
+        }, delay);
+      });
+    } else {
+      return Promise.resolve();
+    }
   }
 }
