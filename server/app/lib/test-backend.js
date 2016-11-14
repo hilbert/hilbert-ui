@@ -25,8 +25,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var testStations = require('../../data/test_mode/test_stations.json');
-
 var TestBackend = function () {
   function TestBackend(nconf, logger) {
     _classCallCheck(this, TestBackend);
@@ -39,55 +37,101 @@ var TestBackend = function () {
 
     this.state = new Map();
     this.station_cfg = new Map();
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = testStations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var station = _step.value;
-
-        this.state.set(station.id, {
-          id: station.id,
-          state: _nagios2.default.HostState.DOWN,
-          state_type: _nagios2.default.StateType.HARD,
-          app_state: _nagios2.default.ServiceState.UNKNOWN,
-          app_state_type: _nagios2.default.StateType.HARD,
-          app_id: ''
-        });
-
-        this.station_cfg.set(station.id, {
-          id: station.id,
-          name: station.name,
-          type: station.type,
-          default_app: station.default_app,
-          possible_apps: station.possible_apps
-        });
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
   }
 
   /**
-   * Returns a HilbertCLIConnector stub for testing
-   * @returns {TestHilbertCLIConnector}
+   * Loads test data
+   *
+   * If any data was previously loaded it's overwritten.
+   *
+   * @param {Array} stationCFG An array of station configurations
    */
 
 
   _createClass(TestBackend, [{
+    key: 'load',
+    value: function load(stationCFG) {
+      this.state = new Map();
+      this.station_cfg = new Map();
+
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = stationCFG[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var station = _step.value;
+
+
+          this.addStation(station);
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+    }
+
+    /**
+     * Adds a station
+     *
+     * @param {Object} station Station definition
+     *   The definition should have the following properties:
+     *   - id {String} Unique identifier
+     *   - name {String} Human readable name
+     *   - type {String} Type of the station
+     *   - default_app {String} Default application ID
+     *   - possible_apps {Array} List of compatible applications (app IDs)
+     */
+
+  }, {
+    key: 'addStation',
+    value: function addStation(station) {
+      this.station_cfg.set(station.id, {
+        id: station.id,
+        name: station.name,
+        type: station.type,
+        default_app: station.default_app,
+        possible_apps: station.possible_apps
+      });
+
+      this.initStationState(station.id);
+    }
+
+    /**
+     * Initializes the state of a station to the default (station down, app down)
+     *
+     * @param {String} id Station ID
+     */
+
+  }, {
+    key: 'initStationState',
+    value: function initStationState(id) {
+      this.state.set(id, {
+        id: id,
+        state: _nagios2.default.HostState.DOWN,
+        state_type: _nagios2.default.StateType.HARD,
+        app_state: _nagios2.default.ServiceState.UNKNOWN,
+        app_state_type: _nagios2.default.StateType.HARD,
+        app_id: ''
+      });
+    }
+
+    /**
+     * Returns a HilbertCLIConnector stub for testing
+     * @returns {TestHilbertCLIConnector}
+     */
+
+  }, {
     key: 'getHilbertCLIConnector',
     value: function getHilbertCLIConnector() {
       return this.hilbertCLIConnector;

@@ -31,6 +31,8 @@ var appPackage = require('../package.json');
 var logger = require('winston');
 var nconf = require('nconf');
 
+var testData = require('../data/test_mode/test_stations.json');
+
 nconf.env().argv();
 nconf.file('config.json');
 nconf.defaults({
@@ -67,6 +69,7 @@ var mkLivestatusConnector = null;
 if (nconf.get('test')) {
   logger.info('Running in Test Mode');
   var testBackend = new _testBackend2.default(nconf, logger);
+  testBackend.load(testData);
   hilbertCLIConnector = testBackend.getHilbertCLIConnector();
   mkLivestatusConnector = testBackend.getMKLivestatusConnector();
 } else {

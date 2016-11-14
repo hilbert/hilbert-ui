@@ -40,6 +40,13 @@ describe('HTTP API', function () {
     });
 
     var testBackend = new _testBackend2.default(nconf, logger);
+    testBackend.addStation({
+      id: 'station_a',
+      name: 'Station A',
+      type: 'type_a',
+      default_app: 'app_a',
+      possible_apps: ['app_a', 'app_b', 'app_c']
+    });
     var stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
 
     stationManager.init().then(function () {
@@ -87,17 +94,17 @@ describe('HTTP API', function () {
     });
 
     it('responds with JSON', function (done) {
-      request(apiServer).post('/stations/change_app').send({ ids: 'station_interactive_1' }).send({ app: 'Black hole pong' }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
+      request(apiServer).post('/stations/change_app').send({ ids: 'station_a' }).send({ app: 'app_b' }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
     });
   });
 
   describe('GET /station/:id/output', function () {
     it('fails if the station does not exist', function (done) {
-      request(apiServer).get('/station/0/output').set('Accept', 'application/json').expect(404, done);
+      request(apiServer).get('/station/station_x/output').set('Accept', 'application/json').expect(404, done);
     });
 
     it('responds with JSON', function (done) {
-      request(apiServer).get('/station/station_interactive_1/output').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
+      request(apiServer).get('/station/station_a/output').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
     });
   });
 
