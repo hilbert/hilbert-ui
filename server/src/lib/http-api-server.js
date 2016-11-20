@@ -6,10 +6,14 @@ const bodyParser = require('body-parser');
 export default class HttpAPIServer {
 
   constructor(stationManager, logger) {
+    this.pollTimeoutDelay = 15000;
+
     this.stationManager = stationManager;
     this.logger = logger;
     this.server = express();
     this.server.use(bodyParser.json());
+
+    this.events = new EventEmitter();
 
     this.setupRoutes();
   }
@@ -19,7 +23,6 @@ export default class HttpAPIServer {
     const pollUpdateEmitter = new EventEmitter();
     pollUpdateEmitter.setMaxListeners(100);
     let updateID = 1;
-    const pollTimeoutDelay = 15000;
 
     function stationDataResponse(stationManager) {
       const stations = stationManager.getStations();
@@ -38,23 +41,24 @@ export default class HttpAPIServer {
       if (Number(req.query.lastUpdateID) !== updateID) {
         res.json(stationDataResponse(this.stationManager));
       } else {
-        // ... otherwise wait for an updateFromMKLivestatus to respond
-
         // On timeout send an empty updateFromMKLivestatus
         const pollTimeout = setTimeout(() => {
+          this.events.emit('longPollTimeout', req, res);
           pollUpdateEmitter.emit('updateFromMKLivestatus', {});
-        }, pollTimeoutDelay);
+        }, this.pollTimeoutDelay);
 
         // If there was an updateFromMKLivestatus respond
         pollUpdateEmitter.once('updateFromMKLivestatus', (data) => {
           clearTimeout(pollTimeout);
           res.json(data);
         });
+
+        this.events.emit('longPollWait', req, res);
       }
     });
 
     this.stationManager.events.on('stationUpdate', () => {
-      updateID++;
+      updateID += 1;
       pollUpdateEmitter.emit('updateFromMKLivestatus', stationDataResponse(this.stationManager));
     });
 
