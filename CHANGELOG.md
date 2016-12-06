@@ -4,12 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [v0.10] 2016-12-06
 ### Added
 - Added tests for the HTTP API layer
-- Added interface to the Test Backend for defining test data programmatically 
 - Added interface to the Test Backend for defining test data programmatically
 - Added LICENSE and NOTICE
+- Added Travis CI configuration
 ### Changed
 - Makes delays in test mode optional
 ### Fixed
