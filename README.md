@@ -152,6 +152,9 @@ This exposes the container's port 8080 to the host's port 8080.
 
 Eric Londaits for [IMAGINARY](https://www.imaginary.org)
 
-## License
+## Copyright and license
 
-TODO: Write license
+Code and documentation copyright 2016 IMAGINARY gGmbH 
+Code and documentation released under the Apache [License](LICENSE.md).
+See the [Notice](NOTICE.md) for license information of included 
+dependencies.
