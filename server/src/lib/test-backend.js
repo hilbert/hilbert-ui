@@ -28,7 +28,6 @@ export default class TestBackend {
     this.station_cfg = new Map();
 
     for (const station of stationCFG) {
-
       this.addStation(station);
     }
   }
@@ -53,7 +52,7 @@ export default class TestBackend {
       possible_apps: station.possible_apps,
     });
 
-    this.initStationState(station.id)
+    this.initStationState(station.id);
   }
 
   /**
@@ -100,7 +99,7 @@ export default class TestBackend {
    */
   getStationConfig(output) {
     return new Promise((resolve) => {
-      output.write(`Simulating reading station configuration. Waiting a random delay...`);
+      output.write('Simulating reading station configuration. Waiting a random delay...');
       this.randomDelay(1000, 3000).then(() => {
         output.write('Wait finished.');
         resolve(this.station_cfg.values());
@@ -197,7 +196,6 @@ export default class TestBackend {
    * @returns {Promise}
    */
   randomDelay(min, max) {
-
     if (this.simulateDelays) {
       return new Promise((resolve) => {
         const delay = Math.floor(Math.random() * (max - min)) + min;
@@ -205,8 +203,8 @@ export default class TestBackend {
           resolve();
         }, delay);
       });
-    } else {
-      return Promise.resolve();
     }
+
+    return Promise.resolve();
   }
 }

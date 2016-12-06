@@ -6,6 +6,10 @@ var sourcemaps = require("gulp-sourcemaps");
 var wrapper = require('gulp-wrapper');
 var exec = require('child_process').exec;
 
+require('gulp-npm-test')(gulp, {
+  withoutNpmRun: false, // the default, otherwise runs `npm test`
+});
+
 function compile() {
 
   return gulp.src("src/**/*.js")

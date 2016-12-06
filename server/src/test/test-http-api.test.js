@@ -9,9 +9,7 @@ const nconf = require('nconf');
 describe('HTTP API', () => {
   let apiServer = null;
 
-  before(function (done) {
-    this.timeout(10000);
-    setTimeout(done, 10000);
+  before((done) => {
     nconf.defaults({
       port: '3000',
       hilbert_cli_path: '../work/dockapp',

@@ -63,7 +63,6 @@ var TestBackend = function () {
         for (var _iterator = stationCFG[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var station = _step.value;
 
-
           this.addStation(station);
         }
       } catch (err) {
@@ -281,7 +280,6 @@ var TestBackend = function () {
   }, {
     key: 'randomDelay',
     value: function randomDelay(min, max) {
-
       if (this.simulateDelays) {
         return new Promise(function (resolve) {
           var delay = Math.floor(Math.random() * (max - min)) + min;
@@ -289,9 +287,9 @@ var TestBackend = function () {
             resolve();
           }, delay);
         });
-      } else {
-        return Promise.resolve();
       }
+
+      return Promise.resolve();
     }
   }]);
 
