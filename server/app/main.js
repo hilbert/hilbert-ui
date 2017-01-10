@@ -44,7 +44,8 @@ nconf.defaults({
   log_directory: './log',
   log_level: 'info', // error, warn, info, verbose, debug, silly
   mkls_poll_delay: 1000,
-  mkls_cmd: 'nc localhost 6557'
+  mkls_cmd: 'nc localhost 6557',
+  long_poll_timeout: 15
 });
 
 logger.add(logger.transports.File, {
@@ -81,7 +82,7 @@ if (nconf.get('test')) {
 var stationManager = new _stationManager2.default(nconf, logger, hilbertCLIConnector, mkLivestatusConnector);
 
 stationManager.init().then(function () {
-  var server = new _httpApiServer2.default(stationManager, logger);
+  var server = new _httpApiServer2.default(stationManager, nconf, logger);
   server.listen(nconf.get('port'));
 }).catch(function (err) {
   logger.error('Error initializing Station Manager: ' + err.message + '. Exiting process.');

@@ -9,6 +9,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _longPollHandler = require('./long-poll-handler');
+
+var _longPollHandler2 = _interopRequireDefault(_longPollHandler);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EventEmitter = require('events').EventEmitter;
@@ -17,13 +23,13 @@ var express = require('express');
 var bodyParser = require('body-parser');
 
 var HttpAPIServer = function () {
-  function HttpAPIServer(stationManager, logger) {
+  function HttpAPIServer(stationManager, nconf, logger) {
     _classCallCheck(this, HttpAPIServer);
 
-    this.pollTimeoutDelay = 15000;
-
     this.stationManager = stationManager;
+    this.nconf = nconf;
     this.logger = logger;
+
     this.server = express();
     this.server.use(bodyParser.json());
 
@@ -37,12 +43,7 @@ var HttpAPIServer = function () {
     value: function setupRoutes() {
       var _this = this;
 
-      // Longpoll begin
-      var pollUpdateEmitter = new EventEmitter();
-      pollUpdateEmitter.setMaxListeners(100);
-      var updateID = 1;
-
-      function stationDataResponse(stationManager) {
+      function stationDataResponse(stationManager, updateID) {
         var stations = stationManager.getStations();
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -75,35 +76,25 @@ var HttpAPIServer = function () {
         };
       }
 
+      var stationsLongPoll = new _longPollHandler2.default(this.nconf.get('long_poll_timeout'));
       this.server.get('/stations/poll', function (req, res) {
-        // if the client is out of sync respond immediately
-        if (Number(req.query.lastUpdateID) !== updateID) {
-          res.json(stationDataResponse(_this.stationManager));
-        } else {
-          (function () {
-            // On timeout send an empty updateFromMKLivestatus
-            var pollTimeout = setTimeout(function () {
-              _this.events.emit('longPollTimeout', req, res);
-              pollUpdateEmitter.emit('updateFromMKLivestatus', {});
-            }, _this.pollTimeoutDelay);
-
-            // If there was an updateFromMKLivestatus respond
-            pollUpdateEmitter.once('updateFromMKLivestatus', function (data) {
-              clearTimeout(pollTimeout);
-              res.json(data);
-            });
-
-            _this.events.emit('longPollWait', req, res);
-          })();
-        }
+        stationsLongPoll.handleRequest(req, res).then(function (updateID) {
+          res.json(stationDataResponse(_this.stationManager, updateID));
+        }).catch(function () {
+          res.json({});
+        });
       });
 
       this.stationManager.events.on('stationUpdate', function () {
-        updateID += 1;
-        pollUpdateEmitter.emit('updateFromMKLivestatus', stationDataResponse(_this.stationManager));
+        stationsLongPoll.signalUpdate();
       });
 
-      // Longpoll end
+      stationsLongPoll.events.on('wait', function () {
+        _this.events.emit('longPollWait');
+      });
+      stationsLongPoll.events.on('timeout', function () {
+        _this.events.emit('longPollTimeout');
+      });
 
       this.server.get('/stations', function (req, res) {
         res.json(stationDataResponse(_this.stationManager));
