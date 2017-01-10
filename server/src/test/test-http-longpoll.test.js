@@ -66,7 +66,7 @@ describe('HTTP Longpoll', () => {
 
   it('Responds immediately if out of sync', (done) => {
     request(httpServer)
-      .get('/stations/poll')
+      .get('/stations')
       .query({ lastUpdateID: 0 })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -80,7 +80,7 @@ describe('HTTP Longpoll', () => {
 
   it('Responds after an update if synced', (done) => {
     request(httpServer)
-      .get('/stations/poll')
+      .get('/stations')
       .query({ lastUpdateID: 1 })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
@@ -100,7 +100,7 @@ describe('HTTP Longpoll', () => {
 
   it('Responds (empty response) if synced and times-out waiting for an update', (done) => {
     request(httpServer)
-      .get('/stations/poll')
+      .get('/stations')
       .query({ lastUpdateID: 1 })
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)

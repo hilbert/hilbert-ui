@@ -55,16 +55,6 @@ describe('HTTP API', () => {
     });
   });
 
-  describe('GET /stations/poll', () => {
-    it('responds with JSON', (done) => {
-      request(apiServer)
-        .get('/stations/poll')
-        .set('Accept', 'application/json')
-        .expect('Content-Type', /json/)
-        .expect(200, done);
-    });
-  });
-
   describe('POST /stations/start', () => {
     it('fails with no arguments', (done) => {
       request(apiServer)

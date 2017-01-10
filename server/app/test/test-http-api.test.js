@@ -61,12 +61,6 @@ describe('HTTP API', function () {
     });
   });
 
-  describe('GET /stations/poll', function () {
-    it('responds with JSON', function (done) {
-      request(apiServer).get('/stations/poll').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
-    });
-  });
-
   describe('POST /stations/start', function () {
     it('fails with no arguments', function (done) {
       request(apiServer).post('/stations/start').set('Accept', 'application/json').expect(400, done);

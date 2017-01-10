@@ -75,7 +75,7 @@ describe('HTTP Longpoll', function () {
   });
 
   it('Responds immediately if out of sync', function (done) {
-    request(httpServer).get('/stations/poll').query({ lastUpdateID: 0 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
+    request(httpServer).get('/stations').query({ lastUpdateID: 0 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
       pollWaited.should.equal(false);
       pollTimedOut.should.equal(false);
       res.body.updateID.should.equal(1);
@@ -84,7 +84,7 @@ describe('HTTP Longpoll', function () {
   });
 
   it('Responds after an update if synced', function (done) {
-    request(httpServer).get('/stations/poll').query({ lastUpdateID: 1 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
+    request(httpServer).get('/stations').query({ lastUpdateID: 1 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
       // Response arrives after update
       pollWaited.should.equal(true);
       pollTimedOut.should.equal(false);
@@ -99,7 +99,7 @@ describe('HTTP Longpoll', function () {
   });
 
   it('Responds (empty response) if synced and times-out waiting for an update', function (done) {
-    request(httpServer).get('/stations/poll').query({ lastUpdateID: 1 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
+    request(httpServer).get('/stations').query({ lastUpdateID: 1 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
       // Response arrives after time out
       pollWaited.should.equal(true);
       pollTimedOut.should.equal(true);

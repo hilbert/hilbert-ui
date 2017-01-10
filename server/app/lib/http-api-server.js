@@ -43,8 +43,37 @@ var HttpAPIServer = function () {
     value: function setupRoutes() {
       var _this = this;
 
-      function stationDataResponse(stationManager, updateID) {
-        var stations = stationManager.getStations();
+      // getStations long poll handler
+      this.stationsLongPoll = new _longPollHandler2.default(this.nconf.get('long_poll_timeout'));
+      this.stationManager.events.on('stationUpdate', function () {
+        _this.stationsLongPoll.signalUpdate();
+      });
+      this.stationsLongPoll.events.on('wait', function () {
+        _this.events.emit('longPollWait');
+      });
+      this.stationsLongPoll.events.on('timeout', function () {
+        _this.events.emit('longPollTimeout');
+      });
+
+      var router = express.Router(); // eslint-disable-line new-cap
+      router.get('/stations', this.getStations.bind(this));
+      router.post('/stations/start', this.postStationsStart.bind(this));
+      router.post('/stations/stop', this.postStationsStop.bind(this));
+      router.post('/stations/change_app', this.postStationsChangeApp.bind(this));
+      router.get('/station/:id/output', this.getStationOutput.bind(this));
+      router.get('/server/output', this.getServerOutput.bind(this));
+      router.get('/server/mklivestatus', this.getServerMKLivestatus.bind(this));
+      router.get('/notifications', this.getNotifications.bind(this));
+
+      this.server.use(router);
+    }
+  }, {
+    key: 'getStations',
+    value: function getStations(req, res) {
+      var _this2 = this;
+
+      this.stationsLongPoll.handleRequest(req, res).then(function (updateID) {
+        var stations = _this2.stationManager.getStations();
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -70,106 +99,91 @@ var HttpAPIServer = function () {
           }
         }
 
-        return {
+        res.json({
           updateID: updateID,
           stations: stations
-        };
+        });
+      }).catch(function () {
+        res.json({});
+      });
+    }
+  }, {
+    key: 'postStationsStart',
+    value: function postStationsStart(req, res) {
+      if (!req.body.ids) {
+        this.logger.debug("HTTP request received: Start stations missing required 'ids' argument");
+        res.status(400).send("Missing 'ids' argument");
+        return;
       }
-
-      var stationsLongPoll = new _longPollHandler2.default(this.nconf.get('long_poll_timeout'));
-      this.server.get('/stations/poll', function (req, res) {
-        stationsLongPoll.handleRequest(req, res).then(function (updateID) {
-          res.json(stationDataResponse(_this.stationManager, updateID));
-        }).catch(function () {
-          res.json({});
-        });
-      });
-
-      this.stationManager.events.on('stationUpdate', function () {
-        stationsLongPoll.signalUpdate();
-      });
-
-      stationsLongPoll.events.on('wait', function () {
-        _this.events.emit('longPollWait');
-      });
-      stationsLongPoll.events.on('timeout', function () {
-        _this.events.emit('longPollTimeout');
-      });
-
-      this.server.get('/stations', function (req, res) {
-        res.json(stationDataResponse(_this.stationManager));
-      });
-
-      this.server.post('/stations/start', function (req, res) {
-        if (!req.body.ids) {
-          _this.logger.debug("HTTP request received: Start stations missing required 'ids' argument");
-          res.status(400).send("Missing 'ids' argument");
-          return;
-        }
-        _this.logger.debug('HTTP request received: Start stations ' + req.body.ids);
-        _this.stationManager.startStations(req.body.ids);
-        res.json({});
-      });
-
-      this.server.post('/stations/stop', function (req, res) {
-        if (!req.body.ids) {
-          _this.logger.debug("HTTP request received: Stop stations missing required 'ids' argument");
-          res.status(400).send("Missing 'ids' argument");
-          return;
-        }
-        _this.logger.debug('HTTP request received: Stop stations ' + req.body.ids);
-        _this.stationManager.stopStations(req.body.ids);
-        res.json({});
-      });
-
-      this.server.post('/stations/change_app', function (req, res) {
-        if (!req.body.ids) {
-          _this.logger.debug("HTTP request received: Change app missing required 'ids' argument");
-          res.status(400).send("Missing 'ids' argument");
-          return;
-        }
-        if (!req.body.app) {
-          _this.logger.debug("HTTP request received: Change app missing required 'app' argument");
-          res.status(400).send("Missing 'app' argument");
-          return;
-        }
-        _this.logger.debug('HTTP request received: Change app of stations ' + req.body.ids + ' to ' + req.body.app);
-        _this.stationManager.changeApp(req.body.ids, req.body.app);
-        res.json({});
-      });
-
-      this.server.get('/station/:id/output', function (req, res) {
-        _this.logger.debug('HTTP request received: Get output of station ' + req.params.id);
-        var station = _this.stationManager.getStationByID(req.params.id);
-        if (station) {
-          res.json({
-            lines: station.outputBuffer.getAll()
-          });
-        } else {
-          _this.logger.error('Requested output of non existant station ' + req.params.id);
-          res.status(404).send('Station not found');
-        }
-      });
-
-      this.server.get('/server/output', function (req, res) {
-        _this.logger.debug('HTTP request received: Get global output');
+      this.logger.debug('HTTP request received: Start stations ' + req.body.ids);
+      this.stationManager.startStations(req.body.ids);
+      res.json({});
+    }
+  }, {
+    key: 'postStationsStop',
+    value: function postStationsStop(req, res) {
+      if (!req.body.ids) {
+        this.logger.debug("HTTP request received: Stop stations missing required 'ids' argument");
+        res.status(400).send("Missing 'ids' argument");
+        return;
+      }
+      this.logger.debug('HTTP request received: Stop stations ' + req.body.ids);
+      this.stationManager.stopStations(req.body.ids);
+      res.json({});
+    }
+  }, {
+    key: 'postStationsChangeApp',
+    value: function postStationsChangeApp(req, res) {
+      if (!req.body.ids) {
+        this.logger.debug("HTTP request received: Change app missing required 'ids' argument");
+        res.status(400).send("Missing 'ids' argument");
+        return;
+      }
+      if (!req.body.app) {
+        this.logger.debug("HTTP request received: Change app missing required 'app' argument");
+        res.status(400).send("Missing 'app' argument");
+        return;
+      }
+      this.logger.debug('HTTP request received: Change app of stations ' + req.body.ids + ' to ' + req.body.app);
+      this.stationManager.changeApp(req.body.ids, req.body.app);
+      res.json({});
+    }
+  }, {
+    key: 'getStationOutput',
+    value: function getStationOutput(req, res) {
+      this.logger.debug('HTTP request received: Get output of station ' + req.params.id);
+      var station = this.stationManager.getStationByID(req.params.id);
+      if (station) {
         res.json({
-          lines: _this.stationManager.globalHilbertCLIOutputBuffer.getAll()
+          lines: station.outputBuffer.getAll()
         });
+      } else {
+        this.logger.error('Requested output of non existant station ' + req.params.id);
+        res.status(404).send('Station not found');
+      }
+    }
+  }, {
+    key: 'getServerOutput',
+    value: function getServerOutput(req, res) {
+      this.logger.debug('HTTP request received: Get global output');
+      res.json({
+        lines: this.stationManager.globalHilbertCLIOutputBuffer.getAll()
       });
-
-      this.server.get('/server/mklivestatus', function (req, res) {
-        _this.logger.debug('HTTP request received: Get last MKLivestatus state');
-        res.json({
-          lastState: _this.stationManager.lastMKLivestatusDump
-        });
+    }
+  }, {
+    key: 'getServerMKLivestatus',
+    value: function getServerMKLivestatus(req, res) {
+      this.logger.debug('HTTP request received: Get last MKLivestatus state');
+      res.json({
+        lastState: this.stationManager.lastMKLivestatusDump
       });
-
-      this.server.get('/notifications', function (req, res) {
-        _this.logger.debug('HTTP request received: Get notifications');
-        res.json({
-          notifications: _this.stationManager.getLog()
-        });
+    }
+  }, {
+    key: 'getNotifications',
+    value: function getNotifications(req, res) {
+      this.logger.debug('HTTP request received: Get notifications');
+      res.json({
+        notifications: this.stationManager.getLog()
       });
     }
   }, {

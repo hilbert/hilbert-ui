@@ -315,7 +315,7 @@ export default class Dashboard extends React.Component {
   pollServer() {
     return new Promise((resolve, reject) => {
       $.ajax({
-        url: '/api/stations/poll',
+        url: '/api/stations',
         data: {
           lastUpdateID: this.updateID,
         },
