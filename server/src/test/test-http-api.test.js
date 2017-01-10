@@ -20,6 +20,7 @@ describe('HTTP API', () => {
       log_level: 'info', // error, warn, info, verbose, debug, silly
       mkls_poll_delay: 1000,
       mkls_cmd: 'nc localhost 6557',
+      long_poll_timeout: 0,
     });
 
     const testBackend = new TestBackend(nconf, logger);
@@ -38,7 +39,7 @@ describe('HTTP API', () => {
     );
 
     stationManager.init().then(() => {
-      const httpAPIServer = new HttpAPIServer(stationManager, logger);
+      const httpAPIServer = new HttpAPIServer(stationManager, nconf, logger);
       apiServer = httpAPIServer.getServer();
       done();
     });

@@ -23,6 +23,7 @@ nconf.defaults({
   log_level: 'info', // error, warn, info, verbose, debug, silly
   mkls_poll_delay: 1000,
   mkls_cmd: 'nc localhost 6557',
+  long_poll_timeout: 15,
 });
 
 logger.add(logger.transports.File, {
@@ -64,7 +65,7 @@ const stationManager = new StationManager(
 );
 
 stationManager.init().then(() => {
-  const server = new HttpAPIServer(stationManager, logger);
+  const server = new HttpAPIServer(stationManager, nconf, logger);
   server.listen(nconf.get('port'));
 }).catch((err) => {
   logger.error(`Error initializing Station Manager: ${err.message}. Exiting process.`);

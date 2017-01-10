@@ -26,6 +26,7 @@ describe('HTTP Longpoll', () => {
       log_level: 'info', // error, warn, info, verbose, debug, silly
       mkls_poll_delay: 1000,
       mkls_cmd: 'nc localhost 6557',
+      long_poll_timeout: 0,
     });
 
     const testBackend = new TestBackend(nconf, logger);
@@ -45,12 +46,11 @@ describe('HTTP Longpoll', () => {
     );
 
     stationManager.init().then(() => {
-      apiServer = new HttpAPIServer(stationManager, logger);
+      apiServer = new HttpAPIServer(stationManager, nconf, logger);
       httpServer = apiServer.getServer();
 
       pollWaited = false;
       pollTimedOut = false;
-      apiServer.pollTimeoutDelay = 0;
 
       apiServer.events.on('longPollWait', () => {
         pollWaited = true;

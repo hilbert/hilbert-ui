@@ -40,7 +40,8 @@ describe('HTTP Longpoll', function () {
       log_directory: './log',
       log_level: 'info', // error, warn, info, verbose, debug, silly
       mkls_poll_delay: 1000,
-      mkls_cmd: 'nc localhost 6557'
+      mkls_cmd: 'nc localhost 6557',
+      long_poll_timeout: 0
     });
 
     var testBackend = new _testBackend2.default(nconf, logger);
@@ -55,12 +56,11 @@ describe('HTTP Longpoll', function () {
     stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
 
     stationManager.init().then(function () {
-      apiServer = new _httpApiServer2.default(stationManager, logger);
+      apiServer = new _httpApiServer2.default(stationManager, nconf, logger);
       httpServer = apiServer.getServer();
 
       pollWaited = false;
       pollTimedOut = false;
-      apiServer.pollTimeoutDelay = 0;
 
       apiServer.events.on('longPollWait', function () {
         pollWaited = true;
@@ -76,7 +76,6 @@ describe('HTTP Longpoll', function () {
 
   it('Responds immediately if out of sync', function (done) {
     request(httpServer).get('/stations/poll').query({ lastUpdateID: 0 }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, function (err, res) {
-
       pollWaited.should.equal(false);
       pollTimedOut.should.equal(false);
       res.body.updateID.should.equal(1);

@@ -1,3 +1,5 @@
+import LongPollHandler from './long-poll-handler';
+
 const EventEmitter = require('events').EventEmitter;
 const iconmap = require('../../iconmap.json');
 const express = require('express');
@@ -5,11 +7,11 @@ const bodyParser = require('body-parser');
 
 export default class HttpAPIServer {
 
-  constructor(stationManager, logger) {
-    this.pollTimeoutDelay = 15000;
-
+  constructor(stationManager, nconf, logger) {
     this.stationManager = stationManager;
+    this.nconf = nconf;
     this.logger = logger;
+
     this.server = express();
     this.server.use(bodyParser.json());
 
@@ -19,12 +21,7 @@ export default class HttpAPIServer {
   }
 
   setupRoutes() {
-    // Longpoll begin
-    const pollUpdateEmitter = new EventEmitter();
-    pollUpdateEmitter.setMaxListeners(100);
-    let updateID = 1;
-
-    function stationDataResponse(stationManager) {
+    function stationDataResponse(stationManager, updateID) {
       const stations = stationManager.getStations();
       for (const station of stations) {
         station.icon = HttpAPIServer.getIconURL(station.app);
@@ -36,33 +33,27 @@ export default class HttpAPIServer {
       };
     }
 
+    const stationsLongPoll = new LongPollHandler(this.nconf.get('long_poll_timeout'));
     this.server.get('/stations/poll', (req, res) => {
-      // if the client is out of sync respond immediately
-      if (Number(req.query.lastUpdateID) !== updateID) {
-        res.json(stationDataResponse(this.stationManager));
-      } else {
-        // On timeout send an empty updateFromMKLivestatus
-        const pollTimeout = setTimeout(() => {
-          this.events.emit('longPollTimeout', req, res);
-          pollUpdateEmitter.emit('updateFromMKLivestatus', {});
-        }, this.pollTimeoutDelay);
-
-        // If there was an updateFromMKLivestatus respond
-        pollUpdateEmitter.once('updateFromMKLivestatus', (data) => {
-          clearTimeout(pollTimeout);
-          res.json(data);
+      stationsLongPoll.handleRequest(req, res)
+        .then((updateID) => {
+          res.json(stationDataResponse(this.stationManager, updateID));
+        })
+        .catch(() => {
+          res.json({});
         });
-
-        this.events.emit('longPollWait', req, res);
-      }
     });
 
     this.stationManager.events.on('stationUpdate', () => {
-      updateID += 1;
-      pollUpdateEmitter.emit('updateFromMKLivestatus', stationDataResponse(this.stationManager));
+      stationsLongPoll.signalUpdate();
     });
 
-    // Longpoll end
+    stationsLongPoll.events.on('wait', () => {
+      this.events.emit('longPollWait');
+    });
+    stationsLongPoll.events.on('timeout', () => {
+      this.events.emit('longPollTimeout');
+    });
 
     this.server.get('/stations', (req, res) => {
       res.json(stationDataResponse(this.stationManager));
