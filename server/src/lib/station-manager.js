@@ -76,12 +76,13 @@ export default class StationManager {
     this.clearStations();
     this.signalUpdate();
 
-    return this.hilbertCLI.getStationConfig(this.globalHilbertCLIOutputBuffer).then((stationsCFG) => {
-      for (const stationCFG of stationsCFG) {
-        this.addStation(new Station(stationCFG));
-      }
-      this.signalUpdate();
-    });
+    return this.hilbertCLI.getStationConfig(
+      this.globalHilbertCLIOutputBuffer).then((stationsCFG) => {
+        for (const stationCFG of stationsCFG) {
+          this.addStation(new Station(stationCFG));
+        }
+        this.signalUpdate();
+      });
   }
 
   /**
