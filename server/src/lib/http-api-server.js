@@ -1,6 +1,7 @@
 import LongPollHandler from './long-poll-handler';
 
 const EventEmitter = require('events').EventEmitter;
+const Promise = require('bluebird');
 const iconmap = require('../../iconmap.json');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -17,7 +18,24 @@ export default class HttpAPIServer {
 
     this.events = new EventEmitter();
 
-    this.setupRoutes();
+    this.apiModules = [
+    ];
+  }
+
+  /**
+   * Initializes the server and its modules
+   *
+   * @return {Promise.<*>}
+   */
+  init() {
+    const initializers = [];
+    for (const apiModule of this.apiModules) {
+      initializers.push(apiModule.init());
+    }
+
+    return Promise.all(initializers).then(() => {
+      this.setupRoutes();
+    });
   }
 
   setupRoutes() {
@@ -44,6 +62,12 @@ export default class HttpAPIServer {
     router.get('/notifications', this.getNotifications.bind(this));
 
     this.server.use(router);
+
+    for (const apiModule of this.apiModules) {
+      const moduleRouter = express.Router(); // eslint-disable-line new-cap
+      apiModule.setupRoutes(moduleRouter);
+      this.server.use(moduleRouter);
+    }
   }
 
   getStations(req, res) {

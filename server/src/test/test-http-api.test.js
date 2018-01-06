@@ -40,8 +40,10 @@ describe('HTTP API', () => {
 
     stationManager.init().then(() => {
       const httpAPIServer = new HttpAPIServer(stationManager, nconf, logger);
-      apiServer = httpAPIServer.getServer();
-      done();
+      httpAPIServer.init().then(() => {
+        apiServer = httpAPIServer.getServer();
+        done();
+      });
     });
   });
 

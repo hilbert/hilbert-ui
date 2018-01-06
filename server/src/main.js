@@ -64,10 +64,16 @@ const stationManager = new StationManager(
   mkLivestatusConnector
 );
 
-stationManager.init().then(() => {
-  const server = new HttpAPIServer(stationManager, nconf, logger);
-  server.listen(nconf.get('port'));
-}).catch((err) => {
-  logger.error(`Error initializing Station Manager: ${err.message}. Exiting process.`);
-  process.exit(1);
-});
+let server = null;
+stationManager.init()
+  .then(() => {
+    server = new HttpAPIServer(stationManager, nconf, logger);
+    return server.init();
+  })
+  .then(() => {
+    server.listen(nconf.get('port'));
+  })
+  .catch((err) => {
+    logger.error(`Error initializing Station Manager: ${err.message}. Exiting process.`);
+    process.exit(1);
+  });

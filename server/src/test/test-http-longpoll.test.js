@@ -47,20 +47,22 @@ describe('HTTP Longpoll', () => {
 
     stationManager.init().then(() => {
       apiServer = new HttpAPIServer(stationManager, nconf, logger);
-      httpServer = apiServer.getServer();
+      apiServer.init().then(() => {
+        httpServer = apiServer.getServer();
 
-      pollWaited = false;
-      pollTimedOut = false;
+        pollWaited = false;
+        pollTimedOut = false;
 
-      apiServer.events.on('longPollWait', () => {
-        pollWaited = true;
+        apiServer.events.on('longPollWait', () => {
+          pollWaited = true;
+        });
+
+        apiServer.events.on('longPollTimeout', () => {
+          pollTimedOut = true;
+        });
+
+        done();
       });
-
-      apiServer.events.on('longPollTimeout', () => {
-        pollTimedOut = true;
-      });
-
-      done();
     });
   });
 
