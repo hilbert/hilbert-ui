@@ -1,0 +1,165 @@
+swagger: "2.0"
+info:
+  description: "HTTP API for the Hilbert UI server."
+  version: "1.0.0"
+  title: "Hilbert UI"
+  contact:
+    email: "eric.londaits@imaginary.org"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/api"
+schemes:
+- "http"
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /presets:
+    get:
+      tags:
+        - "Presets"
+      summary: "List all preset IDs with their associated names"
+      responses:
+        200:
+          description: Returns the list of preset IDs and names.
+          schema:
+            type: object
+            properties:
+              presets:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+
+        500:
+          description: Unspecified error.
+  /preset:
+    post:
+      tags:
+        - "Presets"
+      summary: "Create a preset"
+      parameters:
+        - in: body
+          name: preset
+          description: The property data for the new preset to create
+          schema:
+            $ref: "#/definitions/PresetRequest"
+      responses:
+        200:
+          description: Returns the newly created Preset, including the ID
+          schema:
+            $ref: "#/definitions/PresetResponse"
+        400:
+          description: A preset with the specified name already exists.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        500:
+          description: Unspecified error.
+  /preset/{id}:
+    parameters:
+      - in: path
+        name: id
+        type: integer
+        required: true
+        description: ID of a preset
+    get:
+      tags:
+        - "Presets"
+      responses:
+        200:
+          description: Returns the requested preset. StationData contains a map of station IDs to app IDs.
+          schema:
+            $ref: "#/definitions/PresetResponse"
+        404:
+          description: A preset with the specified ID does not exist.
+        500:
+          description: Unspecified error.
+      summary: "Retrieve a preset"
+    put:
+      tags:
+        - "Presets"
+      summary: "Update a preset"
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          description: ID of the preset to get
+        - in: body
+          name: preset
+          description: The property values you want to update.
+          schema:
+            $ref: "#/definitions/PresetRequest"
+      responses:
+        200:
+          description: Returns the updated preset.
+          schema:
+            $ref: "#/definitions/PresetResponse"
+        400:
+          description: A preset with the specified name already exists.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+        404:
+          description: A preset with the specified ID does not exist.
+        500:
+          description: Unspecified error.
+    delete:
+      tags:
+        - "Presets"
+      summary: "Delete a preset"
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          description: ID of the preset to get
+      responses:
+        200:
+          description: The preset was deleted succesfully.
+        404:
+          description: A preset with the specified ID does not exist.
+        500:
+          description: Unspecified error.
+definitions:
+  PresetResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      stationData:
+        type: object
+        properties:
+          stationID1:
+            type: string
+          stationID2:
+            type: string
+          stationID3:
+            type: string
+  PresetRequest:
+    type: object
+    properties:
+      name:
+        type: string
+      stationData:
+        type: object
+        properties:
+          stationID1:
+            type: string
+          stationID2:
+            type: string
+          stationID3:
+            type: string

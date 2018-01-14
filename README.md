@@ -75,15 +75,16 @@ The parts of the ui are:
 
 The ui configuration file is `server/config.json`. It supports the following options:
 
-- `port`: (default '3000') Port number the ui server will run in
-- `hilbert_cli_path`: Path to the **hilbert-cli** installation
+- `port`: (default '3000') Port number the ui server will run in.
+- `hilbert_cli_path`: Path to the **hilbert-cli** installation.
 - `test`: (default: false) Set to `true` to run in test mode, which uses simulated stations.
 - `scriptConcurrency`: (default: 20) Number of simultaneous child processes that will be run.
-- `max_log_length`: (default: 100) Max number of log entries to send through the web service
+- `max_log_length`: (default: 100) Max number of log entries to send through the web service.
 - `log_directory`: (default: './log') Directory where logs will be saved.
-- `log_level`: (default: 'info') Log level. Set to one of `error`, `warn`, `info`, `verbose`, `debug` or `silly`.`
-- `mkls_poll_delay`: (default: 1000) Number of milliseconds to wait between polls to MKLivestatus
-- `mkls_cmd`: (default: 'nc localhost 6557') Command line used to connect to MKLivestatus 
+- `log_level`: (default: 'info') Log level. Set to one of `error`, `warn`, `info`, `verbose`, `debug` or `silly`.
+- `mkls_poll_delay`: (default: 1000) Number of milliseconds to wait between polls to MKLivestatus.
+- `mkls_cmd`: (default: 'nc localhost 6557') Command line used to connect to MKLivestatus.
+- `db_path`: (default: '') Path to the sqlite database file for persistant storage of features such as presets. 
 
 ## Directory reference
 

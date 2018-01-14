@@ -35,7 +35,8 @@ describe('HTTP API', function () {
       log_level: 'info', // error, warn, info, verbose, debug, silly
       mkls_poll_delay: 1000,
       mkls_cmd: 'nc localhost 6557',
-      long_poll_timeout: 0
+      long_poll_timeout: 0,
+      db_path: ''
     });
 
     var testBackend = new _testBackend2.default(nconf, logger);
@@ -50,8 +51,10 @@ describe('HTTP API', function () {
 
     stationManager.init().then(function () {
       var httpAPIServer = new _httpApiServer2.default(stationManager, nconf, logger);
-      apiServer = httpAPIServer.getServer();
-      done();
+      httpAPIServer.init().then(function () {
+        apiServer = httpAPIServer.getServer();
+        done();
+      });
     });
   });
 

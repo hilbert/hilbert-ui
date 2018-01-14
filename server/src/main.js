@@ -24,6 +24,7 @@ nconf.defaults({
   mkls_poll_delay: 1000,
   mkls_cmd: 'nc localhost 6557',
   long_poll_timeout: 15,
+  db_path: '',
 });
 
 logger.add(logger.transports.File, {

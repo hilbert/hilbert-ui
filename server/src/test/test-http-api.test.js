@@ -21,6 +21,7 @@ describe('HTTP API', () => {
       mkls_poll_delay: 1000,
       mkls_cmd: 'nc localhost 6557',
       long_poll_timeout: 0,
+      db_path: '',
     });
 
     const testBackend = new TestBackend(nconf, logger);

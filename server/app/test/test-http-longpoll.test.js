@@ -41,7 +41,8 @@ describe('HTTP Longpoll', function () {
       log_level: 'info', // error, warn, info, verbose, debug, silly
       mkls_poll_delay: 1000,
       mkls_cmd: 'nc localhost 6557',
-      long_poll_timeout: 0
+      long_poll_timeout: 0,
+      db_path: ''
     });
 
     var testBackend = new _testBackend2.default(nconf, logger);
@@ -57,20 +58,22 @@ describe('HTTP Longpoll', function () {
 
     stationManager.init().then(function () {
       apiServer = new _httpApiServer2.default(stationManager, nconf, logger);
-      httpServer = apiServer.getServer();
+      apiServer.init().then(function () {
+        httpServer = apiServer.getServer();
 
-      pollWaited = false;
-      pollTimedOut = false;
+        pollWaited = false;
+        pollTimedOut = false;
 
-      apiServer.events.on('longPollWait', function () {
-        pollWaited = true;
+        apiServer.events.on('longPollWait', function () {
+          pollWaited = true;
+        });
+
+        apiServer.events.on('longPollTimeout', function () {
+          pollTimedOut = true;
+        });
+
+        done();
       });
-
-      apiServer.events.on('longPollTimeout', function () {
-        pollTimedOut = true;
-      });
-
-      done();
     });
   });
 

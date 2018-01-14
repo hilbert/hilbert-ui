@@ -13,11 +13,16 @@ var _longPollHandler = require('./long-poll-handler');
 
 var _longPollHandler2 = _interopRequireDefault(_longPollHandler);
 
+var _presetsModule = require('./presets/presets-module');
+
+var _presetsModule2 = _interopRequireDefault(_presetsModule);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var EventEmitter = require('events').EventEmitter;
+var Promise = require('bluebird');
 var iconmap = require('../../iconmap.json');
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -35,24 +40,66 @@ var HttpAPIServer = function () {
 
     this.events = new EventEmitter();
 
-    this.setupRoutes();
+    this.apiModules = [new _presetsModule2.default(this)];
   }
 
+  /**
+   * Initializes the server and its modules
+   *
+   * @return {Promise.<*>}
+   */
+
+
   _createClass(HttpAPIServer, [{
+    key: 'init',
+    value: function init() {
+      var _this = this;
+
+      var initializers = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = this.apiModules[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var apiModule = _step.value;
+
+          initializers.push(apiModule.init());
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      return Promise.all(initializers).then(function () {
+        _this.setupRoutes();
+      });
+    }
+  }, {
     key: 'setupRoutes',
     value: function setupRoutes() {
-      var _this = this;
+      var _this2 = this;
 
       // getStations long poll handler
       this.stationsLongPoll = new _longPollHandler2.default(this.nconf.get('long_poll_timeout'));
       this.stationManager.events.on('stationUpdate', function () {
-        _this.stationsLongPoll.signalUpdate();
+        _this2.stationsLongPoll.signalUpdate();
       });
       this.stationsLongPoll.events.on('wait', function () {
-        _this.events.emit('longPollWait');
+        _this2.events.emit('longPollWait');
       });
       this.stationsLongPoll.events.on('timeout', function () {
-        _this.events.emit('longPollTimeout');
+        _this2.events.emit('longPollTimeout');
       });
 
       var router = express.Router(); // eslint-disable-line new-cap
@@ -66,35 +113,62 @@ var HttpAPIServer = function () {
       router.get('/notifications', this.getNotifications.bind(this));
 
       this.server.use(router);
+
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = this.apiModules[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var apiModule = _step2.value;
+
+          var moduleRouter = express.Router(); // eslint-disable-line new-cap
+          apiModule.setupRoutes(moduleRouter);
+          this.server.use(moduleRouter);
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
     }
   }, {
     key: 'getStations',
     value: function getStations(req, res) {
-      var _this2 = this;
+      var _this3 = this;
 
       this.stationsLongPoll.handleRequest(req, res).then(function (updateID) {
-        var stations = _this2.stationManager.getStations();
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+        var stations = _this3.stationManager.getStations();
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
 
         try {
-          for (var _iterator = stations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var station = _step.value;
+          for (var _iterator3 = stations[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var station = _step3.value;
 
             station.icon = HttpAPIServer.getIconURL(station.app);
           }
         } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
+          _didIteratorError3 = true;
+          _iteratorError3 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+              _iterator3.return();
             }
           } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
+            if (_didIteratorError3) {
+              throw _iteratorError3;
             }
           }
         }
