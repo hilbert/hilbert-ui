@@ -8,6 +8,8 @@ const nconf = require('nconf');
 
 describe('Presets HTTP API', () => {
   let apiServer = null;
+  let testBackend = null;
+  let stationManager = null;
 
   beforeEach((done) => {
     nconf.defaults({
@@ -24,15 +26,29 @@ describe('Presets HTTP API', () => {
       db_path: '',
     });
 
-    const testBackend = new TestBackend(nconf, logger);
+    testBackend = new TestBackend(nconf, logger);
     testBackend.addStation({
       id: 'station_a',
       name: 'Station A',
       type: 'type_a',
       default_app: 'app_a',
-      possible_apps: ['app_a', 'app_b', 'app_c'],
+      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d'],
     });
-    const stationManager = new StationManager(
+    testBackend.addStation({
+      id: 'station_b',
+      name: 'Station B',
+      type: 'type_a',
+      default_app: 'app_b',
+      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d'],
+    });
+    testBackend.addStation({
+      id: 'station_c',
+      name: 'Station C',
+      type: 'type_a',
+      default_app: 'app_c',
+      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d'],
+    });
+    stationManager = new StationManager(
       nconf,
       logger,
       testBackend.getHilbertCLIConnector(),
@@ -40,6 +56,9 @@ describe('Presets HTTP API', () => {
     );
 
     stationManager.init()
+    .then(() => stationManager.startStations(['station_a', 'station_b', 'station_c']))
+    .then(() => stationManager.pollMKLivestatus())
+    .then(() => stationManager.pollMKLivestatus())
     .then(() => {
       const httpAPIServer = new HttpAPIServer(stationManager, nconf, logger);
       httpAPIServer.init().then(() => {
@@ -266,7 +285,8 @@ describe('Presets HTTP API', () => {
       .send({
         name: 'My Preset',
         stationData: {
-          station_a: 'app_a',
+          station_a: 'app_d',
+          station_b: 'app_a',
         },
       })
       .set('Accept', 'application/json')
@@ -290,6 +310,42 @@ describe('Presets HTTP API', () => {
       .delete('/preset/1')
       .set('Accept', 'application/json')
       .expect(200)
+    );
+  });
+
+  describe('POST /preset/:id/activate', () => {
+    beforeEach(() => request(apiServer)
+      .post('/preset')
+      .send({
+        name: 'My Preset',
+        stationData: {
+          station_a: 'app_d',
+          station_b: 'app_a',
+          station_x: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(200)
+    );
+
+    it('fails if the preset does not exist', () => request(apiServer)
+      .post('/preset/8/activate')
+      .set('Accept', 'application/json')
+      .expect(404)
+    );
+
+    it('responds with JSON', () => request(apiServer)
+      .post('/preset/1/activate')
+      .set('Accept', 'application/json')
+      .expect(200)
+      .then(() => {
+        stationManager.getStationByID('station_a').state.should.equal('switching_app');
+        stationManager.getStationByID('station_a').switching_app.should.equal('app_d');
+        stationManager.getStationByID('station_b').state.should.equal('switching_app');
+        stationManager.getStationByID('station_b').switching_app.should.equal('app_a');
+        stationManager.getStationByID('station_c').state.should.equal('on');
+      })
     );
   });
 });

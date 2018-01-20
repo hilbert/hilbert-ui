@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _presetStore = require('./preset-store');
@@ -29,6 +31,7 @@ var PresetsModule = function () {
     _classCallCheck(this, PresetsModule);
 
     this.httpApiServer = httpApiServer;
+    this.stationManager = this.httpApiServer.stationManager;
     this.logger = this.httpApiServer.logger;
     this.nconf = this.httpApiServer.nconf;
     this.presetStore = new _presetStore2.default();
@@ -48,6 +51,7 @@ var PresetsModule = function () {
       router.get('/preset/:id', this.getPreset.bind(this));
       router.put('/preset/:id', this.updatePreset.bind(this));
       router.delete('/preset/:id', this.deletePreset.bind(this));
+      router.post('/preset/:id/activate', this.activatePreset.bind(this));
     }
   }, {
     key: 'listPresets',
@@ -138,6 +142,50 @@ var PresetsModule = function () {
         res.status(500).json({ error: err.message });
       });
     }
+  }, {
+    key: 'activatePreset',
+    value: function activatePreset(req, res) {
+      var _this = this;
+
+      this.presetStore.loadPreset(req.params.id).then(function (preset) {
+        if (preset === null) {
+          res.status(404).send('Preset not found');
+        } else {
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = Object.entries(preset.stationData)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var _step$value = _slicedToArray(_step.value, 2);
+
+              var stationID = _step$value[0];
+              var appID = _step$value[1];
+
+              _this.stationManager.changeApp([stationID], appID);
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+
+          res.status(200).send('');
+        }
+      }).catch(function (err) {
+        console.log(err);
+        res.status(500).json({ error: err.message });
+      });
+    }
 
     // eslint-disable-next-line class-methods-use-this
 
@@ -149,27 +197,27 @@ var PresetsModule = function () {
       }
       if (req.body.stationData) {
         preset.clearAllStationApps();
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
 
         try {
-          for (var _iterator = Object.keys(req.body.stationData)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-            var stationID = _step.value;
+          for (var _iterator2 = Object.keys(req.body.stationData)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var stationID = _step2.value;
 
             preset.setStationApp(stationID, req.body.stationData[stationID]);
           }
         } catch (err) {
-          _didIteratorError = true;
-          _iteratorError = err;
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion && _iterator.return) {
-              _iterator.return();
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+              _iterator2.return();
             }
           } finally {
-            if (_didIteratorError) {
-              throw _iteratorError;
+            if (_didIteratorError2) {
+              throw _iteratorError2;
             }
           }
         }

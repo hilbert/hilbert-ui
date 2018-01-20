@@ -132,6 +132,24 @@ paths:
           description: A preset with the specified ID does not exist.
         500:
           description: Unspecified error.
+  /preset/{id}/activate:
+    post:
+      tags:
+        - "Presets"
+      summary: "Activate a preset"
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          description: ID of the preset to activate
+      responses:
+        200:
+          description: The preset was activated succesfully.
+        404:
+          description: A preset with the specified ID does not exist.
+        500:
+          description: Unspecified error.
 definitions:
   PresetResponse:
     type: object

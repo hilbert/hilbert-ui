@@ -7,6 +7,7 @@ export default class PresetsModule {
 
   constructor(httpApiServer) {
     this.httpApiServer = httpApiServer;
+    this.stationManager = this.httpApiServer.stationManager;
     this.logger = this.httpApiServer.logger;
     this.nconf = this.httpApiServer.nconf;
     this.presetStore = new PresetStore();
@@ -23,6 +24,7 @@ export default class PresetsModule {
     router.get('/preset/:id', this.getPreset.bind(this));
     router.put('/preset/:id', this.updatePreset.bind(this));
     router.delete('/preset/:id', this.deletePreset.bind(this));
+    router.post('/preset/:id/activate', this.activatePreset.bind(this));
   }
 
   listPresets(req, res) {
@@ -118,6 +120,24 @@ export default class PresetsModule {
         return Promise.resolve();
       }
     ).catch((err) => {
+      res.status(500).json({ error: err.message });
+    });
+  }
+
+  activatePreset(req, res) {
+    this.presetStore.loadPreset(req.params.id).then(
+      (preset) => {
+        if (preset === null) {
+          res.status(404).send('Preset not found');
+        } else {
+          for (const [stationID, appID] of Object.entries(preset.stationData)) {
+            this.stationManager.changeApp([stationID], appID);
+          }
+          res.status(200).send('');
+        }
+      }
+    ).catch((err) => {
+      console.log(err);
       res.status(500).json({ error: err.message });
     });
   }

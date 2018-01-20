@@ -23,6 +23,8 @@ var nconf = require('nconf');
 
 describe('Presets HTTP API', function () {
   var apiServer = null;
+  var testBackend = null;
+  var stationManager = null;
 
   beforeEach(function (done) {
     nconf.defaults({
@@ -39,17 +41,37 @@ describe('Presets HTTP API', function () {
       db_path: ''
     });
 
-    var testBackend = new _testBackend2.default(nconf, logger);
+    testBackend = new _testBackend2.default(nconf, logger);
     testBackend.addStation({
       id: 'station_a',
       name: 'Station A',
       type: 'type_a',
       default_app: 'app_a',
-      possible_apps: ['app_a', 'app_b', 'app_c']
+      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d']
     });
-    var stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
+    testBackend.addStation({
+      id: 'station_b',
+      name: 'Station B',
+      type: 'type_a',
+      default_app: 'app_b',
+      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d']
+    });
+    testBackend.addStation({
+      id: 'station_c',
+      name: 'Station C',
+      type: 'type_a',
+      default_app: 'app_c',
+      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d']
+    });
+    stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
 
     stationManager.init().then(function () {
+      return stationManager.startStations(['station_a', 'station_b', 'station_c']);
+    }).then(function () {
+      return stationManager.pollMKLivestatus();
+    }).then(function () {
+      return stationManager.pollMKLivestatus();
+    }).then(function () {
       var httpAPIServer = new _httpApiServer2.default(stationManager, nconf, logger);
       httpAPIServer.init().then(function () {
         apiServer = httpAPIServer.getServer();
@@ -210,7 +232,8 @@ describe('Presets HTTP API', function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
         stationData: {
-          station_a: 'app_a'
+          station_a: 'app_d',
+          station_b: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
     });
@@ -225,6 +248,33 @@ describe('Presets HTTP API', function () {
 
     it('responds with JSON', function () {
       return request(apiServer).delete('/preset/1').set('Accept', 'application/json').expect(200);
+    });
+  });
+
+  describe('POST /preset/:id/activate', function () {
+    beforeEach(function () {
+      return request(apiServer).post('/preset').send({
+        name: 'My Preset',
+        stationData: {
+          station_a: 'app_d',
+          station_b: 'app_a',
+          station_x: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
+    });
+
+    it('fails if the preset does not exist', function () {
+      return request(apiServer).post('/preset/8/activate').set('Accept', 'application/json').expect(404);
+    });
+
+    it('responds with JSON', function () {
+      return request(apiServer).post('/preset/1/activate').set('Accept', 'application/json').expect(200).then(function () {
+        stationManager.getStationByID('station_a').state.should.equal('switching_app');
+        stationManager.getStationByID('station_a').switching_app.should.equal('app_d');
+        stationManager.getStationByID('station_b').state.should.equal('switching_app');
+        stationManager.getStationByID('station_b').switching_app.should.equal('app_a');
+        stationManager.getStationByID('station_c').state.should.equal('on');
+      });
     });
   });
 });

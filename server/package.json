@@ -31,6 +31,6 @@
     "tmp": "0.0.33"
   },
   "scripts": {
-    "test": "mocha app/test"
+    "test": "mocha --require babel-polyfill app/test"
   }
 }
