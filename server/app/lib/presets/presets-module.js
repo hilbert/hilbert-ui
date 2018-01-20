@@ -71,11 +71,7 @@ var PresetsModule = function () {
         if (preset === null) {
           res.status(404).send('Preset not found');
         } else {
-          res.json({
-            id: preset.id,
-            name: preset.name,
-            stationData: preset.stationData
-          });
+          res.json(preset.toJSON());
         }
       }).catch(function (err) {
         res.status(500).json({ error: err.message });
@@ -84,14 +80,9 @@ var PresetsModule = function () {
   }, {
     key: 'addPreset',
     value: function addPreset(req, res) {
-      var newPreset = this.presetStore.createPreset();
-      PresetsModule.fillPresetFromReq(newPreset, req);
+      var newPreset = this.presetStore.createPreset(req.body);
       newPreset.save().then(function (preset) {
-        res.json({
-          id: preset.id,
-          name: preset.name,
-          stationData: preset.stationData
-        });
+        res.json(preset.toJSON());
       }).catch(function (err) {
         if (err instanceof _duplicateIdentifierError2.default) {
           res.status(400).json({ error: err.message });
@@ -107,13 +98,14 @@ var PresetsModule = function () {
         if (preset === null) {
           res.status(404).send('Preset not found');
         } else {
-          PresetsModule.fillPresetFromReq(preset, req);
+          if (req.body.name) {
+            preset.name = req.body.name;
+          }
+          if (req.body.stationApps) {
+            preset.stationApps = Object.assign({}, req.body.stationApps);
+          }
           preset.save().then(function () {
-            res.json({
-              id: preset.id,
-              name: preset.name,
-              stationData: preset.stationData
-            });
+            res.json(preset.toJSON());
           }).catch(function (err) {
             if (err instanceof _duplicateIdentifierError2.default) {
               res.status(400).json({ error: err.message });
@@ -156,7 +148,7 @@ var PresetsModule = function () {
           var _iteratorError = undefined;
 
           try {
-            for (var _iterator = Object.entries(preset.stationData)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            for (var _iterator = Object.entries(preset.stationApps)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
               var _step$value = _slicedToArray(_step.value, 2);
 
               var stationID = _step$value[0];
@@ -185,44 +177,6 @@ var PresetsModule = function () {
         console.log(err);
         res.status(500).json({ error: err.message });
       });
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-
-  }], [{
-    key: 'fillPresetFromReq',
-    value: function fillPresetFromReq(preset, req) {
-      if (req.body.name) {
-        preset.name = req.body.name;
-      }
-      if (req.body.stationData) {
-        preset.clearAllStationApps();
-        var _iteratorNormalCompletion2 = true;
-        var _didIteratorError2 = false;
-        var _iteratorError2 = undefined;
-
-        try {
-          for (var _iterator2 = Object.keys(req.body.stationData)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-            var stationID = _step2.value;
-
-            preset.setStationApp(stationID, req.body.stationData[stationID]);
-          }
-        } catch (err) {
-          _didIteratorError2 = true;
-          _iteratorError2 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-              _iterator2.return();
-            }
-          } finally {
-            if (_didIteratorError2) {
-              throw _iteratorError2;
-            }
-          }
-        }
-      }
-      return preset;
     }
   }]);
 

@@ -92,7 +92,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
@@ -112,7 +112,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
@@ -131,7 +131,7 @@ describe('Presets HTTP API', function () {
         response.body.should.deepEqual({
           id: 1,
           name: 'My Preset',
-          stationData: {
+          stationApps: {
             station_a: 'app_a'
           }
         });
@@ -143,7 +143,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
@@ -152,14 +152,14 @@ describe('Presets HTTP API', function () {
     it('responds with JSON', function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset 2',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200).then(function (response) {
         response.body.should.deepEqual({
           id: 2,
           name: 'My Preset 2',
-          stationData: {
+          stationApps: {
             station_a: 'app_a'
           }
         });
@@ -169,7 +169,7 @@ describe('Presets HTTP API', function () {
     it('fails when adding a preset with an existing name', function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect(400);
@@ -180,7 +180,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
@@ -189,7 +189,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset 2',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
@@ -202,7 +202,7 @@ describe('Presets HTTP API', function () {
     it('fails if the preset does not exist', function () {
       return request(apiServer).put('/preset/8').send({
         name: 'My Preset B',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect(404);
@@ -211,7 +211,7 @@ describe('Presets HTTP API', function () {
     it('fails if the name already exists', function () {
       return request(apiServer).put('/preset/2').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect(400);
@@ -220,7 +220,7 @@ describe('Presets HTTP API', function () {
     it('responds with JSON', function () {
       return request(apiServer).put('/preset/1').send({
         name: 'My Preset 1',
-        stationData: {
+        stationApps: {
           station_a: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
@@ -231,7 +231,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_d',
           station_b: 'app_a'
         }
@@ -255,7 +255,7 @@ describe('Presets HTTP API', function () {
     beforeEach(function () {
       return request(apiServer).post('/preset').send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_d',
           station_b: 'app_a',
           station_x: 'app_a'

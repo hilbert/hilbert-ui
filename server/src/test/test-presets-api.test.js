@@ -85,7 +85,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -115,7 +115,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -148,7 +148,7 @@ describe('Presets HTTP API', () => {
           {
             id: 1,
             name: 'My Preset',
-            stationData: {
+            stationApps: {
               station_a: 'app_a',
             },
           }
@@ -162,7 +162,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -175,7 +175,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset 2',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -187,7 +187,7 @@ describe('Presets HTTP API', () => {
           {
             id: 2,
             name: 'My Preset 2',
-            stationData: {
+            stationApps: {
               station_a: 'app_a',
             },
           }
@@ -199,7 +199,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -213,7 +213,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -226,7 +226,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset 2',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -245,7 +245,7 @@ describe('Presets HTTP API', () => {
       .put('/preset/8')
       .send({
         name: 'My Preset B',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -257,7 +257,7 @@ describe('Presets HTTP API', () => {
       .put('/preset/2')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -269,7 +269,7 @@ describe('Presets HTTP API', () => {
       .put('/preset/1')
       .send({
         name: 'My Preset 1',
-        stationData: {
+        stationApps: {
           station_a: 'app_a',
         },
       })
@@ -284,7 +284,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_d',
           station_b: 'app_a',
         },
@@ -318,7 +318,7 @@ describe('Presets HTTP API', () => {
       .post('/preset')
       .send({
         name: 'My Preset',
-        stationData: {
+        stationApps: {
           station_a: 'app_d',
           station_b: 'app_a',
           station_x: 'app_a',

@@ -4,23 +4,30 @@
 export default class Preset {
 
   /**
-   * Constructor. Instead of calling this directly use PresetStore::createPreset
+   * Constructor
    *
-   * @param {PresetStore} presetStore
-   *  Store where the preset will be persisted
+   * @param {Object} data
+   *  Data properties to initialize the object
    */
-  constructor(presetStore) {
-    this.store = presetStore;
-    this.id = null;
-    this.name = null;
-    this.clearAllStationApps();
+  constructor(data = {}) {
+    this.store = null;
+    this.id = data.id || null;
+    this.name = data.name || null;
+    this.stationApps = data.stationApps ? Object.assign({}, data.stationApps) : {};
   }
 
   /**
-   * Clears app assignments for all stations
+   * Returns an object that can be serialized to JSON
+   *
+   * Used by JSON.stringify
+   * @return {{id: (null|*), name: null, stationApps: *}}
    */
-  clearAllStationApps() {
-    this.stationData = {};
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      stationApps: Object.assign({}, this.stationApps),
+    };
   }
 
   /**
@@ -30,7 +37,7 @@ export default class Preset {
    * @param {String} appID
    */
   setStationApp(stationID, appID) {
-    this.stationData[stationID] = appID;
+    this.stationApps[stationID] = appID;
   }
 
   /**
@@ -40,7 +47,17 @@ export default class Preset {
    * @return {Object}
    */
   getStationApp(appID) {
-    return this.stationData[appID];
+    return this.stationApps[appID];
+  }
+
+  /**
+   * Assigns a preset store
+   *
+   * The store is used for preset storage via the save() and remove() methods
+   * @param store
+   */
+  setStore(store) {
+    this.store = store;
   }
 
   /**

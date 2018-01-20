@@ -130,7 +130,7 @@ var PresetStore = function () {
       var _this4 = this;
 
       return new Promise(function (resolve, reject) {
-        _this4.db.run('\nCREATE TABLE IF NOT EXISTS presets \n(\n  id integer PRIMARY KEY NOT NULL,\n  name text UNIQUE, \n  stationData text\n)\n', [], function (err) {
+        _this4.db.run('\nCREATE TABLE IF NOT EXISTS presets \n(\n  id integer PRIMARY KEY NOT NULL,\n  name text UNIQUE, \n  stationApps text\n)\n', [], function (err) {
           if (err === null) {
             resolve();
           } else {
@@ -143,13 +143,19 @@ var PresetStore = function () {
     /**
      * Creates a Preset object associated to this store
      *
+     * @param {Object} data
+     *  Data properties to initialize the preset
      * @return {Preset}
      */
 
   }, {
     key: 'createPreset',
     value: function createPreset() {
-      return new _preset2.default(this);
+      var data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var answer = new _preset2.default(data);
+      answer.setStore(this);
+      return answer;
     }
 
     /**
@@ -171,10 +177,10 @@ var PresetStore = function () {
         }, function (err, row) {
           if (err === null) {
             if (row !== undefined) {
-              var answer = new _preset2.default(_this5);
+              var answer = _this5.createPreset();
               answer.id = row.id;
               answer.name = row.name;
-              answer.stationData = JSON.parse(row.stationData);
+              answer.stationApps = JSON.parse(row.stationApps);
               resolve(answer);
             } else {
               resolve(null);
@@ -199,9 +205,9 @@ var PresetStore = function () {
       var _this6 = this;
 
       return new Promise(function (resolve, reject) {
-        _this6.db.run('\nINSERT INTO presets (name, stationData)\nVALUES ($name, $stationData)\n', {
+        _this6.db.run('\nINSERT INTO presets (name, stationApps)\nVALUES ($name, $stationApps)\n', {
           $name: preset.name,
-          $stationData: JSON.stringify(preset.stationData)
+          $stationApps: JSON.stringify(preset.stationApps)
         }, function callback(err) {
           if (err === null) {
             resolve(this.lastID);
@@ -225,10 +231,10 @@ var PresetStore = function () {
       var _this7 = this;
 
       return new Promise(function (resolve, reject) {
-        _this7.db.run('\nUPDATE presets\nSET name = $name, stationData = $stationData\nWHERE id = $id\n', {
+        _this7.db.run('\nUPDATE presets\nSET name = $name, stationApps = $stationApps\nWHERE id = $id\n', {
           $id: preset.id,
           $name: preset.name,
-          $stationData: JSON.stringify(preset.stationData)
+          $stationApps: JSON.stringify(preset.stationApps)
         }, function (err) {
           if (err === null) {
             resolve();

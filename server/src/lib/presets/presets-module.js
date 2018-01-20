@@ -45,11 +45,7 @@ export default class PresetsModule {
         if (preset === null) {
           res.status(404).send('Preset not found');
         } else {
-          res.json({
-            id: preset.id,
-            name: preset.name,
-            stationData: preset.stationData,
-          });
+          res.json(preset.toJSON());
         }
       }
     ).catch((err) => {
@@ -58,15 +54,10 @@ export default class PresetsModule {
   }
 
   addPreset(req, res) {
-    const newPreset = this.presetStore.createPreset();
-    PresetsModule.fillPresetFromReq(newPreset, req);
+    const newPreset = this.presetStore.createPreset(req.body);
     newPreset.save()
     .then((preset) => {
-      res.json({
-        id: preset.id,
-        name: preset.name,
-        stationData: preset.stationData,
-      });
+      res.json(preset.toJSON());
     })
     .catch((err) => {
       if (err instanceof DuplicateIdentifierError) {
@@ -83,14 +74,15 @@ export default class PresetsModule {
         if (preset === null) {
           res.status(404).send('Preset not found');
         } else {
-          PresetsModule.fillPresetFromReq(preset, req);
+          if (req.body.name) {
+            preset.name = req.body.name;
+          }
+          if (req.body.stationApps) {
+            preset.stationApps = Object.assign({}, req.body.stationApps);
+          }
           preset.save()
           .then(() => {
-            res.json({
-              id: preset.id,
-              name: preset.name,
-              stationData: preset.stationData,
-            });
+            res.json(preset.toJSON());
           })
           .catch((err) => {
             if (err instanceof DuplicateIdentifierError) {
@@ -130,7 +122,7 @@ export default class PresetsModule {
         if (preset === null) {
           res.status(404).send('Preset not found');
         } else {
-          for (const [stationID, appID] of Object.entries(preset.stationData)) {
+          for (const [stationID, appID] of Object.entries(preset.stationApps)) {
             this.stationManager.changeApp([stationID], appID);
           }
           res.status(200).send('');
@@ -140,19 +132,5 @@ export default class PresetsModule {
       console.log(err);
       res.status(500).json({ error: err.message });
     });
-  }
-
-// eslint-disable-next-line class-methods-use-this
-  static fillPresetFromReq(preset, req) {
-    if (req.body.name) {
-      preset.name = req.body.name;
-    }
-    if (req.body.stationData) {
-      preset.clearAllStationApps();
-      for (const stationID of Object.keys(req.body.stationData)) {
-        preset.setStationApp(stationID, req.body.stationData[stationID]);
-      }
-    }
-    return preset;
   }
 }

@@ -17,29 +17,38 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var Preset = function () {
 
   /**
-   * Constructor. Instead of calling this directly use PresetStore::createPreset
+   * Constructor
    *
-   * @param {PresetStore} presetStore
-   *  Store where the preset will be persisted
+   * @param {Object} data
+   *  Data properties to initialize the object
    */
-  function Preset(presetStore) {
+  function Preset() {
+    var data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     _classCallCheck(this, Preset);
 
-    this.store = presetStore;
-    this.id = null;
-    this.name = null;
-    this.clearAllStationApps();
+    this.store = null;
+    this.id = data.id || null;
+    this.name = data.name || null;
+    this.stationApps = data.stationApps ? Object.assign({}, data.stationApps) : {};
   }
 
   /**
-   * Clears app assignments for all stations
+   * Returns an object that can be serialized to JSON
+   *
+   * Used by JSON.stringify
+   * @return {{id: (null|*), name: null, stationApps: *}}
    */
 
 
   _createClass(Preset, [{
-    key: "clearAllStationApps",
-    value: function clearAllStationApps() {
-      this.stationData = {};
+    key: "toJSON",
+    value: function toJSON() {
+      return {
+        id: this.id,
+        name: this.name,
+        stationApps: Object.assign({}, this.stationApps)
+      };
     }
 
     /**
@@ -52,7 +61,7 @@ var Preset = function () {
   }, {
     key: "setStationApp",
     value: function setStationApp(stationID, appID) {
-      this.stationData[stationID] = appID;
+      this.stationApps[stationID] = appID;
     }
 
     /**
@@ -65,7 +74,20 @@ var Preset = function () {
   }, {
     key: "getStationApp",
     value: function getStationApp(appID) {
-      return this.stationData[appID];
+      return this.stationApps[appID];
+    }
+
+    /**
+     * Assigns a preset store
+     *
+     * The store is used for preset storage via the save() and remove() methods
+     * @param store
+     */
+
+  }, {
+    key: "setStore",
+    value: function setStore(store) {
+      this.store = store;
     }
 
     /**

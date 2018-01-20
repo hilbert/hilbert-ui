@@ -76,7 +76,7 @@ paths:
         - "Presets"
       responses:
         200:
-          description: Returns the requested preset. StationData contains a map of station IDs to app IDs.
+          description: Returns the requested preset. stationApps contains a map of station IDs to app IDs.
           schema:
             $ref: "#/definitions/PresetResponse"
         404:
@@ -158,7 +158,7 @@ definitions:
         type: integer
       name:
         type: string
-      stationData:
+      stationApps:
         type: object
         properties:
           stationID1:
@@ -172,7 +172,7 @@ definitions:
     properties:
       name:
         type: string
-      stationData:
+      stationApps:
         type: object
         properties:
           stationID1:

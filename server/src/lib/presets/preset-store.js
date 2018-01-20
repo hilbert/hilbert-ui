@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS presets
 (
   id integer PRIMARY KEY NOT NULL,
   name text UNIQUE, 
-  stationData text
+  stationApps text
 )
 `,
         [],
@@ -115,10 +115,14 @@ CREATE TABLE IF NOT EXISTS presets
   /**
    * Creates a Preset object associated to this store
    *
+   * @param {Object} data
+   *  Data properties to initialize the preset
    * @return {Preset}
    */
-  createPreset() {
-    return new Preset(this);
+  createPreset(data = {}) {
+    const answer = new Preset(data);
+    answer.setStore(this);
+    return answer;
   }
 
   /**
@@ -141,10 +145,10 @@ WHERE id = $id
         (err, row) => {
           if (err === null) {
             if (row !== undefined) {
-              const answer = new Preset(this);
+              const answer = this.createPreset();
               answer.id = row.id;
               answer.name = row.name;
-              answer.stationData = JSON.parse(row.stationData);
+              answer.stationApps = JSON.parse(row.stationApps);
               resolve(answer);
             } else {
               resolve(null);
@@ -166,12 +170,12 @@ WHERE id = $id
   insertPreset(preset) {
     return new Promise((resolve, reject) => {
       this.db.run(`
-INSERT INTO presets (name, stationData)
-VALUES ($name, $stationData)
+INSERT INTO presets (name, stationApps)
+VALUES ($name, $stationApps)
 `,
         {
           $name: preset.name,
-          $stationData: JSON.stringify(preset.stationData),
+          $stationApps: JSON.stringify(preset.stationApps),
         },
         function callback(err) {
           if (err === null) {
@@ -194,13 +198,13 @@ VALUES ($name, $stationData)
     return new Promise((resolve, reject) => {
       this.db.run(`
 UPDATE presets
-SET name = $name, stationData = $stationData
+SET name = $name, stationApps = $stationApps
 WHERE id = $id
 `,
         {
           $id: preset.id,
           $name: preset.name,
-          $stationData: JSON.stringify(preset.stationData),
+          $stationApps: JSON.stringify(preset.stationApps),
         },
         (err) => {
           if (err === null) {
