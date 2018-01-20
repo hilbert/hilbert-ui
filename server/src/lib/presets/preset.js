@@ -90,3 +90,6 @@ export default class Preset {
     });
   }
 }
+
+Preset.MAX_ID = 4294967295;
+Preset.MAX_NAME_LEN = 50;

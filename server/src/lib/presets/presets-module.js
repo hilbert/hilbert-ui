@@ -1,5 +1,9 @@
+import Preset from './preset';
 import PresetStore from './preset-store';
 import DuplicateIdentifierError from './duplicate-identifier-error';
+
+const validate = require('express-validation');
+const Joi = require('joi');
 /**
  * Module that adds supports for Presets to the HTTP Api Server
  */
@@ -20,11 +24,11 @@ export default class PresetsModule {
 
   setupRoutes(router) {
     router.get('/presets', this.listPresets.bind(this));
-    router.post('/preset', this.addPreset.bind(this));
-    router.get('/preset/:id', this.getPreset.bind(this));
-    router.put('/preset/:id', this.updatePreset.bind(this));
-    router.delete('/preset/:id', this.deletePreset.bind(this));
-    router.post('/preset/:id/activate', this.activatePreset.bind(this));
+    router.post('/preset', validate(PresetsModule.addPresetSchema()), this.addPreset.bind(this));
+    router.get('/preset/:id', validate(PresetsModule.getPresetSchema()), this.getPreset.bind(this));
+    router.put('/preset/:id', validate(PresetsModule.updatePresetSchema()), this.updatePreset.bind(this));
+    router.delete('/preset/:id', validate(PresetsModule.deletePresetSchema()), this.deletePreset.bind(this));
+    router.post('/preset/:id/activate', validate(PresetsModule.activatePresetSchema()), this.activatePreset.bind(this));
   }
 
   listPresets(req, res) {
@@ -129,8 +133,45 @@ export default class PresetsModule {
         }
       }
     ).catch((err) => {
-      console.log(err);
       res.status(500).json({ error: err.message });
     });
+  }
+
+  static presetIdParamSchema() {
+    return {
+      params: {
+        id: Joi.number().min(1).max(Preset.MAX_ID).required(),
+      },
+    };
+  }
+
+  static getPresetSchema() {
+    return PresetsModule.presetIdParamSchema();
+  }
+
+  static addPresetSchema() {
+    return {
+      body: {
+        name: Joi.string().min(1).max(Preset.MAX_NAME_LEN).required(),
+        stationApps: Joi.object().pattern(/./, Joi.string().min(1)).required(),
+      },
+    };
+  }
+
+  static updatePresetSchema() {
+    return Object.assign(PresetsModule.presetIdParamSchema(), {
+      body: {
+        name: Joi.string().min(1).max(Preset.MAX_NAME_LEN),
+        stationApps: Joi.object().pattern(/./, Joi.string().min(1)),
+      },
+    });
+  }
+
+  static deletePresetSchema() {
+    return PresetsModule.presetIdParamSchema();
+  }
+
+  static activatePresetSchema() {
+    return PresetsModule.presetIdParamSchema();
   }
 }

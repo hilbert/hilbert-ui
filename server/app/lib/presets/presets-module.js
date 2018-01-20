@@ -11,6 +11,10 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _preset = require('./preset');
+
+var _preset2 = _interopRequireDefault(_preset);
+
 var _presetStore = require('./preset-store');
 
 var _presetStore2 = _interopRequireDefault(_presetStore);
@@ -23,9 +27,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var validate = require('express-validation');
+var Joi = require('joi');
 /**
  * Module that adds supports for Presets to the HTTP Api Server
  */
+
 var PresetsModule = function () {
   function PresetsModule(httpApiServer) {
     _classCallCheck(this, PresetsModule);
@@ -47,11 +54,11 @@ var PresetsModule = function () {
     key: 'setupRoutes',
     value: function setupRoutes(router) {
       router.get('/presets', this.listPresets.bind(this));
-      router.post('/preset', this.addPreset.bind(this));
-      router.get('/preset/:id', this.getPreset.bind(this));
-      router.put('/preset/:id', this.updatePreset.bind(this));
-      router.delete('/preset/:id', this.deletePreset.bind(this));
-      router.post('/preset/:id/activate', this.activatePreset.bind(this));
+      router.post('/preset', validate(PresetsModule.addPresetSchema()), this.addPreset.bind(this));
+      router.get('/preset/:id', validate(PresetsModule.getPresetSchema()), this.getPreset.bind(this));
+      router.put('/preset/:id', validate(PresetsModule.updatePresetSchema()), this.updatePreset.bind(this));
+      router.delete('/preset/:id', validate(PresetsModule.deletePresetSchema()), this.deletePreset.bind(this));
+      router.post('/preset/:id/activate', validate(PresetsModule.activatePresetSchema()), this.activatePreset.bind(this));
     }
   }, {
     key: 'listPresets',
@@ -174,9 +181,52 @@ var PresetsModule = function () {
           res.status(200).send('');
         }
       }).catch(function (err) {
-        console.log(err);
         res.status(500).json({ error: err.message });
       });
+    }
+  }], [{
+    key: 'presetIdParamSchema',
+    value: function presetIdParamSchema() {
+      return {
+        params: {
+          id: Joi.number().min(1).max(_preset2.default.MAX_ID).required()
+        }
+      };
+    }
+  }, {
+    key: 'getPresetSchema',
+    value: function getPresetSchema() {
+      return PresetsModule.presetIdParamSchema();
+    }
+  }, {
+    key: 'addPresetSchema',
+    value: function addPresetSchema() {
+      return {
+        body: {
+          name: Joi.string().min(1).max(_preset2.default.MAX_NAME_LEN).required(),
+          stationApps: Joi.object().pattern(/./, Joi.string().min(1)).required()
+        }
+      };
+    }
+  }, {
+    key: 'updatePresetSchema',
+    value: function updatePresetSchema() {
+      return Object.assign(PresetsModule.presetIdParamSchema(), {
+        body: {
+          name: Joi.string().min(1).max(_preset2.default.MAX_NAME_LEN),
+          stationApps: Joi.object().pattern(/./, Joi.string().min(1))
+        }
+      });
+    }
+  }, {
+    key: 'deletePresetSchema',
+    value: function deletePresetSchema() {
+      return PresetsModule.presetIdParamSchema();
+    }
+  }, {
+    key: 'activatePresetSchema',
+    value: function activatePresetSchema() {
+      return PresetsModule.presetIdParamSchema();
     }
   }]);
 

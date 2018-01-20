@@ -131,6 +131,30 @@ describe('Presets HTTP API', () => {
         .expect(404, done);
     });
 
+    it('fails with a non numeric id', () => request(apiServer)
+      .get('/preset/xxxx')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with id = 0', () => request(apiServer)
+      .get('/preset/0')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a negative id', () => request(apiServer)
+      .get('/preset/-1')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a very large id', () => request(apiServer)
+      .get('/preset/99999999999')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
     it('fails if the requested station does not exist', (done) => {
       request(apiServer)
         .get('/preset/777')
@@ -206,6 +230,63 @@ describe('Presets HTTP API', () => {
       .set('Accept', 'application/json')
       .expect(400)
     );
+
+    it('fails if the preset does not have a name', () => request(apiServer)
+      .post('/preset')
+      .send({
+        stationApps: {
+          station_a: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if the preset has an empty name', () => request(apiServer)
+      .post('/preset')
+      .send({
+        name: '',
+        stationApps: {
+          station_a: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if the preset has a name that is too long', () => request(apiServer)
+      .post('/preset')
+      .send({
+        name: '123456789012345678901234567890123456789012345678901',
+        stationApps: {
+          station_a: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if the preset does not have stationApps', () => request(apiServer)
+      .post('/preset')
+      .send({
+        name: 'My Preset 2',
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if stationApps is the wrong format', () => request(apiServer)
+      .post('/preset')
+      .send({
+        name: 'My Preset 2',
+        stationApps: {
+          station_a: 'an_app',
+          station_b: [1, 2, 3],
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
   });
 
   describe('PUT /preset/:id', () => {
@@ -241,6 +322,30 @@ describe('Presets HTTP API', () => {
       .expect(404)
     );
 
+    it('fails with a non numeric id', () => request(apiServer)
+      .put('/preset/xxxx')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with id = 0', () => request(apiServer)
+      .put('/preset/0')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a negative id', () => request(apiServer)
+      .put('/preset/-1')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a very large id', () => request(apiServer)
+      .put('/preset/99999999999')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
     it('fails if the preset does not exist', () => request(apiServer)
       .put('/preset/8')
       .send({
@@ -259,6 +364,43 @@ describe('Presets HTTP API', () => {
         name: 'My Preset',
         stationApps: {
           station_a: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if the preset has an empty name', () => request(apiServer)
+      .put('/preset/1')
+      .send({
+        name: '',
+        stationApps: {
+          station_a: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if the preset has a name that is too long', () => request(apiServer)
+      .put('/preset/1')
+      .send({
+        name: '123456789012345678901234567890123456789012345678901',
+        stationApps: {
+          station_a: 'app_a',
+        },
+      })
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails if stationApps is the wrong format', () => request(apiServer)
+      .put('/preset/1')
+      .send({
+        name: 'My Preset 2',
+        stationApps: {
+          station_a: 'an_app',
+          station_b: [1, 2, 3],
         },
       })
       .set('Accept', 'application/json')
@@ -300,6 +442,30 @@ describe('Presets HTTP API', () => {
       .expect(404)
     );
 
+    it('fails with a non numeric id', () => request(apiServer)
+      .delete('/preset/xxxx')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with id = 0', () => request(apiServer)
+      .delete('/preset/0')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a negative id', () => request(apiServer)
+      .delete('/preset/-1')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a very large id', () => request(apiServer)
+      .delete('/preset/99999999999')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
     it('fails if the preset does not exist', () => request(apiServer)
       .delete('/preset/8')
       .set('Accept', 'application/json')
@@ -327,6 +493,30 @@ describe('Presets HTTP API', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200)
+    );
+
+    it('fails with a non numeric id', () => request(apiServer)
+      .post('/preset/xxxx/activate')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with id = 0', () => request(apiServer)
+      .post('/preset/0/activate')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a negative id', () => request(apiServer)
+      .post('/preset/-1/activate')
+      .set('Accept', 'application/json')
+      .expect(400)
+    );
+
+    it('fails with a very large id', () => request(apiServer)
+      .post('/preset/99999999999/activate')
+      .set('Accept', 'application/json')
+      .expect(400)
     );
 
     it('fails if the preset does not exist', () => request(apiServer)

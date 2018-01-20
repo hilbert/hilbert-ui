@@ -122,6 +122,22 @@ describe('Presets HTTP API', function () {
       request(apiServer).get('/preset').set('Accept', 'application/json').expect(404, done);
     });
 
+    it('fails with a non numeric id', function () {
+      return request(apiServer).get('/preset/xxxx').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with id = 0', function () {
+      return request(apiServer).get('/preset/0').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a negative id', function () {
+      return request(apiServer).get('/preset/-1').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a very large id', function () {
+      return request(apiServer).get('/preset/99999999999').set('Accept', 'application/json').expect(400);
+    });
+
     it('fails if the requested station does not exist', function (done) {
       request(apiServer).get('/preset/777').set('Accept', 'application/json').expect(404, done);
     });
@@ -174,6 +190,48 @@ describe('Presets HTTP API', function () {
         }
       }).set('Accept', 'application/json').expect(400);
     });
+
+    it('fails if the preset does not have a name', function () {
+      return request(apiServer).post('/preset').send({
+        stationApps: {
+          station_a: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if the preset has an empty name', function () {
+      return request(apiServer).post('/preset').send({
+        name: '',
+        stationApps: {
+          station_a: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if the preset has a name that is too long', function () {
+      return request(apiServer).post('/preset').send({
+        name: '123456789012345678901234567890123456789012345678901',
+        stationApps: {
+          station_a: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if the preset does not have stationApps', function () {
+      return request(apiServer).post('/preset').send({
+        name: 'My Preset 2'
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if stationApps is the wrong format', function () {
+      return request(apiServer).post('/preset').send({
+        name: 'My Preset 2',
+        stationApps: {
+          station_a: 'an_app',
+          station_b: [1, 2, 3]
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
   });
 
   describe('PUT /preset/:id', function () {
@@ -199,6 +257,22 @@ describe('Presets HTTP API', function () {
       return request(apiServer).put('/preset').set('Accept', 'application/json').expect(404);
     });
 
+    it('fails with a non numeric id', function () {
+      return request(apiServer).put('/preset/xxxx').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with id = 0', function () {
+      return request(apiServer).put('/preset/0').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a negative id', function () {
+      return request(apiServer).put('/preset/-1').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a very large id', function () {
+      return request(apiServer).put('/preset/99999999999').set('Accept', 'application/json').expect(400);
+    });
+
     it('fails if the preset does not exist', function () {
       return request(apiServer).put('/preset/8').send({
         name: 'My Preset B',
@@ -213,6 +287,34 @@ describe('Presets HTTP API', function () {
         name: 'My Preset',
         stationApps: {
           station_a: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if the preset has an empty name', function () {
+      return request(apiServer).put('/preset/1').send({
+        name: '',
+        stationApps: {
+          station_a: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if the preset has a name that is too long', function () {
+      return request(apiServer).put('/preset/1').send({
+        name: '123456789012345678901234567890123456789012345678901',
+        stationApps: {
+          station_a: 'app_a'
+        }
+      }).set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails if stationApps is the wrong format', function () {
+      return request(apiServer).put('/preset/1').send({
+        name: 'My Preset 2',
+        stationApps: {
+          station_a: 'an_app',
+          station_b: [1, 2, 3]
         }
       }).set('Accept', 'application/json').expect(400);
     });
@@ -242,6 +344,22 @@ describe('Presets HTTP API', function () {
       return request(apiServer).delete('/preset').set('Accept', 'application/json').expect(404);
     });
 
+    it('fails with a non numeric id', function () {
+      return request(apiServer).delete('/preset/xxxx').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with id = 0', function () {
+      return request(apiServer).delete('/preset/0').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a negative id', function () {
+      return request(apiServer).delete('/preset/-1').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a very large id', function () {
+      return request(apiServer).delete('/preset/99999999999').set('Accept', 'application/json').expect(400);
+    });
+
     it('fails if the preset does not exist', function () {
       return request(apiServer).delete('/preset/8').set('Accept', 'application/json').expect(404);
     });
@@ -261,6 +379,22 @@ describe('Presets HTTP API', function () {
           station_x: 'app_a'
         }
       }).set('Accept', 'application/json').expect('Content-Type', /json/).expect(200);
+    });
+
+    it('fails with a non numeric id', function () {
+      return request(apiServer).post('/preset/xxxx/activate').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with id = 0', function () {
+      return request(apiServer).post('/preset/0/activate').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a negative id', function () {
+      return request(apiServer).post('/preset/-1/activate').set('Accept', 'application/json').expect(400);
+    });
+
+    it('fails with a very large id', function () {
+      return request(apiServer).post('/preset/99999999999/activate').set('Accept', 'application/json').expect(400);
     });
 
     it('fails if the preset does not exist', function () {
