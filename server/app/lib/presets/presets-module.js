@@ -53,7 +53,7 @@ var PresetsModule = function () {
   }, {
     key: 'setupRoutes',
     value: function setupRoutes(router) {
-      router.get('/presets', this.listPresets.bind(this));
+      router.get('/presets', this.getAllPresets.bind(this));
       router.post('/preset', validate(PresetsModule.addPresetSchema()), this.addPreset.bind(this));
       router.get('/preset/:id', validate(PresetsModule.getPresetSchema()), this.getPreset.bind(this));
       router.put('/preset/:id', validate(PresetsModule.updatePresetSchema()), this.updatePreset.bind(this));
@@ -61,11 +61,37 @@ var PresetsModule = function () {
       router.post('/preset/:id/activate', validate(PresetsModule.activatePresetSchema()), this.activatePreset.bind(this));
     }
   }, {
-    key: 'listPresets',
-    value: function listPresets(req, res) {
-      this.presetStore.listAllPresets().then(function (allPresets) {
+    key: 'getAllPresets',
+    value: function getAllPresets(req, res) {
+      this.presetStore.loadAllPresets().then(function (allPresets) {
+        var jsonPresets = [];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = allPresets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var preset = _step.value;
+
+            jsonPresets.push(preset.toJSON());
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+
         res.json({
-          presets: allPresets
+          presets: jsonPresets
         });
       }).catch(function (err) {
         res.status(500).json({ error: err.message });
@@ -150,30 +176,30 @@ var PresetsModule = function () {
         if (preset === null) {
           res.status(404).send('Preset not found');
         } else {
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
 
           try {
-            for (var _iterator = Object.entries(preset.stationApps)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var _step$value = _slicedToArray(_step.value, 2);
+            for (var _iterator2 = Object.entries(preset.stationApps)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var _step2$value = _slicedToArray(_step2.value, 2);
 
-              var stationID = _step$value[0];
-              var appID = _step$value[1];
+              var stationID = _step2$value[0];
+              var appID = _step2$value[1];
 
               _this.stationManager.changeApp([stationID], appID);
             }
           } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
+              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                _iterator2.return();
               }
             } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
+              if (_didIteratorError2) {
+                throw _iteratorError2;
               }
             }
           }

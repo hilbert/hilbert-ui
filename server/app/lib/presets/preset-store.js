@@ -159,6 +159,59 @@ var PresetStore = function () {
     }
 
     /**
+     * Loads all presets
+     *
+     * @return {Promise<Array<Preset>>}
+     */
+
+  }, {
+    key: 'loadAllPresets',
+    value: function loadAllPresets() {
+      var _this5 = this;
+
+      return new Promise(function (resolve, reject) {
+        _this5.db.all('\nSELECT *\nFROM presets \n', [], function (err, rows) {
+          if (err === null) {
+            var answer = [];
+            if (rows !== undefined) {
+              var _iteratorNormalCompletion = true;
+              var _didIteratorError = false;
+              var _iteratorError = undefined;
+
+              try {
+                for (var _iterator = rows[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                  var row = _step.value;
+
+                  answer.push(_this5.createPreset({
+                    id: row.id,
+                    name: row.name,
+                    stationApps: JSON.parse(row.stationApps)
+                  }));
+                }
+              } catch (err) {
+                _didIteratorError = true;
+                _iteratorError = err;
+              } finally {
+                try {
+                  if (!_iteratorNormalCompletion && _iterator.return) {
+                    _iterator.return();
+                  }
+                } finally {
+                  if (_didIteratorError) {
+                    throw _iteratorError;
+                  }
+                }
+              }
+            }
+            resolve(answer);
+          } else {
+            reject(err);
+          }
+        });
+      });
+    }
+
+    /**
      * Loads a Preset object with a certain ID
      *
      * @param {String} id
@@ -169,15 +222,15 @@ var PresetStore = function () {
   }, {
     key: 'loadPreset',
     value: function loadPreset(id) {
-      var _this5 = this;
+      var _this6 = this;
 
       return new Promise(function (resolve, reject) {
-        _this5.db.get('\nSELECT *\nFROM presets \nWHERE id = $id\n', {
+        _this6.db.get('\nSELECT *\nFROM presets \nWHERE id = $id\n', {
           $id: id
         }, function (err, row) {
           if (err === null) {
             if (row !== undefined) {
-              var answer = _this5.createPreset();
+              var answer = _this6.createPreset();
               answer.id = row.id;
               answer.name = row.name;
               answer.stationApps = JSON.parse(row.stationApps);
@@ -202,10 +255,10 @@ var PresetStore = function () {
   }, {
     key: 'insertPreset',
     value: function insertPreset(preset) {
-      var _this6 = this;
+      var _this7 = this;
 
       return new Promise(function (resolve, reject) {
-        _this6.db.run('\nINSERT INTO presets (name, stationApps)\nVALUES ($name, $stationApps)\n', {
+        _this7.db.run('\nINSERT INTO presets (name, stationApps)\nVALUES ($name, $stationApps)\n', {
           $name: preset.name,
           $stationApps: JSON.stringify(preset.stationApps)
         }, function callback(err) {
@@ -228,10 +281,10 @@ var PresetStore = function () {
   }, {
     key: 'updatePreset',
     value: function updatePreset(preset) {
-      var _this7 = this;
+      var _this8 = this;
 
       return new Promise(function (resolve, reject) {
-        _this7.db.run('\nUPDATE presets\nSET name = $name, stationApps = $stationApps\nWHERE id = $id\n', {
+        _this8.db.run('\nUPDATE presets\nSET name = $name, stationApps = $stationApps\nWHERE id = $id\n', {
           $id: preset.id,
           $name: preset.name,
           $stationApps: JSON.stringify(preset.stationApps)
@@ -255,10 +308,10 @@ var PresetStore = function () {
   }, {
     key: 'removePreset',
     value: function removePreset(preset) {
-      var _this8 = this;
+      var _this9 = this;
 
       return new Promise(function (resolve, reject) {
-        _this8.db.run('\nDELETE FROM presets\nWHERE id = $id\n', {
+        _this9.db.run('\nDELETE FROM presets\nWHERE id = $id\n', {
           $id: preset.id
         }, function (err) {
           if (err === null) {
@@ -279,22 +332,22 @@ var PresetStore = function () {
   }, {
     key: 'listAllPresets',
     value: function listAllPresets() {
-      var _this9 = this;
+      var _this10 = this;
 
       return new Promise(function (resolve, reject) {
-        _this9.db.all('\nSELECT id, name\nFROM presets\nORDER BY name\n      ', [], function (err, rows) {
+        _this10.db.all('\nSELECT id, name\nFROM presets\nORDER BY name\n      ', [], function (err, rows) {
           if (err !== null) {
             reject();
           } else {
             var answer = [];
             if (rows !== undefined) {
-              var _iteratorNormalCompletion = true;
-              var _didIteratorError = false;
-              var _iteratorError = undefined;
+              var _iteratorNormalCompletion2 = true;
+              var _didIteratorError2 = false;
+              var _iteratorError2 = undefined;
 
               try {
-                for (var _iterator = rows[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                  var row = _step.value;
+                for (var _iterator2 = rows[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                  var row = _step2.value;
 
                   answer.push({
                     id: row.id,
@@ -302,16 +355,16 @@ var PresetStore = function () {
                   });
                 }
               } catch (err) {
-                _didIteratorError = true;
-                _iteratorError = err;
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
               } finally {
                 try {
-                  if (!_iteratorNormalCompletion && _iterator.return) {
-                    _iterator.return();
+                  if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                    _iterator2.return();
                   }
                 } finally {
-                  if (_didIteratorError) {
-                    throw _iteratorError;
+                  if (_didIteratorError2) {
+                    throw _iteratorError2;
                   }
                 }
               }

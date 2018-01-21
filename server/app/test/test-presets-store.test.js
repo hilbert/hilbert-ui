@@ -148,6 +148,57 @@ describe('Preset Store', function () {
     });
   });
 
+  it('Retrieves all presets', function () {
+    return store.open('').then(function () {
+      var preset = store.createPreset();
+      preset.name = testName + '_0';
+      preset.setStationApp(stationIdA, testData);
+      return preset.save();
+    }).then(function () {
+      var preset = store.createPreset();
+      preset.name = testName + '_1';
+      preset.setStationApp(stationIdA, testData);
+      return preset.save();
+    }).then(function () {
+      var preset = store.createPreset();
+      preset.name = testName + '_2';
+      preset.setStationApp(stationIdA, testData);
+      return preset.save();
+    }).then(function () {
+      return store.loadAllPresets();
+    }).then(function (allPresets) {
+      var allPresetData = [];
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = allPresets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var preset = _step.value;
+
+          allPresetData.push(preset.toJSON());
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      allPresetData.should.deepEqual([{ id: 1, name: testName + '_0', stationApps: { 'A Station': testData } }, { id: 2, name: testName + '_1', stationApps: { 'A Station': testData } }, { id: 3, name: testName + '_2', stationApps: { 'A Station': testData } }]);
+    }).then(function () {
+      return store.close();
+    });
+  });
+
   it('Fails when saving two presets with the same name', function () {
     return store.open('').then(function () {
       return store.listAllPresets();

@@ -126,6 +126,40 @@ CREATE TABLE IF NOT EXISTS presets
   }
 
   /**
+   * Loads all presets
+   *
+   * @return {Promise<Array<Preset>>}
+   */
+  loadAllPresets() {
+    return new Promise((resolve, reject) => {
+      this.db.all(`
+SELECT *
+FROM presets 
+`,
+        [],
+        (err, rows) => {
+          if (err === null) {
+            const answer = [];
+            if (rows !== undefined) {
+              for (const row of rows) {
+                answer.push(this.createPreset({
+                  id: row.id,
+                  name: row.name,
+                  stationApps: JSON.parse(row.stationApps),
+                }));
+              }
+            }
+            resolve(answer);
+          } else {
+            reject(err);
+          }
+        }
+      );
+    });
+  }
+
+
+  /**
    * Loads a Preset object with a certain ID
    *
    * @param {String} id

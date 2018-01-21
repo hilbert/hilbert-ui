@@ -20,22 +20,17 @@ paths:
     get:
       tags:
         - "Presets"
-      summary: "List all preset IDs with their associated names"
+      summary: "List all presets"
       responses:
         200:
-          description: Returns the list of preset IDs and names.
+          description: Returns the list of presets.
           schema:
             type: object
             properties:
               presets:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
+                  $ref: "#/definitions/PresetResponse"
 
         500:
           description: Unspecified error.

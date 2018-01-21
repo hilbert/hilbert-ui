@@ -23,7 +23,7 @@ export default class PresetsModule {
   }
 
   setupRoutes(router) {
-    router.get('/presets', this.listPresets.bind(this));
+    router.get('/presets', this.getAllPresets.bind(this));
     router.post('/preset', validate(PresetsModule.addPresetSchema()), this.addPreset.bind(this));
     router.get('/preset/:id', validate(PresetsModule.getPresetSchema()), this.getPreset.bind(this));
     router.put('/preset/:id', validate(PresetsModule.updatePresetSchema()), this.updatePreset.bind(this));
@@ -31,11 +31,15 @@ export default class PresetsModule {
     router.post('/preset/:id/activate', validate(PresetsModule.activatePresetSchema()), this.activatePreset.bind(this));
   }
 
-  listPresets(req, res) {
-    this.presetStore.listAllPresets().then(
+  getAllPresets(req, res) {
+    this.presetStore.loadAllPresets().then(
       (allPresets) => {
+        const jsonPresets = [];
+        for (const preset of allPresets) {
+          jsonPresets.push(preset.toJSON());
+        }
         res.json({
-          presets: allPresets,
+          presets: jsonPresets,
         });
       }
     ).catch((err) => {

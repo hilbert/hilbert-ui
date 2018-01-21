@@ -104,6 +104,7 @@ describe('Presets HTTP API', () => {
           {
             id: 1,
             name: 'My Preset',
+            stationApps: { station_a: 'app_a' },
           },
         ] });
       })

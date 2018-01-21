@@ -102,7 +102,8 @@ describe('Presets HTTP API', function () {
       return request(apiServer).get('/presets').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200).then(function (response) {
         response.body.should.deepEqual({ presets: [{
             id: 1,
-            name: 'My Preset'
+            name: 'My Preset',
+            stationApps: { station_a: 'app_a' }
           }] });
       });
     });

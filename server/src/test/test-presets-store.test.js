@@ -141,6 +141,40 @@ describe('Preset Store', () => {
       .then(() => store.close())
   );
 
+  it('Retrieves all presets', () => store.open('')
+    .then(() => {
+      const preset = store.createPreset();
+      preset.name = `${testName}_0`;
+      preset.setStationApp(stationIdA, testData);
+      return preset.save();
+    })
+    .then(() => {
+      const preset = store.createPreset();
+      preset.name = `${testName}_1`;
+      preset.setStationApp(stationIdA, testData);
+      return preset.save();
+    })
+    .then(() => {
+      const preset = store.createPreset();
+      preset.name = `${testName}_2`;
+      preset.setStationApp(stationIdA, testData);
+      return preset.save();
+    })
+    .then(() => store.loadAllPresets())
+    .then((allPresets) => {
+      const allPresetData = [];
+      for (const preset of allPresets) {
+        allPresetData.push(preset.toJSON());
+      }
+      allPresetData.should.deepEqual([
+        { id: 1, name: `${testName}_0`, stationApps: { 'A Station': testData } },
+        { id: 2, name: `${testName}_1`, stationApps: { 'A Station': testData } },
+        { id: 3, name: `${testName}_2`, stationApps: { 'A Station': testData } },
+      ]);
+    })
+    .then(() => store.close())
+  );
+
   it('Fails when saving two presets with the same name', () => store.open('')
       .then(() => store.listAllPresets())
       .then((allPresets) => {
