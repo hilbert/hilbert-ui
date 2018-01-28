@@ -75,7 +75,7 @@ export default class HttpAPIServer {
   getStations(req, res) {
     this.stationsLongPoll.handleRequest(req, res)
       .then((updateID) => {
-        const stations = this.stationManager.getStations();
+        const stations = this.stationManager.getStations().map(s => s.toJSON());
         for (const station of stations) {
           station.icon = HttpAPIServer.getIconURL(station.app);
         }

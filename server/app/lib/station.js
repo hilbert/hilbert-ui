@@ -66,17 +66,32 @@ var Station = function () {
     this.outputBuffer = new _terminalOutputBuffer2.default();
   }
 
-  /**
-   * Updates the state of the station
-   *
-   * Returns true if the state was changed
-   *
-   * @param {Object} stationStatus - MKLivestatus status of the station
-   * @returns {boolean}
-   */
-
-
   _createClass(Station, [{
+    key: 'toJSON',
+    value: function toJSON() {
+      return {
+        id: this.id,
+        name: this.name,
+        state: this.state,
+        type: this.type,
+        app: this.app,
+        status: this.status,
+        default_app: this.default_app,
+        possible_apps: this.possible_apps,
+        switching_app: this.switching_app
+      };
+    }
+
+    /**
+     * Updates the state of the station
+     *
+     * Returns true if the state was changed
+     *
+     * @param {Object} stationStatus - MKLivestatus status of the station
+     * @returns {boolean}
+     */
+
+  }, {
     key: 'updateFromMKLivestatus',
     value: function updateFromMKLivestatus(stationStatus) {
       // stationStatus:

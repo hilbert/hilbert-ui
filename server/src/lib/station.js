@@ -26,6 +26,20 @@ export default class Station {
     this.outputBuffer = new TerminalOutputBuffer();
   }
 
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      state: this.state,
+      type: this.type,
+      app: this.app,
+      status: this.status,
+      default_app: this.default_app,
+      possible_apps: this.possible_apps,
+      switching_app: this.switching_app,
+    };
+  }
+
   /**
    * Updates the state of the station
    *

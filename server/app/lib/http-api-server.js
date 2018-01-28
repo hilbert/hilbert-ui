@@ -147,7 +147,9 @@ var HttpAPIServer = function () {
       var _this3 = this;
 
       this.stationsLongPoll.handleRequest(req, res).then(function (updateID) {
-        var stations = _this3.stationManager.getStations();
+        var stations = _this3.stationManager.getStations().map(function (s) {
+          return s.toJSON();
+        });
         var _iteratorNormalCompletion3 = true;
         var _didIteratorError3 = false;
         var _iteratorError3 = undefined;
