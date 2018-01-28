@@ -5,6 +5,7 @@ import ButtonFilter from './buttonFilter.jsx';
 import LogViewer from './logViewer.jsx';
 import ConsoleViewer from './consoleViewer.jsx';
 import PresetsBlock from './presetsBlock.jsx';
+import Header from './header.jsx';
 
 export default class Dashboard extends React.Component {
 
@@ -22,6 +23,8 @@ export default class Dashboard extends React.Component {
     this.selectToggle = this.selectToggle.bind(this);
     this.changeAppSelected = this.changeAppSelected.bind(this);
     this.showTerminalLog = this.showTerminalLog.bind(this);
+    this.showGlobalLog = this.showGlobalLog.bind(this);
+    this.showNotifications = this.showNotifications.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -286,6 +289,42 @@ export default class Dashboard extends React.Component {
             title: stationID,
             lines: data.lines,
           });
+        },
+        error: (xhr, status, err) => console.error(status, err.toString()),
+      });
+    }
+  }
+
+  showGlobalLog() {
+    if (this.consoleViewer !== null) {
+      this.consoleViewer.openModal();
+      $.ajax({
+        url: '/api/server/output',
+        method: 'get',
+        dataType: 'json',
+        contentType: 'application/json',
+        cache: false,
+        success: (data) => {
+          this.setState({
+            title: 'Global output',
+            lines: data.lines,
+          });
+        },
+        error: (xhr, status, err) => console.error(status, err.toString()),
+      });
+    }
+  }
+
+  showNotifications() {
+    if (this.logViewer !== null) {
+      this.logViewer.openModal();
+      $.ajax({
+        url: '/api/notifications',
+        method: 'get',
+        contentType: 'application/json',
+        cache: false,
+        success: (data) => {
+          this.setState({ log: data.notifications.reverse() });
         },
         error: (xhr, status, err) => console.error(status, err.toString()),
       });
@@ -609,60 +648,13 @@ export default class Dashboard extends React.Component {
       </div>
     );
 
-    actions.push(
-      <div key="showLog" className="action-pane">
-        <div className="action-pane-separator" ></div>
-        <a
-          className="btn btn-default"
-          href="#"
-          onClick={(ev) => {
-            if (this.logViewer !== null) {
-              this.logViewer.openModal();
-              $.ajax({
-                url: '/api/notifications',
-                method: 'get',
-                contentType: 'application/json',
-                cache: false,
-                success: (data) => {
-                  this.setState({ log: data.notifications.reverse() });
-                },
-                error: (xhr, status, err) => console.error(status, err.toString()),
-              });
-            }
-            ev.preventDefault();
-          }}
-        >Show log</a>
-        &nbsp;
-        <a
-          className={'btn btn-default'}
-          href="#"
-          onClick={(ev) => {
-            if (this.consoleViewer !== null) {
-              this.consoleViewer.openModal();
-              $.ajax({
-                url: '/api/server/output',
-                method: 'get',
-                dataType: 'json',
-                contentType: 'application/json',
-                cache: false,
-                success: (data) => {
-                  this.setState({
-                    title: 'Global output',
-                    lines: data.lines,
-                  });
-                },
-                error: (xhr, status, err) => console.error(status, err.toString()),
-              });
-            }
-            ev.preventDefault();
-          }}
-        ><i className="fa fa-desktop"></i> Global output</a>
-      </div>
-    );
-
     return (
       <div className={messageBar !== '' ? 'with-message_bar' : ''}>
         {messageBar}
+        <Header
+          onShowGlobalLog={this.showGlobalLog}
+          onShowNotifications={this.showNotifications}
+        />
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm-6 pane-stations">
