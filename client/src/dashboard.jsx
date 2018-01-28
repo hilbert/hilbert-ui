@@ -4,6 +4,7 @@ import AppSelect from './appSelect.jsx';
 import ButtonFilter from './buttonFilter.jsx';
 import LogViewer from './logViewer.jsx';
 import ConsoleViewer from './consoleViewer.jsx';
+import PresetsBlock from './presetsBlock.jsx';
 
 export default class Dashboard extends React.Component {
 
@@ -16,6 +17,7 @@ export default class Dashboard extends React.Component {
       visibleState: '',
       log: [],
       serverConnectionError: false,
+      presets: [],
     };
     this.selectToggle = this.selectToggle.bind(this);
     this.changeAppSelected = this.changeAppSelected.bind(this);
@@ -31,6 +33,7 @@ export default class Dashboard extends React.Component {
 
   componentDidMount() {
     this.pollLoop();
+    this.fetchPresets();
   }
 
   getStationState(stationID) {
@@ -138,6 +141,21 @@ export default class Dashboard extends React.Component {
         callback: this.selectAllVisible.bind(this),
         title: 'select visible stations',
         confirm: false,
+      },
+      'preset-create': {
+        callback: this.createPreset.bind(this),
+        title: 'create a preset',
+        confirm: false,
+      },
+      'preset-activate': {
+        callback: this.activatePreset.bind(this),
+        title: 'activate a preset',
+        confirm: true,
+      },
+      'preset-delete': {
+        callback: this.deletePreset.bind(this),
+        title: 'delete a preset',
+        confirm: true,
       },
     };
 
@@ -274,6 +292,80 @@ export default class Dashboard extends React.Component {
     }
   }
 
+  createPreset() {
+    const newPreset = {
+      name: '',
+      stationApps: {},
+    };
+    this.getVisibleStations().forEach((station) => {
+      if (this.state.selection.has(station.id)) {
+        newPreset.stationApps[station.id] = station.app;
+      }
+    });
+
+    bootbox.prompt({
+      size: 'small',
+      title: 'Enter a name for the preset',
+      message: `The preset includes the ${this.state.selection.length} selected stations`,
+      buttons: {
+        confirm: {
+          label: 'Create',
+          className: 'btn-success',
+        },
+        cancel: {
+          label: 'Cancel',
+          className: 'btn-default',
+        },
+      },
+      callback: (result) => {
+        if (result !== null) {
+          newPreset.name = result.substr(0, 50);
+          this.sendCreatePreset(newPreset);
+        }
+      },
+    });
+  }
+
+  sendCreatePreset(preset) {
+    $.ajax({
+      url: '/api/preset',
+      method: 'post',
+      contentType: 'application/json',
+      data: JSON.stringify(preset),
+      dataType: 'json',
+      cache: false,
+      success: () => {
+        this.fetchPresets();
+      },
+      error: (xhr, status, err) => console.error(status, err.toString()),
+    });
+  }
+
+  activatePreset(presetID) {
+    $.ajax({
+      url: `/api/preset/${presetID}/activate`,
+      method: 'post',
+      contentType: 'application/json',
+      cache: false,
+      success: () => {
+        this.fetchPresets();
+      },
+      error: (xhr, status, err) => console.error(status, err.toString()),
+    });
+  }
+
+  deletePreset(presetID) {
+    $.ajax({
+      url: `/api/preset/${presetID}`,
+      method: 'delete',
+      contentType: 'application/json',
+      cache: false,
+      success: () => {
+      },
+      error: (xhr, status, err) => console.error(status, err.toString()),
+    });
+  }
+
   /**
    * Handle the server poll
    *
@@ -334,6 +426,27 @@ export default class Dashboard extends React.Component {
           reject();
         },
       });
+    });
+  }
+
+  fetchPresets() {
+    return new Promise((resolve, reject) => {
+      $.ajax({
+        url: '/api/presets',
+        cache: false,
+        timeout: 30000,
+        dataType: 'json',
+        success: (data) => {
+          if (data.presets !== undefined) {
+            this.setState({ presets: data.presets });
+          }
+          resolve();
+        },
+        error: (xhr, status, err) => {
+          console.error(this.props.url, status, err.toString());
+          reject();
+        },
+      })
     });
   }
 
@@ -479,6 +592,19 @@ export default class Dashboard extends React.Component {
           allowBlank
           onChange={this.attachConfirmation('Are you sure you want to change the application?',
             this.changeAppSelected)}
+        />
+      </div>
+    );
+
+    actions.push(
+      <div key="presets" className="action-pane">
+        <div className="action-pane-separator" />
+        <PresetsBlock
+          presets={this.state.presets}
+          onCreate={this.getCommand('preset-create')}
+          onActivate={this.getCommand('preset-activate')}
+          onDelete={this.getCommand('preset-delete')}
+          createDisabled={selectedCount === 0 || !allSelectedOn}
         />
       </div>
     );

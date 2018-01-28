@@ -1,0 +1,9 @@
+.presets-block {
+  .form-group, .form-control, .btn {
+    margin-right: 3px;
+    margin-bottom: 3px;
+  }
+  .btn.disabled {
+    opacity: 0.65 * 0.65;
+  }
+}

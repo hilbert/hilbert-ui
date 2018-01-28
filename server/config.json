@@ -4,5 +4,5 @@
   "hilbert_cli_path": "../work/dockapp",
   "mkls_cmd": "ssh ur@supernova.mfo.de \"nc localhost 6557\"",
   "log_level": "debug",
-  "db_path": ""
+  "db_path": "../work/db/hilbert-dev.sqlite"
 }
