@@ -40,6 +40,7 @@ export default class PresetsBlock extends React.Component {
   handleDelete() {
     if (this.state.selectedPreset !== 0) {
       this.props.onDelete(this.state.selectedPreset);
+      this.setState({ selectedPreset: 0 });
     }
   }
 
