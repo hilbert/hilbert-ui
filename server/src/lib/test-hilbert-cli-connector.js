@@ -26,8 +26,8 @@ export default class TestHilbertCLIConnector {
    * @resolve {Array} - List of stations
    * @reject {Error}
    */
-  getStationConfig(output) {
-    return this.testBackend.getStationConfig(output);
+  getHilbertCfg(output) {
+    return this.testBackend.getHilbertCfg(output);
   }
 
   /**

@@ -3,21 +3,14 @@ import Nagios from './nagios';
 
 export default class Station {
 
-  constructor(config) {
-    const configKeys = ['id', 'name', 'type', 'default_app', 'possible_apps'];
-
-    for (const configKey of configKeys) {
-      if (!config.hasOwnProperty(configKey)) {
-        if (configKey === 'id') {
-          throw new Error('Attempted to initialize station with config missing id');
-        }
-        throw new Error(
-          `Attempted to initialize station ${config.id} missing config key ${configKey}`
-        );
-      }
-
-      this[configKey] = config[configKey];
-    }
+  constructor(id, config) {
+    this.id = id;
+    this.name = config.name || id;
+    this.description = config.description || '';
+    this.profile = config.profile || '';
+    this.type = config.type || '';
+    this.default_app = (config.client_settings && config.client_settings.hilbert_station_default_application) || '';
+    this.compatible_apps = config.compatible_applications;
 
     this.state = Station.UNKNOWN;
     this.status = '';
@@ -30,12 +23,14 @@ export default class Station {
     return {
       id: this.id,
       name: this.name,
-      state: this.state,
+      description: this.description,
+      profile: this.profile,
       type: this.type,
+      state: this.state,
       app: this.app,
       status: this.status,
       default_app: this.default_app,
-      possible_apps: this.possible_apps,
+      compatible_apps: this.compatible_apps,
       switching_app: this.switching_app,
     };
   }

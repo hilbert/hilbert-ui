@@ -22,6 +22,8 @@ var nconf = require('nconf');
 var request = require('supertest');
 require('should');
 
+var testCfgA = require('../../data/test_mode/test_cfg_a.json');
+
 describe('HTTP Longpoll', function () {
   var apiServer = null;
   var httpServer = null;
@@ -33,7 +35,6 @@ describe('HTTP Longpoll', function () {
   beforeEach(function (done) {
     nconf.defaults({
       port: '3000',
-      hilbert_cli_path: '../work/dockapp',
       test: true,
       scriptConcurrency: 20,
       max_log_length: 100,
@@ -46,13 +47,7 @@ describe('HTTP Longpoll', function () {
     });
 
     var testBackend = new _testBackend2.default(nconf, logger);
-    testBackend.addStation({
-      id: 'station_a',
-      name: 'Station A',
-      type: 'type_a',
-      default_app: 'app_a',
-      possible_apps: ['app_a', 'app_b', 'app_c']
-    });
+    testBackend.load(testCfgA);
 
     stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
 

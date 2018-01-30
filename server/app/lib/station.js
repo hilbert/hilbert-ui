@@ -22,42 +22,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Station = function () {
-  function Station(config) {
+  function Station(id, config) {
     _classCallCheck(this, Station);
 
-    var configKeys = ['id', 'name', 'type', 'default_app', 'possible_apps'];
-
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = configKeys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var configKey = _step.value;
-
-        if (!config.hasOwnProperty(configKey)) {
-          if (configKey === 'id') {
-            throw new Error('Attempted to initialize station with config missing id');
-          }
-          throw new Error('Attempted to initialize station ' + config.id + ' missing config key ' + configKey);
-        }
-
-        this[configKey] = config[configKey];
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
+    this.id = id;
+    this.name = config.name || id;
+    this.description = config.description || '';
+    this.profile = config.profile || '';
+    this.type = config.type || '';
+    this.default_app = config.client_settings && config.client_settings.hilbert_station_default_application || '';
+    this.compatible_apps = config.compatible_applications;
 
     this.state = Station.UNKNOWN;
     this.status = '';
@@ -72,12 +46,14 @@ var Station = function () {
       return {
         id: this.id,
         name: this.name,
-        state: this.state,
+        description: this.description,
+        profile: this.profile,
         type: this.type,
+        state: this.state,
         app: this.app,
         status: this.status,
         default_app: this.default_app,
-        possible_apps: this.possible_apps,
+        compatible_apps: this.compatible_apps,
         switching_app: this.switching_app
       };
     }

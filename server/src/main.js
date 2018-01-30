@@ -9,13 +9,12 @@ const appPackage = require('../package.json');
 const logger = require('winston');
 const nconf = require('nconf');
 
-const testData = require('../data/test_mode/test_stations.json');
+const testHilbertCfg = require('../data/test_mode/cfg.json');
 
 nconf.env().argv();
 nconf.file('config.json');
 nconf.defaults({
   port: '3000',
-  hilbert_cli_path: '../work/dockapp',
   test: false,
   scriptConcurrency: 20,
   max_log_length: 100,
@@ -50,7 +49,7 @@ if (nconf.get('test')) {
   logger.info('Running in Test Mode');
   const testBackend = new TestBackend(nconf, logger);
   testBackend.simulateDelays = true;
-  testBackend.load(testData);
+  testBackend.load(testHilbertCfg);
   hilbertCLIConnector = testBackend.getHilbertCLIConnector();
   mkLivestatusConnector = testBackend.getMKLivestatusConnector();
 } else {
@@ -76,5 +75,5 @@ stationManager.init()
   })
   .catch((err) => {
     logger.error(`Error initializing Station Manager: ${err.message}. Exiting process.`);
-    process.exit(1);
+    process.exitCode = 2;
   });

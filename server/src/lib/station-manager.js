@@ -1,5 +1,8 @@
 const Promise = require('bluebird');
 const EventEmitter = require('events').EventEmitter;
+const Ajv = require('ajv');
+
+const HilbertCfgSchema = require('../../data/schema/hilbert-cfg-partial.json');
 
 import Station from './station';
 import TerminalOutputBuffer from './terminal-output-buffer';
@@ -41,7 +44,7 @@ export default class StationManager {
    * @return {Promise}
    */
   init() {
-    return this.loadStationConfig().then(() => {
+    return this.loadHilbertCfg().then(() => {
       const pollLoopBody = () => {
         const pollDelay = this.nconf.get('mkls_poll_delay');
         let consecutiveErrors = 0;
@@ -72,17 +75,36 @@ export default class StationManager {
    *
    * @returns {Promise}
    */
-  loadStationConfig() {
+  loadHilbertCfg() {
     this.clearStations();
     this.signalUpdate();
 
-    return this.hilbertCLI.getStationConfig(
-      this.globalHilbertCLIOutputBuffer).then((stationsCFG) => {
-        for (const stationCFG of stationsCFG) {
-          this.addStation(new Station(stationCFG));
+    return this.hilbertCLI.getHilbertCfg(this.globalHilbertCLIOutputBuffer)
+      .then(hilbertCfg => this.validateHilbertCfg(hilbertCfg))
+      .then((hilbertCfg) => {
+        for (const [stationID, stationCFG] of Object.entries(hilbertCfg.Stations)) {
+          if (!stationCFG.hidden) {
+            this.addStation(new Station(stationID, stationCFG));
+          }
         }
         this.signalUpdate();
       });
+  }
+
+  /**
+   * Validates a hilbert configuration according to the schema
+   *
+   * Only the parts of the configuration used by this program are validated
+   *
+   * @param hilbertCfg
+   * @return {*}
+   */
+  validateHilbertCfg(hilbertCfg) {
+    const ajv = new Ajv();
+    if (!ajv.validate(HilbertCfgSchema, hilbertCfg)) {
+      throw new Error(`Error in Hilbert CFG: ${ajv.errorsText()}`);
+    }
+    return hilbertCfg;
   }
 
   /**

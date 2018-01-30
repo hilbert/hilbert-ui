@@ -1,7 +1,8 @@
 {
-  "test": true,
+  "test": false,
   "port": "3000",
-  "hilbert_cli_path": "../work/dockapp",
+  "hilbert_cli": "../../hilbert-cli/env/bin/python3 ../../hilbert-cli/tools/hilbert",
+  "hilbert_cfg": "../../hilbert-cli/tests/data",
   "mkls_cmd": "ssh ur@supernova.mfo.de \"nc localhost 6557\"",
   "log_level": "debug",
   "db_path": "../work/db/hilbert-dev.sqlite"

@@ -21,13 +21,14 @@ var request = require('supertest');
 var logger = require('winston');
 var nconf = require('nconf');
 
+var testCfgA = require('../../data/test_mode/test_cfg_a.json');
+
 describe('HTTP API', function () {
   var apiServer = null;
 
   before(function (done) {
     nconf.defaults({
       port: '3000',
-      hilbert_cli_path: '../work/dockapp',
       test: true,
       scriptConcurrency: 20,
       max_log_length: 100,
@@ -40,13 +41,7 @@ describe('HTTP API', function () {
     });
 
     var testBackend = new _testBackend2.default(nconf, logger);
-    testBackend.addStation({
-      id: 'station_a',
-      name: 'Station A',
-      type: 'type_a',
-      default_app: 'app_a',
-      possible_apps: ['app_a', 'app_b', 'app_c']
-    });
+    testBackend.load(testCfgA);
     var stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
 
     stationManager.init().then(function () {

@@ -1,0 +1,51 @@
+{
+  "Applications": {
+    "app_a": {
+      "compatible_stations": [
+        "station_a"
+      ],
+      "description": "A testing app",
+      "name": "App A"
+    },
+    "app_b": {
+      "compatible_stations": [
+        "station_a"
+      ],
+      "description": "A testing app",
+      "name": "App B"
+    },
+    "app_c": {
+      "compatible_stations": [
+        "station_a"
+      ],
+      "description": "A testing app",
+      "name": "App C"
+    }
+  },
+  "Profiles": {
+    "a": {
+      "description": "A test profile",
+      "name": "A",
+      "station_list": [
+        "station_a"
+      ]
+    }
+  },
+  "Stations": {
+    "station_a": {
+      "client_settings": {
+        "hilbert_station_default_application": "app_a"
+      },
+      "compatible_applications": [
+        "app_a",
+        "app_b",
+        "app_c"
+      ],
+      "description": "A test station",
+      "hidden": false,
+      "name": "Station A",
+      "profile": "a",
+      "type": "standard"
+    }
+  }
+}

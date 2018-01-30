@@ -12,6 +12,8 @@ export default class TestBackend {
     this.hilbertCLIConnector = new TestHilbertCLIConnector(this, nconf, logger);
     this.mkLivestatusConnector = new TestMKLivestatusConnector(this, nconf, logger);
 
+    this.hilbertCfg = null;
+
     this.state = new Map();
     this.station_cfg = new Map();
   }
@@ -21,38 +23,37 @@ export default class TestBackend {
    *
    * If any data was previously loaded it's overwritten.
    *
-   * @param {Array} stationCFG An array of station configurations
+   * @param {Array} hilbertCfg An array of station configurations
    */
-  load(stationCFG) {
+  load(hilbertCfg) {
+    this.hilbertCfg = hilbertCfg;
+
     this.state = new Map();
     this.station_cfg = new Map();
 
-    for (const station of stationCFG) {
-      this.addStation(station);
+    for (const [stationID, stationData] of Object.entries(hilbertCfg.Stations)) {
+      this.addStation(stationID, stationData);
     }
   }
 
   /**
    * Adds a station
    *
-   * @param {Object} station Station definition
-   *   The definition should have the following properties:
-   *   - id {String} Unique identifier
-   *   - name {String} Human readable name
-   *   - type {String} Type of the station
-   *   - default_app {String} Default application ID
-   *   - possible_apps {Array} List of compatible applications (app IDs)
+   * @param id ID of the station
+   * @param stationCfg Configuration of the station, taken from the configuration file
    */
-  addStation(station) {
-    this.station_cfg.set(station.id, {
-      id: station.id,
-      name: station.name,
-      type: station.type,
-      default_app: station.default_app,
-      possible_apps: station.possible_apps,
+  addStation(id, stationCfg) {
+    this.station_cfg.set(id, {
+      id,
+      name: stationCfg.name,
+      description: stationCfg.description,
+      profile: stationCfg.profile,
+      type: stationCfg.type,
+      default_app: stationCfg.client_settings.hilbert_station_default_application,
+      compatible_apps: stationCfg.compatible_applications,
     });
 
-    this.initStationState(station.id);
+    this.initStationState(id);
   }
 
   /**
@@ -97,12 +98,12 @@ export default class TestBackend {
    * @resolve {Array} - List of stations
    * @reject {Error}
    */
-  getStationConfig(output) {
+  getHilbertCfg(output) {
     return new Promise((resolve) => {
-      output.write('Simulating reading station configuration. Waiting a random delay...');
+      output.write('Simulating reading hilbert configuration. Waiting a random delay...');
       this.randomDelay(1000, 3000).then(() => {
         output.write('Wait finished.');
-        resolve(this.station_cfg.values());
+        resolve(this.hilbertCfg);
       });
     });
   }
@@ -121,7 +122,8 @@ export default class TestBackend {
         output.write('Wait finished.');
         const stationState = this.state.get(stationID);
         const stationCfg = this.station_cfg.get(stationID);
-        if (stationState && (stationState.state === Nagios.HostState.DOWN)) {
+        if (stationState &&
+          (stationState.state === Nagios.HostState.DOWN)) {
           stationState.state = Nagios.HostState.UP;
           stationState.app_state = Nagios.ServiceState.OK;
           stationState.app_state_type = Nagios.StateType.HARD;
@@ -173,7 +175,7 @@ export default class TestBackend {
         const stationState = this.state.get(stationID);
         const stationCfg = this.station_cfg.get(stationID);
 
-        if (stationCfg.possible_apps.indexOf(appID) >= 0) {
+        if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
           stationState.app_id = appID;
           output.write('App changed.');
         }

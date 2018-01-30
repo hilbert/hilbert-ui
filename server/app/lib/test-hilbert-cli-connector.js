@@ -44,9 +44,9 @@ var TestHilbertCLIConnector = function () {
 
 
   _createClass(TestHilbertCLIConnector, [{
-    key: "getStationConfig",
-    value: function getStationConfig(output) {
-      return this.testBackend.getStationConfig(output);
+    key: "getHilbertCfg",
+    value: function getHilbertCfg(output) {
+      return this.testBackend.getHilbertCfg(output);
     }
 
     /**

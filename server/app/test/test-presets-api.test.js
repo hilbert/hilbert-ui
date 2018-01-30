@@ -21,6 +21,8 @@ var request = require('supertest');
 var logger = require('winston');
 var nconf = require('nconf');
 
+var testCfgB = require('../../data/test_mode/test_cfg_b.json');
+
 describe('Presets HTTP API', function () {
   var apiServer = null;
   var testBackend = null;
@@ -29,7 +31,6 @@ describe('Presets HTTP API', function () {
   beforeEach(function (done) {
     nconf.defaults({
       port: '3000',
-      hilbert_cli_path: '../work/dockapp',
       test: true,
       scriptConcurrency: 20,
       max_log_length: 100,
@@ -42,27 +43,8 @@ describe('Presets HTTP API', function () {
     });
 
     testBackend = new _testBackend2.default(nconf, logger);
-    testBackend.addStation({
-      id: 'station_a',
-      name: 'Station A',
-      type: 'type_a',
-      default_app: 'app_a',
-      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d']
-    });
-    testBackend.addStation({
-      id: 'station_b',
-      name: 'Station B',
-      type: 'type_a',
-      default_app: 'app_b',
-      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d']
-    });
-    testBackend.addStation({
-      id: 'station_c',
-      name: 'Station C',
-      type: 'type_a',
-      default_app: 'app_c',
-      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d']
-    });
+    testBackend.load(testCfgB);
+
     stationManager = new _stationManager2.default(nconf, logger, testBackend.getHilbertCLIConnector(), testBackend.getMKLivestatusConnector());
 
     stationManager.init().then(function () {

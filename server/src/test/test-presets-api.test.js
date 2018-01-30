@@ -6,6 +6,8 @@ const request = require('supertest');
 const logger = require('winston');
 const nconf = require('nconf');
 
+const testCfgB = require('../../data/test_mode/test_cfg_b.json');
+
 describe('Presets HTTP API', () => {
   let apiServer = null;
   let testBackend = null;
@@ -14,7 +16,6 @@ describe('Presets HTTP API', () => {
   beforeEach((done) => {
     nconf.defaults({
       port: '3000',
-      hilbert_cli_path: '../work/dockapp',
       test: true,
       scriptConcurrency: 20,
       max_log_length: 100,
@@ -27,27 +28,8 @@ describe('Presets HTTP API', () => {
     });
 
     testBackend = new TestBackend(nconf, logger);
-    testBackend.addStation({
-      id: 'station_a',
-      name: 'Station A',
-      type: 'type_a',
-      default_app: 'app_a',
-      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d'],
-    });
-    testBackend.addStation({
-      id: 'station_b',
-      name: 'Station B',
-      type: 'type_a',
-      default_app: 'app_b',
-      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d'],
-    });
-    testBackend.addStation({
-      id: 'station_c',
-      name: 'Station C',
-      type: 'type_a',
-      default_app: 'app_c',
-      possible_apps: ['app_a', 'app_b', 'app_c', 'app_d'],
-    });
+    testBackend.load(testCfgB);
+
     stationManager = new StationManager(
       nconf,
       logger,

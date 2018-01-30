@@ -1,0 +1,101 @@
+{
+  "Applications": {
+    "app_a": {
+      "compatible_stations": [
+        "station_a",
+        "station_b",
+        "station_c"
+      ],
+      "description": "A testing app",
+      "name": "App A"
+    },
+    "app_b": {
+      "compatible_stations": [
+        "station_a",
+        "station_b",
+        "station_c"
+      ],
+      "description": "A testing app",
+      "name": "App B"
+    },
+    "app_c": {
+      "compatible_stations": [
+        "station_a",
+        "station_b",
+        "station_c"
+      ],
+      "description": "A testing app",
+      "name": "App C"
+    },
+    "app_d": {
+      "compatible_stations": [
+        "station_a",
+        "station_b",
+        "station_c"
+      ],
+      "description": "A testing app",
+      "name": "App D"
+    }
+  },
+  "Profiles": {
+    "a": {
+      "description": "A test profile",
+      "name": "A",
+      "station_list": [
+        "station_a",
+        "station_b",
+        "station_c"
+      ]
+    }
+  },
+  "Stations": {
+    "station_a": {
+      "client_settings": {
+        "hilbert_station_default_application": "app_a"
+      },
+      "compatible_applications": [
+        "app_a",
+        "app_b",
+        "app_c",
+        "app_d"
+      ],
+      "description": "A test station",
+      "hidden": false,
+      "name": "Station A",
+      "profile": "a",
+      "type": "standard"
+    },
+    "station_b": {
+      "client_settings": {
+        "hilbert_station_default_application": "app_b"
+      },
+      "compatible_applications": [
+        "app_a",
+        "app_b",
+        "app_c",
+        "app_d"
+      ],
+      "description": "A test station",
+      "hidden": false,
+      "name": "Station B",
+      "profile": "a",
+      "type": "standard"
+    },
+    "station_c": {
+      "client_settings": {
+        "hilbert_station_default_application": "app_c"
+      },
+      "compatible_applications": [
+        "app_a",
+        "app_b",
+        "app_c",
+        "app_d"
+      ],
+      "description": "A test station",
+      "hidden": false,
+      "name": "Station C",
+      "profile": "a",
+      "type": "standard"
+    }
+  }
+}

@@ -75,9 +75,10 @@ The parts of the ui are:
 
 The ui configuration file is `server/config.json`. It supports the following options:
 
-- `port`: (default '3000') Port number the ui server will run in.
-- `hilbert_cli_path`: Path to the **hilbert-cli** installation.
 - `test`: (default: false) Set to `true` to run in test mode, which uses simulated stations.
+- `port`: (default '3000') Port number the ui server will run in.
+- `hilbert_cli`: Command line to run the hilbert-cli program (including the python interpreter).
+- `hilbert_cfg`: Path to the Hilbert Cfg to use.
 - `scriptConcurrency`: (default: 20) Number of simultaneous child processes that will be run.
 - `max_log_length`: (default: 100) Max number of log entries to send through the web service.
 - `log_directory`: (default: './log') Directory where logs will be saved.

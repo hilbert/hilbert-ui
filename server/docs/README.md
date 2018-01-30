@@ -12,7 +12,7 @@ Returns the list of stations with their attributes.
                 "name": [string],
                 "type": [string],
                 "default_app": [string],
-                "possible_apps":[array of strings],
+                "compatible_apps":[array of strings],
                 "state": [string],
                 "app": [string],
                 "icon": [string]
@@ -37,7 +37,7 @@ none
     - **name**: The name of the station
     - **type**: The type of the station
     - **default_app**: ID of the default app for this station
-    - **possible_apps**: Array with the IDs of the apps that can be run
+    - **compatible_apps**: Array with the IDs of the apps that can be run
      in this station.
     - **app**: ID of the app running in the station
     - **icon**: url of the icon that identifies the app currently running 

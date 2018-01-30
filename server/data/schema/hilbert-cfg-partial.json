@@ -1,0 +1,72 @@
+{
+  "title": "Hilbert CFG Partial",
+  "description": "A schema to validate the parts of Hilbert CFG used by the Hilbert UI",
+  "type": "object",
+  "properties": {
+    "Stations": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "client_settings": {
+            "type": "object",
+            "properties": {
+              "hilbert_station_default_application": {
+                "type": "string"
+              }
+            }
+          },
+          "compatible_applications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "Applications": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Profiles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

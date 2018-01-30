@@ -1,0 +1,704 @@
+{
+  "Applications": {
+    "HITS_AstroImage": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "Make Your Own Astro Image App",
+      "file": "docker-compose.hitsastroimage.yml",
+      "icon": "",
+      "name": "HITS Astro Image",
+      "pre_init": "",
+      "ref": "HITS_AstroImage",
+      "type": "compose"
+    },
+    "HITS_ChileNightSky": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "Chile Night Sky App",
+      "file": "docker-compose.hitschilenightsky.yml",
+      "icon": "",
+      "name": "HITS Chile Night Sky",
+      "pre_init": "",
+      "ref": "HITS_ChileNightSky",
+      "type": "compose"
+    },
+    "HITS_DayNightSeasons": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "Day Night Seasons App",
+      "file": "docker-compose.hitsdaynightseasons.yml",
+      "icon": "",
+      "name": "HITS Day Night Seasons",
+      "pre_init": "",
+      "ref": "HITS_DayNightSeasons",
+      "type": "compose"
+    },
+    "HITS_EELT": {
+      "auto_detections": "",
+      "compatible_stations": [],
+      "description": "EELT VR App",
+      "file": "docker-compose.hitseelt.yml",
+      "icon": "",
+      "name": "HITS EELT",
+      "pre_init": "",
+      "ref": "HITS_EELT",
+      "type": "compose"
+    },
+    "HITS_FloorProjectionStars": {
+      "auto_detections": "",
+      "compatible_stations": [],
+      "description": "Floor Projection Stars App",
+      "file": "docker-compose.hitsfloorprojectionstars.yml",
+      "icon": "",
+      "name": "HITS Floor Projection Stars",
+      "pre_init": "",
+      "ref": "HITS_FloorProjectionStars",
+      "type": "compose"
+    },
+    "HITS_GalaxyCollision": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot80"
+      ],
+      "description": "HITS Galaxy Collision on Touchtable",
+      "file": "docker-compose.hitsgalaxycollision.yml",
+      "icon": "",
+      "name": "HITS Galaxy Collision",
+      "pre_init": "",
+      "ref": "HITS_GalaxyCollision",
+      "type": "compose"
+    },
+    "HITS_GravityPong": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "A Gravity Game",
+      "file": "docker-compose.hitsgravitypong.yml",
+      "icon": "",
+      "name": "Gravity Pong",
+      "pre_init": "",
+      "ref": "HITS_GravityPong",
+      "type": "compose"
+    },
+    "HITS_HabitableZones": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "Habitable Zones App",
+      "file": "docker-compose.hitshabitablezones.yml",
+      "icon": "",
+      "name": "HITS Habitable Zones",
+      "pre_init": "",
+      "ref": "HITS_HabitableZones",
+      "type": "compose"
+    },
+    "HITS_HalfSphere": {
+      "auto_detections": "",
+      "compatible_stations": [],
+      "description": "HalfSphere Projection App",
+      "file": "docker-compose.hitshalfsphere.yml",
+      "icon": "",
+      "name": "HITS HalfSphere",
+      "pre_init": "",
+      "ref": "HITS_HalfSphere",
+      "type": "compose"
+    },
+    "HITS_IllustrisExplorer": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "HITS Illustris Explorer App",
+      "file": "docker-compose.hitsillustrisexplorer.yml",
+      "icon": "",
+      "name": "HITS Illustris Explorer",
+      "pre_init": "",
+      "ref": "HITS_IllustrisExplorer",
+      "type": "compose"
+    },
+    "HITS_MilkyWayPanorama": {
+      "auto_detections": "",
+      "compatible_stations": [],
+      "description": "Milky Way Panorama App",
+      "file": "docker-compose.hitsmilkywaypanorama.yml",
+      "icon": "",
+      "name": "HITS Milky Way Panorama",
+      "pre_init": "",
+      "ref": "HITS_MilkyWayPanorama",
+      "type": "compose"
+    },
+    "HITS_MoonPhasesEclipses": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "Moon Phases Eclipses App",
+      "file": "docker-compose.hitsmoonphases.yml",
+      "icon": "",
+      "name": "HITS Moon Phases Eclipses",
+      "pre_init": "",
+      "ref": "HITS_MoonPhasesEclipses",
+      "type": "compose"
+    },
+    "HITS_ParanalWebcam": {
+      "auto_detections": "",
+      "compatible_stations": [],
+      "description": "Paranal Webcam App",
+      "file": "docker-compose.hitsparanalwebcam.yml",
+      "icon": "",
+      "name": "HITS Paranal Webcam",
+      "pre_init": "",
+      "ref": "HITS_ParanalWebcam",
+      "type": "compose"
+    },
+    "HITS_SolarSystemExplorer": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "HITS Solar System Explorer with Navigation Touch panel and Joystick",
+      "file": "docker-compose.hitssolarsystemexplorer.yml",
+      "icon": "",
+      "name": "HITS Solar System Explorer",
+      "pre_init": "",
+      "ref": "HITS_SolarSystemExplorer",
+      "type": "compose"
+    },
+    "HITS_StellarEvolution": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "Stellar Evolution App",
+      "file": "docker-compose.hitsstellarevolution.yml",
+      "icon": "",
+      "name": "HITS Stellar Evolution",
+      "pre_init": "",
+      "ref": "HITS_StellarEvolution",
+      "type": "compose"
+    },
+    "HITS_TimeRelativity": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kiosktower"
+      ],
+      "description": "HITS Time Relativity App",
+      "file": "docker-compose.hitstimerelativity.yml",
+      "icon": "",
+      "name": "HITS Time Relativity",
+      "pre_init": "",
+      "ref": "HITS_TimeRelativity",
+      "type": "compose"
+    },
+    "kiosk_browser_index": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kioskmicro",
+        "kiosktower",
+        "littlefoot"
+      ],
+      "description": "New Kiosk Browser",
+      "file": "docker-compose.kiosk.yml",
+      "icon": "",
+      "name": "Kiosk Browser",
+      "pre_init": "",
+      "ref": "kiosk_browser_index",
+      "type": "compose"
+    },
+    "kiosk_browser_info": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kioskmicro",
+        "kiosktower",
+        "littlefoot"
+      ],
+      "description": "ESO INFO-Screen under Kiosk Browser",
+      "file": "docker-compose.kiosk.yml",
+      "icon": "",
+      "name": "ESO INFO screen",
+      "pre_init": "",
+      "ref": "kiosk_browser_info",
+      "type": "compose"
+    },
+    "kiosk_browser_testapp": {
+      "auto_detections": "",
+      "compatible_stations": [
+        "bigfoot",
+        "bigfoot60",
+        "bigfoot80",
+        "kioskmicro",
+        "kiosktower",
+        "littlefoot"
+      ],
+      "description": "TestApp under Kiosk Browser",
+      "file": "docker-compose.kiosk.yml",
+      "icon": "",
+      "name": "Testapp",
+      "pre_init": "",
+      "ref": "kiosk_browser_testapp",
+      "type": "compose"
+    }
+  },
+  "Groups": {
+    "all": [
+      "bigfoot",
+      "bigfoot60",
+      "bigfoot80",
+      "es_ex",
+      "kioskmicro",
+      "kiosktower",
+      "littlefoot"
+    ],
+    "allclients": [
+      "bigfoot",
+      "bigfoot60",
+      "bigfoot80",
+      "kioskmicro",
+      "kiosktower",
+      "littlefoot"
+    ],
+    "towers": [
+      "bigfoot",
+      "bigfoot60",
+      "bigfoot80",
+      "kiosktower"
+    ]
+  },
+  "Profiles": {
+    "advanced": {
+      "description": "Tower PC for normal interactives (Nvidia GTX 1060 graphics) with QR scanner",
+      "name": "Advanced",
+      "services": [
+        "omd_agent",
+        "x11vnc"
+      ],
+      "station_list": [
+        "bigfoot",
+        "bigfoot60",
+        "kiosktower"
+      ],
+      "supported_types": [
+        "compose"
+      ]
+    },
+    "empty": {
+      "description": "Nothing can be run here!",
+      "name": "Empty!",
+      "services": [],
+      "station_list": [
+        "winfoot60"
+      ],
+      "supported_types": []
+    },
+    "highend": {
+      "description": "Tower PC for demanding interactives (Nvidia GTX 1080 graphics) with QR scanner",
+      "name": "Highend",
+      "services": [
+        "omd_agent",
+        "x11vnc"
+      ],
+      "station_list": [
+        "bigfoot80"
+      ],
+      "supported_types": [
+        "compose"
+      ]
+    },
+    "server": {
+      "description": "Only for Server System",
+      "name": "server",
+      "services": [
+        "sv_omd_agent",
+        "registry",
+        "omd",
+        "cors_image_proxy",
+        "mng"
+      ],
+      "station_list": [
+        "es_ex"
+      ],
+      "supported_types": [
+        "compose"
+      ]
+    },
+    "simple": {
+      "description": "Simple micro PC for touch screen browser or sound without QR scanner",
+      "name": "Simple",
+      "services": [
+        "omd_agent",
+        "x11vnc"
+      ],
+      "station_list": [
+        "kioskmicro",
+        "littlefoot"
+      ],
+      "supported_types": [
+        "compose"
+      ]
+    }
+  },
+  "Services": {
+    "cors_image_proxy": {
+      "auto_detections": "",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "cors_image_proxy",
+      "type": "compose"
+    },
+    "mng": {
+      "auto_detections": "",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "mng",
+      "type": "compose"
+    },
+    "mng_demo": {
+      "auto_detections": "",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "mng_demo",
+      "type": "compose"
+    },
+    "omd": {
+      "auto_detections": "",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "omd_persistent",
+      "type": "compose"
+    },
+    "omd_agent": {
+      "auto_detections": "",
+      "file": "docker-compose.yml",
+      "pre_init": "",
+      "ref": "omd_agent",
+      "type": "compose"
+    },
+    "omd_anew": {
+      "auto_detections": "",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "omd_anew",
+      "type": "compose"
+    },
+    "ptmx": {
+      "auto_detections": "",
+      "file": "docker-compose.yml",
+      "pre_init": "",
+      "ref": "ptmx",
+      "type": "compose"
+    },
+    "qrhandler": {
+      "auto_detections": "",
+      "file": "docker-compose.gui.yml",
+      "pre_init": "",
+      "ref": "qrhandler",
+      "type": "compose"
+    },
+    "qrscanner": {
+      "auto_detections": "",
+      "file": "docker-compose.hitsqrscanner.yml",
+      "pre_init": "",
+      "ref": "qrscanner",
+      "type": "compose"
+    },
+    "registry": {
+      "auto_detections": "export HILBERT_REGISTRY_CERTS=\"${HILBERT_REGISTRY_PATH}/certs\"; export HILBERT_REGISTRY_AUTH=\"${HILBERT_REGISTRY_PATH}/auth\"; export HILBERT_REGISTRY_DATA=\"${HILBERT_REGISTRY_PATH}/data\"; mkdir -p \"${HILBERT_REGISTRY_CERTS}\" \"${HILBERT_REGISTRY_AUTH}\" \"${HILBERT_REGISTRY_DATA}\"",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "registry_tls",
+      "type": "compose"
+    },
+    "sv_omd_agent": {
+      "auto_detections": "",
+      "file": "server.docker-compose.yml",
+      "pre_init": "",
+      "ref": "omd_agent",
+      "type": "compose"
+    },
+    "x11vnc": {
+      "auto_detections": "",
+      "file": "docker-compose.gui.yml",
+      "pre_init": "",
+      "ref": "x11vnc",
+      "type": "compose"
+    }
+  },
+  "Stations": {
+    "bigfoot": {
+      "address": "172.16.21.53",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "nv",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "HILBERT_REGISTRY": "titan.h-its.org:5555/",
+        "HILBERT_WEBGL_APPS": "http://titan.h-its.org:8080",
+        "hilbert_station_default_application": "HITS_HabitableZones"
+      },
+      "compatible_applications": [
+        "HITS_AstroImage",
+        "HITS_ChileNightSky",
+        "HITS_DayNightSeasons",
+        "HITS_GravityPong",
+        "HITS_HabitableZones",
+        "HITS_IllustrisExplorer",
+        "HITS_MoonPhasesEclipses",
+        "HITS_SolarSystemExplorer",
+        "HITS_StellarEvolution",
+        "HITS_TimeRelativity",
+        "kiosk_browser_index",
+        "kiosk_browser_info",
+        "kiosk_browser_testapp"
+      ],
+      "description": "Tower PC Test Station Old",
+      "hidden": false,
+      "name": "bigfoot client",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "18:66:da:14:a5:90",
+        "type": "WOL"
+      },
+      "profile": "advanced",
+      "type": "standard"
+    },
+    "bigfoot60": {
+      "address": "172.16.21.54",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "nv",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "HILBERT_REGISTRY": "titan.h-its.org:5555/",
+        "HILBERT_WEBGL_APPS": "http://titan.h-its.org:8080",
+        "hilbert_station_default_application": "kiosk_browser_testapp"
+      },
+      "compatible_applications": [
+        "HITS_AstroImage",
+        "HITS_ChileNightSky",
+        "HITS_DayNightSeasons",
+        "HITS_GravityPong",
+        "HITS_HabitableZones",
+        "HITS_IllustrisExplorer",
+        "HITS_MoonPhasesEclipses",
+        "HITS_SolarSystemExplorer",
+        "HITS_StellarEvolution",
+        "HITS_TimeRelativity",
+        "kiosk_browser_index",
+        "kiosk_browser_info",
+        "kiosk_browser_testapp"
+      ],
+      "description": "Tower PC Test Station with GTX 1060",
+      "hidden": false,
+      "name": "bigfoot60 client",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "48:4d:7e:e5:37:2a",
+        "type": "WOL"
+      },
+      "profile": "advanced",
+      "type": "standard"
+    },
+    "bigfoot80": {
+      "address": "172.16.21.56",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "nv",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "HILBERT_REGISTRY": "titan.h-its.org:5555/",
+        "HILBERT_WEBGL_APPS": "http://titan.h-its.org:8080",
+        "hilbert_station_default_application": "kiosk_browser_testapp"
+      },
+      "compatible_applications": [
+        "HITS_AstroImage",
+        "HITS_ChileNightSky",
+        "HITS_DayNightSeasons",
+        "HITS_GalaxyCollision",
+        "HITS_GravityPong",
+        "HITS_HabitableZones",
+        "HITS_IllustrisExplorer",
+        "HITS_MoonPhasesEclipses",
+        "HITS_SolarSystemExplorer",
+        "HITS_StellarEvolution",
+        "HITS_TimeRelativity",
+        "kiosk_browser_index",
+        "kiosk_browser_info",
+        "kiosk_browser_testapp"
+      ],
+      "description": "Tower PC Test Station with GTX 1080",
+      "hidden": false,
+      "name": "bigfoot80 client",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "48:4d:7e:e4:04:b1",
+        "type": "WOL"
+      },
+      "profile": "highend",
+      "type": "standard"
+    },
+    "es_ex": {
+      "address": "es-ex.hq.eso.org",
+      "client_settings": {
+        "HILBERT_SERVER_CONFIG_SSH_PATH": "~/.ssh/",
+        "hilbert_autostart": "true"
+      },
+      "compatible_applications": [],
+      "description": "Exhibition Server",
+      "hidden": true,
+      "name": "es-ex.hq.eso.org",
+      "omd_tag": "agent",
+      "profile": "server",
+      "type": "server"
+    },
+    "kioskmicro": {
+      "address": "kiosk023214.ads.eso.org",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "HILBERT_REGISTRY": "es-ex.hq.eso.org:5555/",
+        "HILBERT_WEBGL_APPS": "https://supernova.eso.org/exhibition/run/astrocal/",
+        "hilbert_station_default_application": "kiosk_browser_info"
+      },
+      "compatible_applications": [
+        "kiosk_browser_index",
+        "kiosk_browser_info",
+        "kiosk_browser_testapp"
+      ],
+      "description": "Testing Micro Station at ESO",
+      "hidden": false,
+      "name": "0000 micro",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "48:4d:7e:fa:57:38",
+        "type": "WOL"
+      },
+      "profile": "simple",
+      "type": "standard"
+    },
+    "kiosktower": {
+      "address": "kiosk023298.ads.eso.org",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "nv",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "HILBERT_REGISTRY": "es-ex.hq.eso.org:5555/",
+        "HILBERT_WEBGL_APPS": "https://supernova.eso.org/exhibition/run/astrocal/",
+        "hilbert_station_default_application": "kiosk_browser_info"
+      },
+      "compatible_applications": [
+        "HITS_AstroImage",
+        "HITS_ChileNightSky",
+        "HITS_DayNightSeasons",
+        "HITS_GravityPong",
+        "HITS_HabitableZones",
+        "HITS_IllustrisExplorer",
+        "HITS_MoonPhasesEclipses",
+        "HITS_SolarSystemExplorer",
+        "HITS_StellarEvolution",
+        "HITS_TimeRelativity",
+        "kiosk_browser_index",
+        "kiosk_browser_info",
+        "kiosk_browser_testapp"
+      ],
+      "description": "Testing Tower PC Station at ESO, GTX 1060",
+      "hidden": false,
+      "name": "0000 tower",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "48:4d:7e:e4:70:23",
+        "type": "WOL"
+      },
+      "profile": "advanced",
+      "type": "standard"
+    },
+    "littlefoot": {
+      "address": "172.16.21.52",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "HILBERT_REGISTRY": "titan.h-its.org:5555/",
+        "HILBERT_WEBGL_APPS": "http://titan.h-its.org:8080",
+        "hilbert_station_default_application": "kiosk_browser_testapp"
+      },
+      "compatible_applications": [
+        "kiosk_browser_index",
+        "kiosk_browser_info",
+        "kiosk_browser_testapp"
+      ],
+      "description": "Micro PC Test Station",
+      "hidden": false,
+      "name": "littlefoot client",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "18:66:da:2c:58:80",
+        "type": "WOL"
+      },
+      "profile": "simple",
+      "type": "standard"
+    },
+    "winfoot60": {
+      "address": "172.16.21.55",
+      "client_settings": {
+        "HILBERT_CUSTOMIZATIONS": "",
+        "HILBERT_HEARTBEAT_URL": "http://127.0.0.1:8888",
+        "hilbert_station_default_application": "some_windows_app"
+      },
+      "compatible_applications": [],
+      "description": "Tower PC Test Station with GTX 1060 and Windows 10",
+      "hidden": false,
+      "name": "winfoot60 client",
+      "omd_tag": "agent",
+      "poweron_settings": {
+        "auto_turnon": true,
+        "mac": "48:4d:7e:e5:38:df",
+        "type": "WOL"
+      },
+      "profile": "empty",
+      "type": "standard"
+    }
+  },
+  "Version": "0.8.1"
+}

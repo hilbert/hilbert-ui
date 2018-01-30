@@ -665,7 +665,7 @@ export default class Dashboard extends React.Component {
     let applications = [];
     for (const station of this.state.stations) {
       if (this.state.selection.has(station.id)) {
-        applications = station.possible_apps;
+        applications = station.compatible_apps;
       }
     }
 

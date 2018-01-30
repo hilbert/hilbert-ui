@@ -7,6 +7,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _nagios = require('./nagios');
@@ -36,6 +38,8 @@ var TestBackend = function () {
     this.hilbertCLIConnector = new _testHilbertCliConnector2.default(this, nconf, logger);
     this.mkLivestatusConnector = new _testMkLivestatusConnector2.default(this, nconf, logger);
 
+    this.hilbertCfg = null;
+
     this.state = new Map();
     this.station_cfg = new Map();
   }
@@ -45,13 +49,15 @@ var TestBackend = function () {
    *
    * If any data was previously loaded it's overwritten.
    *
-   * @param {Array} stationCFG An array of station configurations
+   * @param {Array} hilbertCfg An array of station configurations
    */
 
 
   _createClass(TestBackend, [{
     key: 'load',
-    value: function load(stationCFG) {
+    value: function load(hilbertCfg) {
+      this.hilbertCfg = hilbertCfg;
+
       this.state = new Map();
       this.station_cfg = new Map();
 
@@ -60,10 +66,13 @@ var TestBackend = function () {
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = stationCFG[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var station = _step.value;
+        for (var _iterator = Object.entries(hilbertCfg.Stations)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var _step$value = _slicedToArray(_step.value, 2);
 
-          this.addStation(station);
+          var stationID = _step$value[0];
+          var stationData = _step$value[1];
+
+          this.addStation(stationID, stationData);
         }
       } catch (err) {
         _didIteratorError = true;
@@ -84,27 +93,24 @@ var TestBackend = function () {
     /**
      * Adds a station
      *
-     * @param {Object} station Station definition
-     *   The definition should have the following properties:
-     *   - id {String} Unique identifier
-     *   - name {String} Human readable name
-     *   - type {String} Type of the station
-     *   - default_app {String} Default application ID
-     *   - possible_apps {Array} List of compatible applications (app IDs)
+     * @param id ID of the station
+     * @param stationCfg Configuration of the station, taken from the configuration file
      */
 
   }, {
     key: 'addStation',
-    value: function addStation(station) {
-      this.station_cfg.set(station.id, {
-        id: station.id,
-        name: station.name,
-        type: station.type,
-        default_app: station.default_app,
-        possible_apps: station.possible_apps
+    value: function addStation(id, stationCfg) {
+      this.station_cfg.set(id, {
+        id: id,
+        name: stationCfg.name,
+        description: stationCfg.description,
+        profile: stationCfg.profile,
+        type: stationCfg.type,
+        default_app: stationCfg.client_settings.hilbert_station_default_application,
+        compatible_apps: stationCfg.compatible_applications
       });
 
-      this.initStationState(station.id);
+      this.initStationState(id);
     }
 
     /**
@@ -161,15 +167,15 @@ var TestBackend = function () {
      */
 
   }, {
-    key: 'getStationConfig',
-    value: function getStationConfig(output) {
+    key: 'getHilbertCfg',
+    value: function getHilbertCfg(output) {
       var _this = this;
 
       return new Promise(function (resolve) {
-        output.write('Simulating reading station configuration. Waiting a random delay...');
+        output.write('Simulating reading hilbert configuration. Waiting a random delay...');
         _this.randomDelay(1000, 3000).then(function () {
           output.write('Wait finished.');
-          resolve(_this.station_cfg.values());
+          resolve(_this.hilbertCfg);
         });
       });
     }
@@ -254,7 +260,7 @@ var TestBackend = function () {
           var stationState = _this4.state.get(stationID);
           var stationCfg = _this4.station_cfg.get(stationID);
 
-          if (stationCfg.possible_apps.indexOf(appID) >= 0) {
+          if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
             stationState.app_id = appID;
             output.write('App changed.');
           }

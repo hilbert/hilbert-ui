@@ -39,16 +39,16 @@ var HilbertCLIConnector = function () {
 
 
   _createClass(HilbertCLIConnector, [{
-    key: 'getStationConfig',
-    value: function getStationConfig(output) {
+    key: 'getHilbertCfg',
+    value: function getHilbertCfg(output) {
       var _this = this;
 
       this.logger.verbose('hilbert-cli: Getting station config');
       return new Promise(function (resolve, reject) {
-        _this.execute(HilbertCLIConnector.SCRIPT_LIST_STATIONS, output).then(function (answer) {
+        _this.execute(_this.nconf.get('hilbert_cli') + ' ' + HilbertCLIConnector.COMMAND_DUMP_CFG, output).then(function (answer) {
           _this.logger.debug('hilbert-cli: Station config read:\n' + answer);
           var stationCfg = JSON.parse(answer);
-          if (!stationCfg instanceof Array) {
+          if (!(stationCfg instanceof Object)) {
             throw new Error('hilbert-cli returned an invalid station config: ' + answer);
           }
           if (stationCfg.length === 0) {
@@ -156,24 +156,35 @@ var HilbertCLIConnector = function () {
 
         var execOptions = Object.assign({}, options); // clone
 
-        if (!execOptions.hasOwnProperty('env')) {
-          execOptions.env = {};
+        if (!('env' in execOptions)) {
+          execOptions.env = Object.assign({}, process.env);
+        } else {
+          execOptions.env = Object.assign({}, process.env, execOptions.env);
         }
-        if (!execOptions.env.hasOwnProperty('HILBERT_CLI_PATH')) {
-          execOptions.env.HILBERT_CLI_PATH = _this5.nconf.get('hilbert_cli_path');
+        if (!('HILBERT_CLI_PATH' in execOptions.env)) {
+          execOptions.env.HILBERT_CLI_PATH = _this5.nconf.get('hilbert_cli');
+        }
+        if (!('HILBERT_SERVER_CONFIG_PATH' in execOptions.env)) {
+          execOptions.env.HILBERT_SERVER_CONFIG_PATH = _this5.nconf.get('hilbert_cfg');
         }
 
-        var process = exec(command, execOptions);
-        process.stdout.on('data', function (data) {
+        // This setting below is needed to avoid issues in mac
+        // When running from the IDE my env had the invalid locale en_AR.UTF-8
+        // (Argentine english???) and this caused a fallback to ascii for ruamel
+        // reading the config file.
+        execOptions.env.LC_CTYPE = 'UTF-8';
+
+        var childProcess = exec(command, execOptions);
+        childProcess.stdout.on('data', function (data) {
           stdoutBuf += data;
           alloutBuf += data;
           output.write(data);
         });
-        process.stderr.on('data', function (data) {
+        childProcess.stderr.on('data', function (data) {
           alloutBuf += data;
           output.write(data);
         });
-        process.on('close', function (code, signal) {
+        childProcess.on('close', function (code, signal) {
           if (code === 0) {
             _this5.logger.verbose('Execution of ' + command + ' finished with code 0 (success).');
             resolve(stdoutBuf);
@@ -198,7 +209,7 @@ var HilbertCLIConnector = function () {
 exports.default = HilbertCLIConnector;
 
 
-HilbertCLIConnector.SCRIPT_LIST_STATIONS = './scripts/list_stations.sh';
+HilbertCLIConnector.COMMAND_DUMP_CFG = 'cfg_query -f json';
 HilbertCLIConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
 HilbertCLIConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
 HilbertCLIConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';
