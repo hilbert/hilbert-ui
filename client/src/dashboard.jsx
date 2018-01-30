@@ -155,10 +155,25 @@ export default class Dashboard extends React.Component {
         title: 'activate a preset',
         confirm: true,
       },
+      'preset-activate-selected': {
+        callback: this.activatePresetOnSelected.bind(this),
+        title: 'activate a preset on the selected stations',
+        confirm: true,
+      },
       'preset-delete': {
         callback: this.deletePreset.bind(this),
         title: 'delete a preset',
         confirm: true,
+      },
+      'preset-update': {
+        callback: this.updatePreset.bind(this),
+        title: 'update a preset',
+        confirm: true,
+      },
+      'preset-refresh': {
+        callback: this.refreshPresets.bind(this),
+        title: 'refresh presets',
+        confirm: false,
       },
     };
 
@@ -332,15 +347,14 @@ export default class Dashboard extends React.Component {
   }
 
   createPreset() {
-    const newPreset = {
+    const preset = {
       name: '',
       stationApps: {},
     };
-    this.getVisibleStations().forEach((station) => {
-      if (this.state.selection.has(station.id)) {
-        newPreset.stationApps[station.id] = station.app;
-      }
-    });
+
+    for (const station of this.state.stations) {
+      preset.stationApps[station.id] = station.app;
+    }
 
     bootbox.prompt({
       size: 'small',
@@ -358,8 +372,8 @@ export default class Dashboard extends React.Component {
       },
       callback: (result) => {
         if (result !== null) {
-          newPreset.name = result.substr(0, 50);
-          this.sendCreatePreset(newPreset);
+          preset.name = result.substr(0, 50);
+          this.sendCreatePreset(preset);
         }
       },
     });
@@ -393,6 +407,10 @@ export default class Dashboard extends React.Component {
     });
   }
 
+  activatePresetOnSelected(presetID) {
+    // To Do
+  }
+
   deletePreset(presetID) {
     $.ajax({
       url: `/api/preset/${presetID}`,
@@ -400,9 +418,38 @@ export default class Dashboard extends React.Component {
       contentType: 'application/json',
       cache: false,
       success: () => {
+        this.fetchPresets();
       },
       error: (xhr, status, err) => console.error(status, err.toString()),
     });
+  }
+
+  updatePreset(presetID) {
+    const preset = {
+      id: presetID,
+      stationApps: {},
+    };
+
+    for (const station of this.state.stations) {
+      preset.stationApps[station.id] = station.app;
+    }
+
+    $.ajax({
+      url: `/api/preset/${presetID}`,
+      method: 'put',
+      contentType: 'application/json',
+      data: JSON.stringify(preset),
+      dataType: 'json',
+      cache: false,
+      success: () => {
+        this.fetchPresets();
+      },
+      error: (xhr, status, err) => console.error(status, err.toString()),
+    });
+  }
+
+  refreshPresets() {
+    this.fetchPresets();
   }
 
   /**
@@ -635,26 +682,24 @@ export default class Dashboard extends React.Component {
       </div>
     );
 
-    actions.push(
-      <div key="presets" className="action-pane">
-        <div className="action-pane-separator" />
-        <PresetsBlock
-          presets={this.state.presets}
-          onCreate={this.getCommand('preset-create')}
-          onActivate={this.getCommand('preset-activate')}
-          onDelete={this.getCommand('preset-delete')}
-          createDisabled={selectedCount === 0 || !allSelectedOn}
-        />
-      </div>
-    );
-
     return (
       <div className={messageBar !== '' ? 'with-message_bar' : ''}>
         {messageBar}
         <Header
           onShowGlobalLog={this.showGlobalLog}
           onShowNotifications={this.showNotifications}
-        />
+        >
+          <PresetsBlock
+            presets={this.state.presets}
+            stationsSelected={selectedCount > 0}
+            onCreate={this.getCommand('preset-create')}
+            onActivate={this.getCommand('preset-activate')}
+            onActivateOnSelected={this.getCommand('preset-activate-selected')}
+            onDelete={this.getCommand('preset-delete')}
+            onUpdate={this.getCommand('preset-update')}
+            onRefresh={this.getCommand('preset-refresh')}
+          />
+        </Header>
         <div className="container-fluid">
           <div className="row">
             <div className="col-sm-6 pane-stations">

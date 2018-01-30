@@ -303,4 +303,7 @@ body {
 .presets-block .btn.disabled {
   opacity: 0.4225; }
 
+.navbar-form .input-group > .presets-list {
+  width: 150px; }
+
 /*# sourceMappingURL=default.css.map */

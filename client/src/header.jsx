@@ -42,6 +42,7 @@ export default class Header extends React.Component {
             </button>
             <div className="navbar-brand" href="#">Hilbert</div>
           </div>
+          {this.props.children}
           <div className="navbar-collapse collapse navbar-right">
             <button
               type="button"
@@ -68,6 +69,7 @@ export default class Header extends React.Component {
 Header.propTypes = {
   onShowGlobalLog: React.PropTypes.func,
   onShowNotifications: React.PropTypes.func,
+  children: React.PropTypes.node,
 };
 
 Header.defaultProps = {
