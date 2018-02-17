@@ -15,11 +15,9 @@ export default class HilbertCLIConnector {
   }
 
   /**
-   * Reads the station config
-   * @param {TerminalOutputBuffer} output
-   * @returns {Promise}
-   * @resolve {Array} - List of stations
-   * @reject {Error}
+   * Reads the Hilbert Cfg
+   * @param {stream.Writable} output
+   * @returns {Promise<Object>} Hilbert cfg object
    */
   getHilbertCfg(output) {
     this.logger.verbose('hilbert-cli: Getting station config');
@@ -47,13 +45,13 @@ ${answer}`);
   /**
    * Start a station
    * @param {string} stationID - ID of the station
-   * @param {stream} output - Command output should be written here
+   * @param {stream.Writable} output - Command output should be written here
    * @returns Promise
    */
   startStation(stationID, output) {
     this.logger.verbose(`hilbert-cli: Starting station ${stationID}`);
     return new Promise((resolve, reject) => {
-      this.execute(`${HilbertCLIConnector.SCRIPT_START_STATION} ${stationID}`, output)
+      this.execute(`${this.nconf.get('hilbert_cli')} ${HilbertCLIConnector.COMMAND_START} ${stationID}`, output)
         .then(() => {
           resolve();
         })
@@ -67,13 +65,13 @@ ${answer}`);
   /**
    * Stop a station
    * @param {string} stationID - ID of the station
-   * @param {stream} output - Command output should be written here
+   * @param {stream.Writable} output - Command output should be written here
    * @returns Promise
    */
   stopStation(stationID, output) {
     this.logger.verbose(`hilbert-cli: Stopping station ${stationID}`);
     return new Promise((resolve, reject) => {
-      this.execute(`${HilbertCLIConnector.SCRIPT_STOP_STATION} ${stationID}`, output)
+      this.execute(`${this.nconf.get('hilbert_cli')} ${HilbertCLIConnector.COMMAND_STOP} ${stationID}`, output)
         .then(() => {
           resolve();
         })
@@ -88,13 +86,13 @@ ${answer}`);
    * Change the foreground application running in a station
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
-   * @param {stream} output - Command output should be written here
+   * @param {stream.Writable} output - Command output should be written here
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {
     this.logger.verbose(`hilbert-cli: Changing app of station ${stationID} to ${appID}`);
     return new Promise((resolve, reject) => {
-      this.execute(`${HilbertCLIConnector.SCRIPT_CHANGE_APP} ${stationID} ${appID}`, output)
+      this.execute(`${this.nconf.get('hilbert_cli')} ${HilbertCLIConnector.COMMAND_CHANGE_APP} ${stationID} ${appID}`, output)
         .then(() => {
           resolve();
         })
@@ -111,13 +109,13 @@ ${answer}`);
    * @private
    *
    * @param {string} command - Command to execute
-   * @param {stream} output - Command output should be written here
+   * @param {stream.Writable} output - Command output should be written here
    * @param {object} options - Options to pass child_process.exec
    * @returns {Promise}
    * @resolve {String} - stdout output
    * @reject {Error}
    */
-  execute(command, output, options) {
+  execute(command, output, options = {}) {
     return new Promise((resolve, reject) => {
       let stdoutBuf = '';
       let alloutBuf = '';
@@ -173,6 +171,6 @@ ${answer}`);
 }
 
 HilbertCLIConnector.COMMAND_DUMP_CFG = 'cfg_query -f json';
-HilbertCLIConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
-HilbertCLIConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
-HilbertCLIConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';
+HilbertCLIConnector.COMMAND_START = 'poweron';
+HilbertCLIConnector.COMMAND_STOP = 'poweroff';
+HilbertCLIConnector.COMMAND_CHANGE_APP = 'app_change';

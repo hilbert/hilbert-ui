@@ -30,11 +30,9 @@ var HilbertCLIConnector = function () {
   }
 
   /**
-   * Reads the station config
-   * @param {TerminalOutputBuffer} output
-   * @returns {Promise}
-   * @resolve {Array} - List of stations
-   * @reject {Error}
+   * Reads the Hilbert Cfg
+   * @param {stream.Writable} output
+   * @returns {Promise<Object>} Hilbert cfg object
    */
 
 
@@ -65,7 +63,7 @@ var HilbertCLIConnector = function () {
     /**
      * Start a station
      * @param {string} stationID - ID of the station
-     * @param {stream} output - Command output should be written here
+     * @param {stream.Writable} output - Command output should be written here
      * @returns Promise
      */
 
@@ -76,7 +74,7 @@ var HilbertCLIConnector = function () {
 
       this.logger.verbose('hilbert-cli: Starting station ' + stationID);
       return new Promise(function (resolve, reject) {
-        _this2.execute(HilbertCLIConnector.SCRIPT_START_STATION + ' ' + stationID, output).then(function () {
+        _this2.execute(_this2.nconf.get('hilbert_cli') + ' ' + HilbertCLIConnector.COMMAND_START + ' ' + stationID, output).then(function () {
           resolve();
         }).catch(function (err) {
           _this2.logger.error('hilbert-cli: Error starting station ' + stationID + ', \'' + err.message + '\'');
@@ -88,7 +86,7 @@ var HilbertCLIConnector = function () {
     /**
      * Stop a station
      * @param {string} stationID - ID of the station
-     * @param {stream} output - Command output should be written here
+     * @param {stream.Writable} output - Command output should be written here
      * @returns Promise
      */
 
@@ -99,7 +97,7 @@ var HilbertCLIConnector = function () {
 
       this.logger.verbose('hilbert-cli: Stopping station ' + stationID);
       return new Promise(function (resolve, reject) {
-        _this3.execute(HilbertCLIConnector.SCRIPT_STOP_STATION + ' ' + stationID, output).then(function () {
+        _this3.execute(_this3.nconf.get('hilbert_cli') + ' ' + HilbertCLIConnector.COMMAND_STOP + ' ' + stationID, output).then(function () {
           resolve();
         }).catch(function (err) {
           _this3.logger.error('hilbert-cli: Error stopping station ' + stationID + ', \'' + err.message + '\'');
@@ -112,7 +110,7 @@ var HilbertCLIConnector = function () {
      * Change the foreground application running in a station
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
-     * @param {stream} output - Command output should be written here
+     * @param {stream.Writable} output - Command output should be written here
      * @returns {Promise}
      */
 
@@ -123,7 +121,7 @@ var HilbertCLIConnector = function () {
 
       this.logger.verbose('hilbert-cli: Changing app of station ' + stationID + ' to ' + appID);
       return new Promise(function (resolve, reject) {
-        _this4.execute(HilbertCLIConnector.SCRIPT_CHANGE_APP + ' ' + stationID + ' ' + appID, output).then(function () {
+        _this4.execute(_this4.nconf.get('hilbert_cli') + ' ' + HilbertCLIConnector.COMMAND_CHANGE_APP + ' ' + stationID + ' ' + appID, output).then(function () {
           resolve();
         }).catch(function (err) {
           _this4.logger.error('hilbert-cli: Error changing station ' + stationID + ' to app ' + appID + ', \'' + err.message + '\'');
@@ -137,7 +135,7 @@ var HilbertCLIConnector = function () {
      * @private
      *
      * @param {string} command - Command to execute
-     * @param {stream} output - Command output should be written here
+     * @param {stream.Writable} output - Command output should be written here
      * @param {object} options - Options to pass child_process.exec
      * @returns {Promise}
      * @resolve {String} - stdout output
@@ -146,8 +144,10 @@ var HilbertCLIConnector = function () {
 
   }, {
     key: 'execute',
-    value: function execute(command, output, options) {
+    value: function execute(command, output) {
       var _this5 = this;
+
+      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
       return new Promise(function (resolve, reject) {
         var stdoutBuf = '';
@@ -210,7 +210,7 @@ exports.default = HilbertCLIConnector;
 
 
 HilbertCLIConnector.COMMAND_DUMP_CFG = 'cfg_query -f json';
-HilbertCLIConnector.SCRIPT_START_STATION = './scripts/start_station.sh';
-HilbertCLIConnector.SCRIPT_STOP_STATION = './scripts/stop_station.sh';
-HilbertCLIConnector.SCRIPT_CHANGE_APP = './scripts/appchange_station.sh';
+HilbertCLIConnector.COMMAND_START = 'poweron';
+HilbertCLIConnector.COMMAND_STOP = 'poweroff';
+HilbertCLIConnector.COMMAND_CHANGE_APP = 'app_change';
 //# sourceMappingURL=hilbert-cli-connector.js.map
