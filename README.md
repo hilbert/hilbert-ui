@@ -67,6 +67,9 @@ The parts of the ui are:
     * `proxy_pass` should correspond to the port the web service is running in (configured in the
       following step)
       
+0. Copy server/config.json.sample to config.json and edit the file to match your system 
+(see the Configuration section) below.
+      
 0. Start the web service by running
 
         node server/app/main.js
