@@ -1,11 +1,13 @@
+import Station from './station';
+import StationProfile from './station-profile';
+import Application from './application';
+import TerminalOutputBuffer from './terminal-output-buffer';
+
 const Promise = require('bluebird');
 const EventEmitter = require('events').EventEmitter;
 const Ajv = require('ajv');
 
 const HilbertCfgSchema = require('../../data/schema/hilbert-cfg-partial.json');
-
-import Station from './station';
-import TerminalOutputBuffer from './terminal-output-buffer';
 
 /**
  * Service Layer for hilbert
@@ -36,6 +38,8 @@ export default class StationManager {
     this.lastMKLivestatusDump = [];
 
     this.clearStations();
+    this.clearStationProfiles();
+    this.clearApplications();
   }
 
   /**
@@ -77,14 +81,24 @@ export default class StationManager {
    */
   loadHilbertCfg() {
     this.clearStations();
+    this.clearStationProfiles();
+    this.clearApplications();
     this.signalUpdate();
 
     return this.hilbertCLI.getHilbertCfg(this.globalHilbertCLIOutputBuffer)
       .then(hilbertCfg => this.validateHilbertCfg(hilbertCfg))
       .then((hilbertCfg) => {
-        for (const [stationID, stationCFG] of Object.entries(hilbertCfg.Stations)) {
-          if (!stationCFG.hidden) {
-            this.addStation(new Station(stationID, stationCFG));
+        for (const [appID, appCfg] of Object.entries(hilbertCfg.Applications)) {
+          this.addApplication(new Application(appID, appCfg));
+        }
+
+        for (const [profileID, profileCfg] of Object.entries(hilbertCfg.Profiles)) {
+          this.addStationProfile(new StationProfile(profileID, profileCfg));
+        }
+
+        for (const [stationID, stationCfg] of Object.entries(hilbertCfg.Stations)) {
+          if (!stationCfg.hidden) {
+            this.addStation(new Station(stationID, stationCfg));
           }
         }
         this.signalUpdate();
@@ -105,6 +119,26 @@ export default class StationManager {
       throw new Error(`Error in Hilbert CFG: ${ajv.errorsText()}`);
     }
     return hilbertCfg;
+  }
+
+  /**
+   * Adds a station profile
+   *
+   * @param {StationProfile} stationProfile
+   */
+  addStationProfile(stationProfile) {
+    this.logger.verbose(`Station manager: Adding station profile ${stationProfile.id}`);
+    this.stationProfiles.set(stationProfile.id, stationProfile);
+  }
+
+  /**
+   * Adds an application
+   *
+   * @param {Application} application
+   */
+  addApplication(application) {
+    this.logger.verbose(`Station manager: Adding application profile ${application.id}`);
+    this.applications.set(application.id, application);
   }
 
   /**
@@ -138,6 +172,40 @@ export default class StationManager {
     this.logger.verbose('Station manager: Clearing all stations');
     this.stationIndex = new Map();
     this.stationList = [];
+  }
+
+  /**
+   * Removes all the station profiles
+   */
+  clearStationProfiles() {
+    this.logger.verbose('Station manager: Clearing all station profiles');
+    this.stationProfiles = new Map();
+  }
+
+  /**
+   * Removes all the applications
+   */
+  clearApplications() {
+    this.logger.verbose('Station manager: Clearing all applications');
+    this.applications = new Map();
+  }
+
+  /**
+   * Returns the station profiles
+   *
+   * @return {Iterator.<StationProfile>}
+   */
+  getStationProfiles() {
+    return this.stationProfiles.values();
+  }
+
+  /**
+   * Returns the applications
+   *
+   * @return {Iterator.<Application>}
+   */
+  getApplications() {
+    return this.applications.values();
   }
 
   /**

@@ -116,5 +116,17 @@ describe('HTTP API', function () {
       request(apiServer).get('/notifications').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
     });
   });
+
+  describe('GET /applications', function () {
+    it('responds with JSON', function (done) {
+      request(apiServer).get('/applications').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
+    });
+  });
+
+  describe('GET /station_profiles', function () {
+    it('responds with JSON', function (done) {
+      request(apiServer).get('/station_profiles').set('Accept', 'application/json').expect('Content-Type', /json/).expect(200, done);
+    });
+  });
 });
 //# sourceMappingURL=test-http-api.test.js.map

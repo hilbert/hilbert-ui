@@ -40,6 +40,9 @@ export default class HttpAPIServer {
     });
   }
 
+  /**
+   * Sets up HTTP server routes / API entry points
+   */
   setupRoutes() {
     // getStations long poll handler
     this.stationsLongPoll = new LongPollHandler(this.nconf.get('long_poll_timeout'));
@@ -54,6 +57,8 @@ export default class HttpAPIServer {
     });
 
     const router = express.Router(); // eslint-disable-line new-cap
+    router.get('/applications', this.getApplications.bind(this));
+    router.get('/station_profiles', this.getStationProfiles.bind(this));
     router.get('/stations', this.getStations.bind(this));
     router.post('/stations/start', this.postStationsStart.bind(this));
     router.post('/stations/stop', this.postStationsStop.bind(this));
@@ -72,6 +77,53 @@ export default class HttpAPIServer {
     }
   }
 
+  /**
+   * GET /applications handler
+   * @param req
+   * @param res
+   */
+  getApplications(req, res) {
+    const applications = Array.from(this.stationManager.getApplications())
+      .map(a => a.toJSON())
+      .sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+    res.json({
+      applications,
+    });
+  }
+
+  /**
+   * GET /station_profiles handler
+   * @param req
+   * @param res
+   */
+  getStationProfiles(req, res) {
+    const stationProfiles = Array.from(this.stationManager.getStationProfiles())
+      .map(a => a.toJSON())
+      .sort((a, b) => {
+        if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+    res.json({
+      stationProfiles,
+    });
+  }
+
+  /**
+   * GET /stations handler
+   * @param req
+   * @param res
+   */
   getStations(req, res) {
     this.stationsLongPoll.handleRequest(req, res)
       .then((updateID) => {
@@ -89,6 +141,11 @@ export default class HttpAPIServer {
       });
   }
 
+  /**
+   * POST /stations/start handler
+   * @param req
+   * @param res
+   */
   postStationsStart(req, res) {
     if (!req.body.ids) {
       this.logger.debug("HTTP request received: Start stations missing required 'ids' argument");
@@ -100,6 +157,11 @@ export default class HttpAPIServer {
     res.json({});
   }
 
+  /**
+   * POST /stations/stop handler
+   * @param req
+   * @param res
+   */
   postStationsStop(req, res) {
     if (!req.body.ids) {
       this.logger.debug("HTTP request received: Stop stations missing required 'ids' argument");
@@ -111,6 +173,11 @@ export default class HttpAPIServer {
     res.json({});
   }
 
+  /**
+   * POST /stations/change_app handler
+   * @param req
+   * @param res
+   */
   postStationsChangeApp(req, res) {
     if (!req.body.ids) {
       this.logger.debug("HTTP request received: Change app missing required 'ids' argument");
@@ -128,6 +195,11 @@ export default class HttpAPIServer {
     res.json({});
   }
 
+  /**
+   * GET /station/:id/output handler
+   * @param req
+   * @param res
+   */
   getStationOutput(req, res) {
     this.logger.debug(`HTTP request received: Get output of station ${req.params.id}`);
     const station = this.stationManager.getStationByID(req.params.id);
@@ -141,6 +213,11 @@ export default class HttpAPIServer {
     }
   }
 
+  /**
+   * GET /server/output handler
+   * @param req
+   * @param res
+   */
   getServerOutput(req, res) {
     this.logger.debug('HTTP request received: Get global output');
     res.json({
@@ -148,6 +225,11 @@ export default class HttpAPIServer {
     });
   }
 
+  /**
+   * GET /server/mklivestatus handler
+   * @param req
+   * @param res
+   */
   getServerMKLivestatus(req, res) {
     this.logger.debug('HTTP request received: Get last MKLivestatus state');
     res.json({
@@ -155,6 +237,11 @@ export default class HttpAPIServer {
     });
   }
 
+  /**
+   * GET /notifications handler
+   * @param req
+   * @param res
+   */
   getNotifications(req, res) {
     this.logger.debug('HTTP request received: Get notifications');
     res.json({

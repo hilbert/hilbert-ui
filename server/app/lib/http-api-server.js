@@ -85,6 +85,11 @@ var HttpAPIServer = function () {
         _this.setupRoutes();
       });
     }
+
+    /**
+     * Sets up HTTP server routes / API entry points
+     */
+
   }, {
     key: 'setupRoutes',
     value: function setupRoutes() {
@@ -103,6 +108,8 @@ var HttpAPIServer = function () {
       });
 
       var router = express.Router(); // eslint-disable-line new-cap
+      router.get('/applications', this.getApplications.bind(this));
+      router.get('/station_profiles', this.getStationProfiles.bind(this));
       router.get('/stations', this.getStations.bind(this));
       router.post('/stations/start', this.postStationsStart.bind(this));
       router.post('/stations/stop', this.postStationsStop.bind(this));
@@ -141,6 +148,61 @@ var HttpAPIServer = function () {
         }
       }
     }
+
+    /**
+     * GET /applications handler
+     * @param req
+     * @param res
+     */
+
+  }, {
+    key: 'getApplications',
+    value: function getApplications(req, res) {
+      var applications = Array.from(this.stationManager.getApplications()).map(function (a) {
+        return a.toJSON();
+      }).sort(function (a, b) {
+        if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+      res.json({
+        applications: applications
+      });
+    }
+
+    /**
+     * GET /station_profiles handler
+     * @param req
+     * @param res
+     */
+
+  }, {
+    key: 'getStationProfiles',
+    value: function getStationProfiles(req, res) {
+      var stationProfiles = Array.from(this.stationManager.getStationProfiles()).map(function (a) {
+        return a.toJSON();
+      }).sort(function (a, b) {
+        if (a.name < b.name) {
+          return -1;
+        } else if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+      res.json({
+        stationProfiles: stationProfiles
+      });
+    }
+
+    /**
+     * GET /stations handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'getStations',
     value: function getStations(req, res) {
@@ -183,6 +245,13 @@ var HttpAPIServer = function () {
         res.json({});
       });
     }
+
+    /**
+     * POST /stations/start handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'postStationsStart',
     value: function postStationsStart(req, res) {
@@ -195,6 +264,13 @@ var HttpAPIServer = function () {
       this.stationManager.startStations(req.body.ids);
       res.json({});
     }
+
+    /**
+     * POST /stations/stop handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'postStationsStop',
     value: function postStationsStop(req, res) {
@@ -207,6 +283,13 @@ var HttpAPIServer = function () {
       this.stationManager.stopStations(req.body.ids);
       res.json({});
     }
+
+    /**
+     * POST /stations/change_app handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'postStationsChangeApp',
     value: function postStationsChangeApp(req, res) {
@@ -224,6 +307,13 @@ var HttpAPIServer = function () {
       this.stationManager.changeApp(req.body.ids, req.body.app);
       res.json({});
     }
+
+    /**
+     * GET /station/:id/output handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'getStationOutput',
     value: function getStationOutput(req, res) {
@@ -238,6 +328,13 @@ var HttpAPIServer = function () {
         res.status(404).send('Station not found');
       }
     }
+
+    /**
+     * GET /server/output handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'getServerOutput',
     value: function getServerOutput(req, res) {
@@ -246,6 +343,13 @@ var HttpAPIServer = function () {
         lines: this.stationManager.globalHilbertCLIOutputBuffer.getAll()
       });
     }
+
+    /**
+     * GET /server/mklivestatus handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'getServerMKLivestatus',
     value: function getServerMKLivestatus(req, res) {
@@ -254,6 +358,13 @@ var HttpAPIServer = function () {
         lastState: this.stationManager.lastMKLivestatusDump
       });
     }
+
+    /**
+     * GET /notifications handler
+     * @param req
+     * @param res
+     */
+
   }, {
     key: 'getNotifications',
     value: function getNotifications(req, res) {

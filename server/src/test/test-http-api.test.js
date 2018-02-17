@@ -154,4 +154,24 @@ describe('HTTP API', () => {
         .expect(200, done);
     });
   });
+
+  describe('GET /applications', () => {
+    it('responds with JSON', (done) => {
+      request(apiServer)
+        .get('/applications')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+  });
+
+  describe('GET /station_profiles', () => {
+    it('responds with JSON', (done) => {
+      request(apiServer)
+        .get('/station_profiles')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+  });
 });

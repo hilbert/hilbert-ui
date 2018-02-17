@@ -15,6 +15,14 @@ var _station = require('./station');
 
 var _station2 = _interopRequireDefault(_station);
 
+var _stationProfile = require('./station-profile');
+
+var _stationProfile2 = _interopRequireDefault(_stationProfile);
+
+var _application = require('./application');
+
+var _application2 = _interopRequireDefault(_application);
+
 var _terminalOutputBuffer = require('./terminal-output-buffer');
 
 var _terminalOutputBuffer2 = _interopRequireDefault(_terminalOutputBuffer);
@@ -33,6 +41,7 @@ var HilbertCfgSchema = require('../../data/schema/hilbert-cfg-partial.json');
  * Service Layer for hilbert
  * Dispatches requests asynchronously and keeps cached state
  */
+
 var StationManager = function () {
 
   /**
@@ -60,6 +69,8 @@ var StationManager = function () {
     this.lastMKLivestatusDump = [];
 
     this.clearStations();
+    this.clearStationProfiles();
+    this.clearApplications();
   }
 
   /**
@@ -111,6 +122,8 @@ var StationManager = function () {
       var _this2 = this;
 
       this.clearStations();
+      this.clearStationProfiles();
+      this.clearApplications();
       this.signalUpdate();
 
       return this.hilbertCLI.getHilbertCfg(this.globalHilbertCLIOutputBuffer).then(function (hilbertCfg) {
@@ -121,15 +134,13 @@ var StationManager = function () {
         var _iteratorError = undefined;
 
         try {
-          for (var _iterator = Object.entries(hilbertCfg.Stations)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          for (var _iterator = Object.entries(hilbertCfg.Applications)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var _step$value = _slicedToArray(_step.value, 2);
 
-            var stationID = _step$value[0];
-            var stationCFG = _step$value[1];
+            var appID = _step$value[0];
+            var appCfg = _step$value[1];
 
-            if (!stationCFG.hidden) {
-              _this2.addStation(new _station2.default(stationID, stationCFG));
-            }
+            _this2.addApplication(new _application2.default(appID, appCfg));
           }
         } catch (err) {
           _didIteratorError = true;
@@ -142,6 +153,64 @@ var StationManager = function () {
           } finally {
             if (_didIteratorError) {
               throw _iteratorError;
+            }
+          }
+        }
+
+        var _iteratorNormalCompletion2 = true;
+        var _didIteratorError2 = false;
+        var _iteratorError2 = undefined;
+
+        try {
+          for (var _iterator2 = Object.entries(hilbertCfg.Profiles)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+            var _step2$value = _slicedToArray(_step2.value, 2);
+
+            var profileID = _step2$value[0];
+            var profileCfg = _step2$value[1];
+
+            _this2.addStationProfile(new _stationProfile2.default(profileID, profileCfg));
+          }
+        } catch (err) {
+          _didIteratorError2 = true;
+          _iteratorError2 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+              _iterator2.return();
+            }
+          } finally {
+            if (_didIteratorError2) {
+              throw _iteratorError2;
+            }
+          }
+        }
+
+        var _iteratorNormalCompletion3 = true;
+        var _didIteratorError3 = false;
+        var _iteratorError3 = undefined;
+
+        try {
+          for (var _iterator3 = Object.entries(hilbertCfg.Stations)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+            var _step3$value = _slicedToArray(_step3.value, 2);
+
+            var stationID = _step3$value[0];
+            var stationCfg = _step3$value[1];
+
+            if (!stationCfg.hidden) {
+              _this2.addStation(new _station2.default(stationID, stationCfg));
+            }
+          }
+        } catch (err) {
+          _didIteratorError3 = true;
+          _iteratorError3 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+              _iterator3.return();
+            }
+          } finally {
+            if (_didIteratorError3) {
+              throw _iteratorError3;
             }
           }
         }
@@ -167,6 +236,32 @@ var StationManager = function () {
         throw new Error('Error in Hilbert CFG: ' + ajv.errorsText());
       }
       return hilbertCfg;
+    }
+
+    /**
+     * Adds a station profile
+     *
+     * @param {StationProfile} stationProfile
+     */
+
+  }, {
+    key: 'addStationProfile',
+    value: function addStationProfile(stationProfile) {
+      this.logger.verbose('Station manager: Adding station profile ' + stationProfile.id);
+      this.stationProfiles.set(stationProfile.id, stationProfile);
+    }
+
+    /**
+     * Adds an application
+     *
+     * @param {Application} application
+     */
+
+  }, {
+    key: 'addApplication',
+    value: function addApplication(application) {
+      this.logger.verbose('Station manager: Adding application profile ' + application.id);
+      this.applications.set(application.id, application);
     }
 
     /**
@@ -212,6 +307,52 @@ var StationManager = function () {
     }
 
     /**
+     * Removes all the station profiles
+     */
+
+  }, {
+    key: 'clearStationProfiles',
+    value: function clearStationProfiles() {
+      this.logger.verbose('Station manager: Clearing all station profiles');
+      this.stationProfiles = new Map();
+    }
+
+    /**
+     * Removes all the applications
+     */
+
+  }, {
+    key: 'clearApplications',
+    value: function clearApplications() {
+      this.logger.verbose('Station manager: Clearing all applications');
+      this.applications = new Map();
+    }
+
+    /**
+     * Returns the station profiles
+     *
+     * @return {Iterator.<StationProfile>}
+     */
+
+  }, {
+    key: 'getStationProfiles',
+    value: function getStationProfiles() {
+      return this.stationProfiles.values();
+    }
+
+    /**
+     * Returns the applications
+     *
+     * @return {Iterator.<Application>}
+     */
+
+  }, {
+    key: 'getApplications',
+    value: function getApplications() {
+      return this.applications.values();
+    }
+
+    /**
      * Get the ordered list of stations
      * @returns {Array}
      */
@@ -248,13 +389,13 @@ var StationManager = function () {
       var _this3 = this;
 
       var eligibleStations = [];
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
 
       try {
-        for (var _iterator2 = stationIDs[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var stationID = _step2.value;
+        for (var _iterator4 = stationIDs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          var stationID = _step4.value;
 
           var station = this.getStationByID(stationID);
           if (station && station.setQueuedToStartState()) {
@@ -262,16 +403,16 @@ var StationManager = function () {
           }
         }
       } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-            _iterator2.return();
+          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+            _iterator4.return();
           }
         } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
+          if (_didIteratorError4) {
+            throw _iteratorError4;
           }
         }
       }
@@ -309,13 +450,13 @@ var StationManager = function () {
       var _this4 = this;
 
       var eligibleStations = [];
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
+      var _iteratorNormalCompletion5 = true;
+      var _didIteratorError5 = false;
+      var _iteratorError5 = undefined;
 
       try {
-        for (var _iterator3 = stationIDs[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var stationID = _step3.value;
+        for (var _iterator5 = stationIDs[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+          var stationID = _step5.value;
 
           var station = this.getStationByID(stationID);
           if (station && station.setQueuedToStopState()) {
@@ -323,16 +464,16 @@ var StationManager = function () {
           }
         }
       } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
+        _didIteratorError5 = true;
+        _iteratorError5 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-            _iterator3.return();
+          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+            _iterator5.return();
           }
         } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
+          if (_didIteratorError5) {
+            throw _iteratorError5;
           }
         }
       }
@@ -371,13 +512,13 @@ var StationManager = function () {
       var _this5 = this;
 
       var eligibleStations = [];
-      var _iteratorNormalCompletion4 = true;
-      var _didIteratorError4 = false;
-      var _iteratorError4 = undefined;
+      var _iteratorNormalCompletion6 = true;
+      var _didIteratorError6 = false;
+      var _iteratorError6 = undefined;
 
       try {
-        for (var _iterator4 = stationIDs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          var stationID = _step4.value;
+        for (var _iterator6 = stationIDs[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+          var stationID = _step6.value;
 
           var station = this.getStationByID(stationID);
           if (station && station.setQueuedToChangeAppState(appID)) {
@@ -385,16 +526,16 @@ var StationManager = function () {
           }
         }
       } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
+        _didIteratorError6 = true;
+        _iteratorError6 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-            _iterator4.return();
+          if (!_iteratorNormalCompletion6 && _iterator6.return) {
+            _iterator6.return();
           }
         } finally {
-          if (_didIteratorError4) {
-            throw _iteratorError4;
+          if (_didIteratorError6) {
+            throw _iteratorError6;
           }
         }
       }
@@ -482,13 +623,13 @@ var StationManager = function () {
       return this.mkLivestatus.getState().then(function (allStationsStatus) {
         var lastState = [];
         var changes = false;
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
+        var _iteratorNormalCompletion7 = true;
+        var _didIteratorError7 = false;
+        var _iteratorError7 = undefined;
 
         try {
-          for (var _iterator5 = allStationsStatus[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var stationStatus = _step5.value;
+          for (var _iterator7 = allStationsStatus[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+            var stationStatus = _step7.value;
 
             lastState.push(stationStatus);
             var station = _this6.getStationByID(stationStatus.id);
@@ -499,16 +640,16 @@ var StationManager = function () {
             }
           }
         } catch (err) {
-          _didIteratorError5 = true;
-          _iteratorError5 = err;
+          _didIteratorError7 = true;
+          _iteratorError7 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion5 && _iterator5.return) {
-              _iterator5.return();
+            if (!_iteratorNormalCompletion7 && _iterator7.return) {
+              _iterator7.return();
             }
           } finally {
-            if (_didIteratorError5) {
-              throw _iteratorError5;
+            if (_didIteratorError7) {
+              throw _iteratorError7;
             }
           }
         }
