@@ -86,6 +86,26 @@ export default class UIAPI {
   }
 
   /**
+   * Gets the list of application definitions
+   *
+   * @return {bluebird<Array>}
+   */
+  getApplications() {
+    return this.send('get', '/applications')
+      .then(data => data.applications);
+  }
+
+  /**
+   * Gets the list of station profiles
+   *
+   * @return {bluebird<Array>}
+   */
+  getStationProfiles() {
+    return this.send('get', '/station_profiles')
+      .then(data => data.stationProfiles);
+  }
+
+  /**
    * Gets the list of presets
    *
    * @return {bluebird<Array>}

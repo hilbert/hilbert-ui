@@ -452,7 +452,7 @@ export default class Dashboard extends React.Component {
 
     const counts = {};
     this.state.stations.forEach((station) => {
-      if (!(this.displayState(station.state) in !counts)) {
+      if (!(this.displayState(station.state) in counts)) {
         counts[this.displayState(station.state)] = 0;
       }
       counts[this.displayState(station.state)] += 1;
@@ -615,4 +615,18 @@ export default class Dashboard extends React.Component {
 
 Dashboard.propTypes = {
   api: React.PropTypes.instanceOf(UIAPI),
+  applications: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      id: React.PropTypes.string,
+      name: React.PropTypes.string,
+      description: React.PropTypes.string,
+    })
+  ),
+  stationProfiles: React.PropTypes.arrayOf(
+    React.PropTypes.shape({
+      id: React.PropTypes.string,
+      name: React.PropTypes.string,
+      description: React.PropTypes.string,
+    })
+  ),
 };
