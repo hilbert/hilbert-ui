@@ -1,13 +1,15 @@
+import UIAPI from './uiAPI';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Dashboard from './dashboard.jsx';
 
-window.dashboard = null;
+const apiConnector = new UIAPI('/api');
 
+window.dashboard = null;
 // onReady
 $(() => {
   window.dashboard = ReactDOM.render(
-    <Dashboard url="/api/stations" />,
+    <Dashboard api={apiConnector} />,
     document.getElementById('dashboardContainer')
   );
 

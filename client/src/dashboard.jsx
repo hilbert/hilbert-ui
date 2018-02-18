@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions,no-console */
 import React from 'react';
 import Station from './station.jsx';
 import AppSelect from './appSelect.jsx';
@@ -6,6 +7,7 @@ import LogViewer from './logViewer.jsx';
 import ConsoleViewer from './consoleViewer.jsx';
 import PresetsBlock from './presetsBlock.jsx';
 import Header from './header.jsx';
+import UIAPI from './uiAPI';
 
 export default class Dashboard extends React.Component {
 
@@ -155,11 +157,6 @@ export default class Dashboard extends React.Component {
         title: 'activate a preset',
         confirm: true,
       },
-      'preset-activate-selected': {
-        callback: this.activatePresetOnSelected.bind(this),
-        title: 'activate a preset on the selected stations',
-        confirm: true,
-      },
       'preset-delete': {
         callback: this.deletePreset.bind(this),
         title: 'delete a preset',
@@ -225,124 +222,75 @@ export default class Dashboard extends React.Component {
     this.setState({ selection: this.state.selection });
   }
 
-  stopStations(stationIDs) {
-    $.ajax({
-      url: '/api/stations/stop',
-      method: 'post',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        ids: Array.from(stationIDs),
-      }),
-      dataType: 'json',
-      cache: false,
-      success: () => {},
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
-  }
-
   stopSelected() {
-    this.stopStations(this.state.selection);
+    this.props.api.stopStations(Array.from(this.state.selection)).catch(
+      err => console.error(err)
+    );
     this.deselectAll();
   }
 
   stopAll() {
-    return this.stopStations(this.allStationIDs());
-  }
-
-  startStations(stationIDs) {
-    $.ajax({
-      url: '/api/stations/start',
-      method: 'post',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        ids: Array.from(stationIDs),
-      }),
-      dataType: 'json',
-      cache: false,
-      success: () => {},
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
+    this.props.api.stopStations(this.allStationIDs()).catch(
+      err => console.error(err)
+    );
   }
 
   startSelected() {
-    this.startStations(this.state.selection);
+    this.props.api.startStations(Array.from(this.state.selection)).catch(
+      err => console.error(err)
+    );
     this.deselectAll();
   }
 
   startAll() {
-    return this.startStations(this.allStationIDs());
+    this.props.api.startStations(this.allStationIDs()).catch(
+      err => console.error(err)
+    );
   }
 
   changeAppSelected(app) {
-    $.ajax({
-      url: '/api/stations/change_app',
-      method: 'post',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        ids: Array.from(this.state.selection),
-        app,
-      }),
-      dataType: 'json',
-      cache: false,
-      success: () => {},
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
+    this.props.api.changeApp(Array.from(this.state.selection), app).catch(
+      err => console.error(err)
+    );
     this.deselectAll();
   }
 
   showTerminalLog(stationID) {
     if (this.consoleViewer !== null) {
       this.consoleViewer.openModal();
-      $.ajax({
-        url: `/api/station/${stationID}/output`,
-        method: 'get',
-        dataType: 'json',
-        contentType: 'application/json',
-        cache: false,
-        success: (data) => {
+      this.props.api.getStationOutput(stationID)
+        .then((lines) => {
           this.setState({
             title: stationID,
-            lines: data.lines,
+            lines,
           });
-        },
-        error: (xhr, status, err) => console.error(status, err.toString()),
-      });
+        })
+        .catch(err => console.error(err));
     }
   }
 
   showGlobalLog() {
     if (this.consoleViewer !== null) {
       this.consoleViewer.openModal();
-      $.ajax({
-        url: '/api/server/output',
-        method: 'get',
-        dataType: 'json',
-        contentType: 'application/json',
-        cache: false,
-        success: (data) => {
+      this.props.api.getServerOutput()
+        .then((lines) => {
           this.setState({
             title: 'Global output',
-            lines: data.lines,
+            lines,
           });
-        },
-        error: (xhr, status, err) => console.error(status, err.toString()),
-      });
+        })
+        .catch(err => console.error(err));
     }
   }
 
   showNotifications() {
     if (this.logViewer !== null) {
       this.logViewer.openModal();
-      $.ajax({
-        url: '/api/notifications',
-        method: 'get',
-        contentType: 'application/json',
-        cache: false,
-        success: (data) => {
-          this.setState({ log: data.notifications.reverse() });
-        },
-        error: (xhr, status, err) => console.error(status, err.toString()),
-      });
+      this.props.api.getNotifications()
+        .then((notifications) => {
+          this.setState({ log: notifications.reverse() });
+        })
+        .catch(err => console.error(err));
     }
   }
 
@@ -373,55 +321,30 @@ export default class Dashboard extends React.Component {
       callback: (result) => {
         if (result !== null) {
           preset.name = result.substr(0, 50);
-          this.sendCreatePreset(preset);
+          this.props.api.createPreset(preset)
+            .then(() => this.fetchPresets())
+            .catch((err) => {
+              console.error(err);
+            });
         }
       },
     });
   }
 
-  sendCreatePreset(preset) {
-    $.ajax({
-      url: '/api/preset',
-      method: 'post',
-      contentType: 'application/json',
-      data: JSON.stringify(preset),
-      dataType: 'json',
-      cache: false,
-      success: () => {
-        this.fetchPresets();
-      },
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
-  }
-
   activatePreset(presetID) {
-    $.ajax({
-      url: `/api/preset/${presetID}/activate`,
-      method: 'post',
-      contentType: 'application/json',
-      cache: false,
-      success: () => {
-        this.fetchPresets();
-      },
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
-  }
-
-  activatePresetOnSelected(presetID) {
-    // To Do
+    this.props.api.activatePreset(presetID)
+      .then(() => this.fetchPresets())
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   deletePreset(presetID) {
-    $.ajax({
-      url: `/api/preset/${presetID}`,
-      method: 'delete',
-      contentType: 'application/json',
-      cache: false,
-      success: () => {
-        this.fetchPresets();
-      },
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
+    this.props.api.deletePreset(presetID)
+      .then(() => this.fetchPresets())
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   updatePreset(presetID) {
@@ -434,18 +357,11 @@ export default class Dashboard extends React.Component {
       preset.stationApps[station.id] = station.app;
     }
 
-    $.ajax({
-      url: `/api/preset/${presetID}`,
-      method: 'put',
-      contentType: 'application/json',
-      data: JSON.stringify(preset),
-      dataType: 'json',
-      cache: false,
-      success: () => {
-        this.fetchPresets();
-      },
-      error: (xhr, status, err) => console.error(status, err.toString()),
-    });
+    this.props.api.updatePreset(preset)
+      .then(() => this.fetchPresets())
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   refreshPresets() {
@@ -476,9 +392,9 @@ export default class Dashboard extends React.Component {
       }).catch(() => {
         setTimeout(loop, retryPollTime);
         if (retryPollTime < maxRetryPollTime) {
-          retryPollTime = retryPollTime * retryIncreaseFactor;
+          retryPollTime *= retryIncreaseFactor;
         }
-        this.serverConnectionRetry++;
+        this.serverConnectionRetry += 1;
         if (this.serverConnectionRetry > 5) {
           this.setState({ serverConnectionError: true });
           // Reset the updateID so the next poll returns immediately
@@ -491,49 +407,24 @@ export default class Dashboard extends React.Component {
   }
 
   pollServer() {
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/api/stations',
-        data: {
-          lastUpdateID: this.updateID,
-        },
-        dataType: 'json',
-        cache: false,
-        timeout: 30000,
-        success: (data) => {
-          if (data.stations !== undefined) {
-            this.updateID = data.updateID;
-            this.setState({ stations: data.stations });
-          }
-          resolve();
-        },
-        error: (xhr, status, err) => {
-          console.error(this.props.url, status, err.toString());
-          reject();
-        },
-      });
-    });
+    return this.props.api.getStations(this.updateID)
+      .then((data) => {
+        if (data.stations !== undefined) {
+          this.updateID = data.updateID;
+          this.setState({ stations: data.stations });
+        }
+      })
+      .catch(err => console.error(err));
   }
 
   fetchPresets() {
-    return new Promise((resolve, reject) => {
-      $.ajax({
-        url: '/api/presets',
-        cache: false,
-        timeout: 30000,
-        dataType: 'json',
-        success: (data) => {
-          if (data.presets !== undefined) {
-            this.setState({ presets: data.presets });
-          }
-          resolve();
-        },
-        error: (xhr, status, err) => {
-          console.error(this.props.url, status, err.toString());
-          reject();
-        },
+    return this.props.api.getPresets()
+      .then((presets) => {
+        if (presets !== undefined) {
+          this.setState({ presets });
+        }
       })
-    });
+      .catch(err => console.error(err));
   }
 
   render() {
@@ -544,12 +435,12 @@ export default class Dashboard extends React.Component {
     if (this.state.serverConnectionError) {
       messageBar = (<div className="message_bar">
         <div className="message_bar-message">
-          <i className="fa fa-warning"></i>  No connection to server.
+          <i className="fa fa-warning" />  No connection to server.
         </div>
       </div>);
     }
 
-    this.getVisibleStations().forEach((station) => stations.push(
+    this.getVisibleStations().forEach(station => stations.push(
       <Station
         station={station}
         key={station.id}
@@ -561,10 +452,10 @@ export default class Dashboard extends React.Component {
 
     const counts = {};
     this.state.stations.forEach((station) => {
-      if (!counts.hasOwnProperty(this.displayState(station.state))) {
+      if (!(this.displayState(station.state) in !counts)) {
         counts[this.displayState(station.state)] = 0;
       }
-      counts[this.displayState(station.state)]++;
+      counts[this.displayState(station.state)] += 1;
     });
 
     const selectedCount = this.state.selection.size;
@@ -608,7 +499,7 @@ export default class Dashboard extends React.Component {
 
     actions.push(
       <div key="selectedCount" className="action-pane">
-        <div className="action-pane-separator" ></div>
+        <div className="action-pane-separator" />
         <b>{this.state.selection.size} {stationWord} selected</b>
         <div className="selectActions">
           <a
@@ -627,7 +518,7 @@ export default class Dashboard extends React.Component {
 
     actions.push(
       <div key="startStopPanel" className={`action-pane${noSelectionDisable}`}>
-        <div className="action-pane-separator" ></div>
+        <div className="action-pane-separator" />
         <a
           className={`btn btn-success${noSelectionDisable}`}
           onClick={this.getCommand('stations-selected-start')}
@@ -671,7 +562,7 @@ export default class Dashboard extends React.Component {
 
     actions.push(
       <div key="appSelect" className="action-pane">
-        <div className="action-pane-separator" ></div>
+        <div className="action-pane-separator" />
         <AppSelect
           applications={canChangeApp ? applications : []}
           disabled={!canChangeApp}
@@ -694,7 +585,6 @@ export default class Dashboard extends React.Component {
             stationsSelected={selectedCount > 0}
             onCreate={this.getCommand('preset-create')}
             onActivate={this.getCommand('preset-activate')}
-            onActivateOnSelected={this.getCommand('preset-activate-selected')}
             onDelete={this.getCommand('preset-delete')}
             onUpdate={this.getCommand('preset-update')}
             onRefresh={this.getCommand('preset-refresh')}
@@ -724,5 +614,5 @@ export default class Dashboard extends React.Component {
 }
 
 Dashboard.propTypes = {
-  url: React.PropTypes.string.isRequired,
+  api: React.PropTypes.instanceOf(UIAPI),
 };

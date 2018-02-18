@@ -8,7 +8,6 @@ export default class PresetsBlock extends React.Component {
     };
     this.handlePresetChange = this.handlePresetChange.bind(this);
     this.handleActivate = this.handleActivate.bind(this);
-    this.handleActivateOnSelected = this.handleActivateOnSelected.bind(this);
     this.handleSave = this.handleSave.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleNew = this.handleNew.bind(this);
@@ -22,12 +21,6 @@ export default class PresetsBlock extends React.Component {
   handleActivate() {
     if (this.state.selectedPreset !== 0) {
       this.props.onActivate(this.state.selectedPreset);
-    }
-  }
-
-  handleActivateOnSelected() {
-    if (this.state.selectedPreset !== 0) {
-      this.props.onActivateOnSelected(this.state.selectedPreset);
     }
   }
 
@@ -85,11 +78,6 @@ export default class PresetsBlock extends React.Component {
                   Activate
                 </a>
               </li>
-              {/*<li className={actionsDisabled || !this.props.stationsSelected ? 'disabled' : ''} >*/}
-                {/*<a href="#" onClick={this.handleActivate}>*/}
-                  {/*Activate on selected*/}
-                {/*</a>*/}
-              {/*</li>*/}
               <li className={actionsDisabled ? 'disabled' : ''} >
                 <a href="#" onClick={this.handleSave}>
                   Save changes
@@ -124,7 +112,6 @@ PresetsBlock.propTypes = {
   stationsSelected: React.PropTypes.bool,
   onCreate: React.PropTypes.func,
   onActivate: React.PropTypes.func,
-  onActivateOnSelected: React.PropTypes.func,
   onDelete: React.PropTypes.func,
   onUpdate: React.PropTypes.func,
   onRefresh: React.PropTypes.func,
@@ -135,7 +122,6 @@ PresetsBlock.defaultProps = {
   stationsSelected: false,
   onCreate: () => {},
   onActivate: () => {},
-  onActivateOnSelected: () => {},
   onDelete: () => {},
   onUpdate: () => {},
   onRefresh: () => {},

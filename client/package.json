@@ -8,6 +8,7 @@
     "node": "^4.4.0"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "react": "^15.0.2",
     "react-dom": "^15.0.2"
   },
