@@ -16,6 +16,307 @@ consumes:
 produces:
   - application/json
 paths:
+  /applications:
+    get:
+      tags:
+        - "Applications"
+      summary: "List all applications"
+      responses:
+        200:
+          description: Returns the list of applications.
+          schema:
+            type: object
+            properties:
+              applications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Application ID
+                    name:
+                      type: string
+                      description: Application Name
+                    description:
+                      type: string
+                      description: Application Description
+  /station_profiles:
+    get:
+      tags:
+        - "Station profiles"
+      summary: "List all profiles"
+      responses:
+        200:
+          description: Returns the list of station profiles
+          schema:
+            type: object
+            properties:
+              applications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Profile ID
+                    name:
+                      type: string
+                      description: Profile Name
+                    description:
+                      type: string
+                      description: Profile Description
+  /stations:
+    get:
+      tags:
+        - "Stations"
+      summary: "Get the list of stations"
+      parameters:
+        - in: query
+          name: lastUpdateID
+          type: integer
+          description: "The last updateID received from calling this method. The server will only respond if or
+            when the state of the stations changes (relative to the updateID). If this parameter is not sent the
+            current state will be returned immediately. In case of a timeout before any updates an empty object
+            will be returned"
+      responses:
+        200:
+          description: Returns the list of stations with their current state.
+          schema:
+            type: object
+            properties:
+              updateID:
+                type: number
+                description: "A logical clock / incrementing id that can be sent back to the server to indicate
+                  the last system state seen as part of the 'long poll' mechanism."
+              stations:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Station ID
+                    name:
+                      type: string
+                      description: Station Name
+                    description:
+                      type: string
+                      description: Station description
+                    profile:
+                      type: string
+                      description: ID of the station profile the station belongs to
+                    type:
+                      type: string
+                      description: Station type
+                    state:
+                      type: string
+                      description: Current state of the station
+                      enum: [unk, on, off, stopping, starting_station, starting_app, switching_app, error]
+                    status:
+                      type: string
+                      description: "The station's status message which gives extra human readable
+                        details about the state"
+                    app:
+                      type: string
+                      description: ID of the app currently running in the station
+                    default_app:
+                      type: string
+                      description: ID of the station's default app
+                    compatible_apps:
+                      type: array
+                      description: IDs of the apps compatible with this station
+                      items:
+                        type: string
+                    switching_app:
+                      type: string
+                      description: "ID of the app the station is currently switching to. An empty string
+                        if the station is not currently changing apps."
+                    icon:
+                      type: string
+                      description: URI of the icon of the currently running app.
+  /stations/start:
+    post:
+      tags:
+        - "Stations"
+      summary: "Start a list of stations"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Missing 'ids' argument
+  /stations/stop:
+    post:
+      tags:
+        - "Stations"
+      summary: "Stop a list of stations"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Missing 'ids' argument
+  /stations/change_app:
+    post:
+      tags:
+        - "Stations"
+      summary: "Change the application in a list of stations"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: arguments
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+              app:
+                description: App ID
+                type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Missing argument
+  /station/{id}/output:
+    get:
+      tags:
+        - "Stations"
+      summary: "Retrieve the station terminal output"
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          description: ID of a station
+      responses:
+        200:
+          description: Returns the terminal output
+          schema:
+            type: object
+            properties:
+              lines:
+                type: array
+                description: List of terminal output lines
+                items:
+                  type: string
+  /server/output:
+    get:
+      tags:
+        - "Server"
+      summary: "Retrieve the global terminal output"
+      responses:
+        200:
+          description: Returns the global terminal output
+          schema:
+            type: object
+            properties:
+              lines:
+                type: array
+                description: List of terminal output lines
+                items:
+                  type: string
+  /server/mklivestatus:
+    get:
+      tags:
+        - "Server"
+      summary: "Retrieve the last state fetched from the MK Livestatus service (for debugging)"
+      responses:
+        200:
+          description: Returns the last MK Livestatus state
+          schema:
+            type: object
+            properties:
+              lastState:
+                type: array
+                items:
+                  type: object
+                  description: State of each station
+                  properties:
+                    id:
+                      type: string
+                      description: Station ID
+                    state:
+                      type: number
+                      description: Station state (see nagios.js)
+                    state_type:
+                      type: number
+                      description: Station state type (see nagios.js)
+                    app_state:
+                      type: number
+                      description: App state (see nagios.js)
+                    app_state_type:
+                      type: number
+                      description: App state (see nagios.js)
+                    app_id:
+                      type: string
+                      description: ID of the currently running app
+  /notifications:
+    get:
+      tags:
+        - "Notifications"
+      summary: "List all notifications"
+      responses:
+        200:
+          description: Returns the latest notifications
+          schema:
+            type: object
+            properties:
+              notifications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                      description: Notification ID
+                    time:
+                      type: string
+                      description: Timestamp in ISO format (yyyy-mm-ddThh:mm:ss.mmmZ)
+                    type:
+                      type: string
+                      description: Notification type
+                      enum: [info, warning, error]
+                    message:
+                      type: string
+                      description: The notification text
+                    station_id:
+                      type: string
+                      description: ID of the station that generated the notification
+                    station_name:
+                      type: string
+                      description: Name of the station that generated the notification
   /presets:
     get:
       tags:

@@ -252,7 +252,7 @@ export default class StationManager {
         this.signalUpdate();
         return this.hilbertCLI.startStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} started`);
-          this.log('message', station, 'Station started');
+          this.log('info', station, 'Station started');
         })
         .catch(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} failed to start`);
@@ -293,7 +293,7 @@ export default class StationManager {
         this.signalUpdate();
         return this.hilbertCLI.stopStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} stopped`);
-          this.log('message', station, 'Station stopped');
+          this.log('info', station, 'Station stopped');
         })
           .catch(() => {
             this.logger.verbose(`Station manager: Station ${eligibleStation} failed to stop`);
@@ -337,7 +337,7 @@ export default class StationManager {
         return this.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.logger.verbose(
             `Station manager: Changed app of station ${eligibleStation} to ${appID}`);
-          this.log('message', station, `Launched app ${appID}`);
+          this.log('info', station, `Launched app ${appID}`);
         })
         .catch(() => {
           this.logger.verbose(
