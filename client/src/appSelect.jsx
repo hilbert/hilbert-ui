@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unused-prop-types */
 import React from 'react';
 
 /**
@@ -19,17 +20,23 @@ export default class AppSelect extends React.Component {
   }
 
   render() {
-    const applications = [];
+    const options = [];
 
     if (this.props.allowBlank) {
-      applications.push(
+      options.push(
         <option key="null" value="">&nbsp;</option>
       );
     }
 
-    for (const application of this.props.applications) {
-      applications.push(
-        <option key={application} value={application}>{application}</option>
+    const sortedApps = Object.values(this.props.applications).sort((a, b) => {
+      if (a.name < b.name) return -1;
+      else if (a.name > b.name) return 1;
+      return 0;
+    });
+
+    for (const application of sortedApps) {
+      options.push(
+        <option key={application.id} value={application.id}>{application.name}</option>
       );
     }
 
@@ -44,7 +51,7 @@ export default class AppSelect extends React.Component {
               defaultValue={this.props.defaultValue ? this.props.defaultValue : ''}
               ref={(sel) => { this.appSelector = sel; }}
             >
-              {applications}
+              {options}
             </select>
           </div>
           &nbsp;
@@ -60,7 +67,11 @@ export default class AppSelect extends React.Component {
 
 AppSelect.propTypes = {
   applications: React.PropTypes.arrayOf(
-    React.PropTypes.string
+    React.PropTypes.shape({
+      id: React.PropTypes.string,
+      name: React.PropTypes.string,
+      description: React.PropTypes.string,
+    })
   ),
   defaultValue: React.PropTypes.string,
   allowBlank: React.PropTypes.bool,

@@ -1,9 +1,11 @@
-import UIAPI from './uiAPI';
+import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Dashboard from './dashboard.jsx';
+import UIAPI from './uiAPI';
+import Dashboard from './dashboard';
 
 const Promise = require('bluebird');
+
 const apiConnector = new UIAPI('/api');
 
 window.dashboard = null;
@@ -12,10 +14,16 @@ $(() => {
   const initData = {};
   const initTasks = [
     apiConnector.getApplications().then((applications) => {
-      initData.applications = applications;
+      initData.applications = {};
+      for (const application of applications) {
+        initData.applications[application.id] = application;
+      }
     }),
     apiConnector.getStationProfiles().then((stationProfiles) => {
-      initData.stationProfiles = stationProfiles;
+      initData.stationProfiles = {};
+      for (const stationProfile of stationProfiles) {
+        initData.stationProfiles[stationProfile.id] = stationProfile;
+      }
     }),
   ];
 

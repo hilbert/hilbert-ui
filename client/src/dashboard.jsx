@@ -1,4 +1,4 @@
-/* eslint-disable import/extensions,no-console */
+/* eslint-disable import/extensions,no-console,react/no-unused-prop-types */
 import React from 'react';
 import Station from './station.jsx';
 import AppSelect from './appSelect.jsx';
@@ -445,6 +445,7 @@ export default class Dashboard extends React.Component {
         station={station}
         key={station.id}
         selected={this.state.selection.has(station.id)}
+        applications={this.props.applications}
         onClickStation={this.selectToggle}
         onOpenTerminalLog={this.showTerminalLog}
       />
@@ -553,12 +554,16 @@ export default class Dashboard extends React.Component {
 
     const canChangeApp = (allSelectedOn && (selectedCount > 0) && selectedAreSameType);
 
-    let applications = [];
-    for (const station of this.state.stations) {
-      if (this.state.selection.has(station.id)) {
-        applications = station.compatible_apps;
+    const applications = Object.values(this.props.applications).filter((app) => {
+      for (const station of this.state.stations) {
+        if (this.state.selection.has(station.id)) {
+          if (!station.compatible_apps.includes(app.id)) {
+            return false;
+          }
+        }
       }
-    }
+      return true;
+    });
 
     actions.push(
       <div key="appSelect" className="action-pane">
@@ -615,14 +620,14 @@ export default class Dashboard extends React.Component {
 
 Dashboard.propTypes = {
   api: React.PropTypes.instanceOf(UIAPI),
-  applications: React.PropTypes.arrayOf(
+  applications: React.PropTypes.objectOf(
     React.PropTypes.shape({
       id: React.PropTypes.string,
       name: React.PropTypes.string,
       description: React.PropTypes.string,
     })
   ),
-  stationProfiles: React.PropTypes.arrayOf(
+  stationProfiles: React.PropTypes.objectOf(
     React.PropTypes.shape({
       id: React.PropTypes.string,
       name: React.PropTypes.string,

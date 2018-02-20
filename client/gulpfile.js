@@ -23,6 +23,7 @@ function bundleApp(isProduction) {
   // Browserify will bundle all our js files together in to one and will let
   // us use modules in the front end.
   var appBundler = browserify({
+    extensions: [ '.js', '.jsx' ],
     entries: './src/main.jsx',
     debug: true
   });

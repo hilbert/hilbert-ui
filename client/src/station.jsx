@@ -28,6 +28,13 @@ export default class Station extends React.Component {
       stationClasses.push('station-selected');
     }
 
+    let appName = this.props.station.app;
+    let appDesc = '';
+    if (this.props.applications[this.props.station.app] !== undefined) {
+      appName = this.props.applications[this.props.station.app].name;
+      appDesc = this.props.applications[this.props.station.app].description;
+    }
+
     return (
       <div
         id={this.props.station.id}
@@ -40,7 +47,7 @@ export default class Station extends React.Component {
         </div>
         <div className="station-name">{this.props.station.name}</div>
         <div className="station-type">{this.props.station.type}</div>
-        <div className="station-app">{this.props.station.app}</div>
+        <div className="station-app" title={appDesc}>{appName}</div>
         <div className="station-status">{this.props.station.status}</div>
         <a className="station-output-button" onClick={(ev) => { this.handleOpenTerminalLog(ev); }}>
           <i className="fa fa-desktop"></i>
@@ -61,6 +68,13 @@ Station.propTypes = {
     icon: React.PropTypes.string,
   }).isRequired,
   selected: React.PropTypes.bool,
+  applications: React.PropTypes.objectOf(
+    React.PropTypes.shape({
+      id: React.PropTypes.string,
+      name: React.PropTypes.string,
+      description: React.PropTypes.string,
+    })
+  ),
   onClickStation: React.PropTypes.func,
   onOpenTerminalLog: React.PropTypes.func,
 };
