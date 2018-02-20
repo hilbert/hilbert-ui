@@ -35,7 +35,7 @@ var Station = function () {
 
     this.state = Station.UNKNOWN;
     this.status = '';
-    this.app = this.default_app;
+    this.app = '';
     this.switching_app = '';
     this.outputBuffer = new _terminalOutputBuffer2.default();
   }

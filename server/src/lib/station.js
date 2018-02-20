@@ -14,7 +14,7 @@ export default class Station {
 
     this.state = Station.UNKNOWN;
     this.status = '';
-    this.app = this.default_app;
+    this.app = '';
     this.switching_app = '';
     this.outputBuffer = new TerminalOutputBuffer();
   }
