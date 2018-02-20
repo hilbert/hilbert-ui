@@ -150,7 +150,7 @@ body {
     font-size: 14px;
     color: #6E7E8A;
     float: left; }
-  .station .station-type {
+  .station .station-profile {
     position: absolute;
     bottom: 6px;
     right: 6px;
@@ -208,7 +208,7 @@ body {
 .station-state-unk .station-icon,
 .station-state-unk .station-app,
 .station-state-unk .station-name,
-.station-state-unk .station-type {
+.station-state-unk .station-profile {
   opacity: 0.5; }
 
 .station-state-off {

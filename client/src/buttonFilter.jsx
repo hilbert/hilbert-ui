@@ -4,16 +4,16 @@ const ButtonFilter = (props) => {
   const options = [];
 
   for (const option of props.options) {
-    const classes = ['btn', 'btn-default', `button-filter-option-${option}`];
-    if (props.value === option) {
+    const classes = ['btn', 'btn-default', `button-filter-option-${option.id}`];
+    if (props.value === option.id) {
       classes.push('active');
     }
     let counter = '';
     let spacing = '';
     if (props.counts !== null) {
       let count = 0;
-      if (props.counts.hasOwnProperty(option) && props.counts[option] !== 0) {
-        count = props.counts[option];
+      if (option.id in props.counts && props.counts[option.id] !== 0) {
+        count = props.counts[option.id];
       }
       const badgeClasses = `badge${count === 0 ? ' zero' : ' non-zero'}`;
       counter = (<span className={badgeClasses}>{count}</span>);
@@ -23,9 +23,10 @@ const ButtonFilter = (props) => {
       <a
         href="#"
         className={classes.join(' ')}
-        key={option}
-        onClick={() => props.onChange(option)}
-      >{option}{spacing}{counter}</a>
+        key={option.id}
+        onClick={() => props.onChange(option.id)}
+        title={option.description || ''}
+      >{option.name || option.id}{spacing}{counter}</a>
     );
   }
 
@@ -52,7 +53,11 @@ const ButtonFilter = (props) => {
 };
 
 ButtonFilter.propTypes = {
-  options: React.PropTypes.arrayOf(React.PropTypes.string),
+  options: React.PropTypes.arrayOf(React.PropTypes.shape({
+    id: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string,
+    description: React.PropTypes.string,
+  })),
   counts: React.PropTypes.objectOf(React.PropTypes.number),
   allText: React.PropTypes.string,
   value: React.PropTypes.string,

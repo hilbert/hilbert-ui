@@ -16,7 +16,7 @@ export default class Dashboard extends React.Component {
     this.state = {
       stations: [],
       selection: new Set(),
-      visibleType: '',
+      visibleProfile: '',
       visibleState: '',
       log: [],
       serverConnectionError: false,
@@ -50,15 +50,6 @@ export default class Dashboard extends React.Component {
     return null;
   }
 
-  getStationTypes() {
-    const types = new Set();
-    for (const station of this.state.stations) {
-      types.add(station.type);
-    }
-
-    return Array.from(types);
-  }
-
   getCommand(commandName) {
     if (this.commands[commandName] !== undefined) {
       return this.commands[commandName].doCallback;
@@ -70,7 +61,7 @@ export default class Dashboard extends React.Component {
     const answer = [];
 
     for (const station of this.state.stations) {
-      if ((this.state.visibleType === '' || station.type === this.state.visibleType) &&
+      if ((this.state.visibleProfile === '' || station.profile === this.state.visibleProfile) &&
           (this.state.visibleState === '' ||
            this.displayState(station.state) === this.state.visibleState)) {
         answer.push(station);
@@ -446,6 +437,7 @@ export default class Dashboard extends React.Component {
         key={station.id}
         selected={this.state.selection.has(station.id)}
         applications={this.props.applications}
+        stationProfiles={this.props.stationProfiles}
         onClickStation={this.selectToggle}
         onOpenTerminalLog={this.showTerminalLog}
       />
@@ -472,9 +464,9 @@ export default class Dashboard extends React.Component {
     actions.push(
       <div key="stationStateFilter" className="action-pane">
         <ButtonFilter
-          options={['on', 'off', 'busy', 'error']}
+          options={Dashboard.StateOptions}
           counts={counts}
-          allText="All states"
+          allText="All"
           value={this.state.visibleState}
           onChange={(option) => {
             this.deselectAll();
@@ -484,15 +476,21 @@ export default class Dashboard extends React.Component {
       </div>
     );
 
+    const sortedProfiles = Object.values(this.props.stationProfiles).sort((a, b) => {
+      if (a < b) return 1;
+      else if (a > b) return -1;
+      return 0;
+    });
+
     actions.push(
       <div key="stationTypeFilter" className="action-pane">
         <ButtonFilter
-          options={this.getStationTypes()}
-          allText="All types"
-          value={this.state.visibleType}
+          options={sortedProfiles}
+          allText="All"
+          value={this.state.visibleProfile}
           onChange={(option) => {
             this.deselectAll();
-            this.setState({ visibleType: option });
+            this.setState({ visibleProfile: option });
           }}
         />
       </div>
@@ -532,18 +530,6 @@ export default class Dashboard extends React.Component {
       </div>
     );
 
-    let selectedAreSameType = true;
-    let lastType = null;
-    for (const selectedID of this.state.selection) {
-      if (lastType === null) {
-        lastType = this.getStationState(selectedID).type;
-      }
-      if (this.getStationState(selectedID).type !== lastType) {
-        selectedAreSameType = false;
-        break;
-      }
-    }
-
     let allSelectedOn = true;
     for (const selectedID of this.state.selection) {
       if (this.getStationState(selectedID).state !== 'on') {
@@ -552,7 +538,7 @@ export default class Dashboard extends React.Component {
       }
     }
 
-    const canChangeApp = (allSelectedOn && (selectedCount > 0) && selectedAreSameType);
+    const canChangeApp = (allSelectedOn && (selectedCount > 0));
 
     const applications = Object.values(this.props.applications).filter((app) => {
       for (const station of this.state.stations) {
@@ -617,6 +603,13 @@ export default class Dashboard extends React.Component {
     );
   }
 }
+
+Dashboard.StateOptions = [
+  { id: 'on', name: 'On' },
+  { id: 'off', name: 'Off' },
+  { id: 'busy', name: 'Busy' },
+  { id: 'error', name: 'Error' },
+];
 
 Dashboard.propTypes = {
   api: React.PropTypes.instanceOf(UIAPI),
