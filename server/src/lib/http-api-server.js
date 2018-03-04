@@ -5,6 +5,8 @@ const EventEmitter = require('events').EventEmitter;
 const Promise = require('bluebird');
 const iconmap = require('../../iconmap.json');
 const express = require('express');
+const validate = require('express-validation');
+const Joi = require('joi');
 const bodyParser = require('body-parser');
 
 export default class HttpAPIServer {
@@ -60,10 +62,10 @@ export default class HttpAPIServer {
     router.get('/applications', this.getApplications.bind(this));
     router.get('/station_profiles', this.getStationProfiles.bind(this));
     router.get('/stations', this.getStations.bind(this));
-    router.post('/stations/start', this.postStationsStart.bind(this));
-    router.post('/stations/stop', this.postStationsStop.bind(this));
-    router.post('/stations/change_app', this.postStationsChangeApp.bind(this));
-    router.get('/station/:id/output', this.getStationOutput.bind(this));
+    router.post('/stations/start', validate(HttpAPIServer.postStationsStartSchema()), this.postStationsStart.bind(this));
+    router.post('/stations/stop', validate(HttpAPIServer.postStationsStopSchema()), this.postStationsStop.bind(this));
+    router.post('/stations/change_app', validate(HttpAPIServer.postStationsChangeAppSchema()), this.postStationsChangeApp.bind(this));
+    router.get('/station/:id/output', validate(HttpAPIServer.getStationOutputSchema()), this.getStationOutput.bind(this));
     router.get('/server/output', this.getServerOutput.bind(this));
     router.get('/server/mklivestatus', this.getServerMKLivestatus.bind(this));
     router.get('/notifications', this.getNotifications.bind(this));
@@ -274,5 +276,38 @@ export default class HttpAPIServer {
   listen(port) {
     this.server.listen(port);
     this.logger.info(`Server listening on port ${port}.`);
+  }
+
+  static postStationsStartSchema() {
+    return {
+      body: {
+        ids: Joi.array().items(Joi.string()).required(),
+      },
+    };
+  }
+
+  static postStationsStopSchema() {
+    return {
+      body: {
+        ids: Joi.array().items(Joi.string()).required(),
+      },
+    };
+  }
+
+  static postStationsChangeAppSchema() {
+    return {
+      body: {
+        ids: Joi.array().items(Joi.string()).required(),
+      },
+      app: Joi.string().required()
+    };
+  }
+
+  static getStationOutputSchema() {
+    return {
+      params: {
+        id: Joi.string().required(),
+      },
+    };
   }
 }

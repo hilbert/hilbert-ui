@@ -25,6 +25,8 @@ var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
 var iconmap = require('../../iconmap.json');
 var express = require('express');
+var validate = require('express-validation');
+var Joi = require('joi');
 var bodyParser = require('body-parser');
 
 var HttpAPIServer = function () {
@@ -111,10 +113,10 @@ var HttpAPIServer = function () {
       router.get('/applications', this.getApplications.bind(this));
       router.get('/station_profiles', this.getStationProfiles.bind(this));
       router.get('/stations', this.getStations.bind(this));
-      router.post('/stations/start', this.postStationsStart.bind(this));
-      router.post('/stations/stop', this.postStationsStop.bind(this));
-      router.post('/stations/change_app', this.postStationsChangeApp.bind(this));
-      router.get('/station/:id/output', this.getStationOutput.bind(this));
+      router.post('/stations/start', validate(HttpAPIServer.postStationsStartSchema()), this.postStationsStart.bind(this));
+      router.post('/stations/stop', validate(HttpAPIServer.postStationsStopSchema()), this.postStationsStop.bind(this));
+      router.post('/stations/change_app', validate(HttpAPIServer.postStationsChangeAppSchema()), this.postStationsChangeApp.bind(this));
+      router.get('/station/:id/output', validate(HttpAPIServer.getStationOutputSchema()), this.getStationOutput.bind(this));
       router.get('/server/output', this.getServerOutput.bind(this));
       router.get('/server/mklivestatus', this.getServerMKLivestatus.bind(this));
       router.get('/notifications', this.getNotifications.bind(this));
@@ -406,6 +408,43 @@ var HttpAPIServer = function () {
         return 'icons/' + iconmap[appID];
       }
       return 'icons/none.png';
+    }
+  }, {
+    key: 'postStationsStartSchema',
+    value: function postStationsStartSchema() {
+      return {
+        body: {
+          ids: Joi.array().items(Joi.string()).required()
+        }
+      };
+    }
+  }, {
+    key: 'postStationsStopSchema',
+    value: function postStationsStopSchema() {
+      return {
+        body: {
+          ids: Joi.array().items(Joi.string()).required()
+        }
+      };
+    }
+  }, {
+    key: 'postStationsChangeAppSchema',
+    value: function postStationsChangeAppSchema() {
+      return {
+        body: {
+          ids: Joi.array().items(Joi.string()).required()
+        },
+        app: Joi.string().required()
+      };
+    }
+  }, {
+    key: 'getStationOutputSchema',
+    value: function getStationOutputSchema() {
+      return {
+        params: {
+          id: Joi.string().required()
+        }
+      };
     }
   }]);
 
