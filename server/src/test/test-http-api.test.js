@@ -64,7 +64,7 @@ describe('HTTP API', () => {
     it('responds with JSON', (done) => {
       request(apiServer)
         .post('/stations/start')
-        .send({ ids: 'station_interactive_1' })
+        .send({ ids: ['station_interactive_1'] })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(200, done);
@@ -82,7 +82,7 @@ describe('HTTP API', () => {
     it('responds with JSON', (done) => {
       request(apiServer)
         .post('/stations/stop')
-        .send({ ids: 'station_interactive_1' })
+        .send({ ids: ['station_interactive_1'] })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(200, done);
@@ -100,7 +100,7 @@ describe('HTTP API', () => {
     it('responds with JSON', (done) => {
       request(apiServer)
         .post('/stations/change_app')
-        .send({ ids: 'station_a' })
+        .send({ ids: ['station_a'] })
         .send({ app: 'app_b' })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
