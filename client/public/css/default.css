@@ -296,12 +296,8 @@ body {
     background-color: transparent;
     margin-bottom: 0; }
 
-.presets-block .form-group, .presets-block .form-control, .presets-block .btn {
-  margin-right: 3px;
-  margin-bottom: 3px; }
-
-.presets-block .btn.disabled {
-  opacity: 0.4225; }
+.presets-block {
+  border-left: 1px solid rgba(0, 0, 0, 0.27); }
 
 .navbar-form .input-group > .presets-list {
   width: 150px; }

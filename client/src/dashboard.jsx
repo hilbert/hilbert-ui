@@ -515,21 +515,6 @@ export default class Dashboard extends React.Component {
 
     const noSelectionDisable = (selectedCount === 0 ? ' disabled' : '');
 
-    actions.push(
-      <div key="startStopPanel" className={`action-pane${noSelectionDisable}`}>
-        <div className="action-pane-separator" />
-        <a
-          className={`btn btn-success${noSelectionDisable}`}
-          onClick={this.getCommand('stations-selected-start')}
-        ><i className="fa fa-play" />&nbsp;&nbsp;Start Selected</a>
-        &nbsp;
-        <a
-          className={`btn btn-danger${noSelectionDisable}`}
-          onClick={this.getCommand('stations-selected-stop')}
-        ><i className="fa fa-stop" />&nbsp;&nbsp;Stop Selected</a>
-      </div>
-    );
-
     let allSelectedOn = true;
     for (const selectedID of this.state.selection) {
       if (this.getStationState(selectedID).state !== 'on') {
@@ -571,6 +556,38 @@ export default class Dashboard extends React.Component {
           onShowGlobalLog={this.showGlobalLog}
           onShowNotifications={this.showNotifications}
         >
+          <ul className="nav navbar-nav">
+            <li className="dropdown">
+              <a
+                href="#"
+                className="dropdown-toggle"
+                data-toggle="dropdown"
+              >System <span className="caret" /></a>
+              <ul className="dropdown-menu">
+                <li>
+                  <a href="#" onClick={this.getCommand('stations-all-start')}>
+                    Start all stations
+                  </a>
+                </li>
+                <li>
+                  <a href="#" onClick={this.getCommand('stations-all-stop')}>
+                    Stop all stations
+                  </a>
+                </li>
+                <li role="separator" className="divider"></li>
+                <li className={noSelectionDisable}>
+                  <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-start') : ''}>
+                    Start selected stations
+                  </a>
+                </li>
+                <li className={noSelectionDisable} >
+                  <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-stop') : ''}>
+                    Stop selected stations
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
           <PresetsBlock
             presets={this.state.presets}
             stationsSelected={selectedCount > 0}

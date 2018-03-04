@@ -57,7 +57,7 @@ export default class PresetsBlock extends React.Component {
     const actionsDisabled = (this.state.selectedPreset === 0);
 
     return (
-      <div className="navbar-form navbar-left">
+      <div className="navbar-form navbar-left presets-block">
         Presets
         &nbsp;
         <div className="input-group">
