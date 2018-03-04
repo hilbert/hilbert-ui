@@ -17,7 +17,7 @@ export default class HilbertCLIConnector {
   /**
    * Reads the Hilbert Cfg
    * @param {stream.Writable} output
-   * @returns {Promise<Object>} Hilbert cfg object
+   * @returns {bluebird<Object>} Hilbert cfg object
    */
   getHilbertCfg(output) {
     this.logger.verbose('hilbert-cli: Getting station config');
@@ -46,7 +46,7 @@ ${answer}`);
    * Start a station
    * @param {string} stationID - ID of the station
    * @param {stream.Writable} output - Command output should be written here
-   * @returns Promise
+   * @returns bluebird
    */
   startStation(stationID, output) {
     this.logger.verbose(`hilbert-cli: Starting station ${stationID}`);
@@ -66,7 +66,7 @@ ${answer}`);
    * Stop a station
    * @param {string} stationID - ID of the station
    * @param {stream.Writable} output - Command output should be written here
-   * @returns Promise
+   * @returns bluebird
    */
   stopStation(stationID, output) {
     this.logger.verbose(`hilbert-cli: Stopping station ${stationID}`);
@@ -87,7 +87,7 @@ ${answer}`);
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
    * @param {stream.Writable} output - Command output should be written here
-   * @returns {Promise}
+   * @returns {bluebird}
    */
   changeApp(stationID, appID, output) {
     this.logger.verbose(`hilbert-cli: Changing app of station ${stationID} to ${appID}`);
@@ -111,7 +111,7 @@ ${answer}`);
    * @param {string} command - Command to execute
    * @param {stream.Writable} output - Command output should be written here
    * @param {object} options - Options to pass child_process.exec
-   * @returns {Promise}
+   * @returns {bluebird}
    * @resolve {String} - stdout output
    * @reject {Error}
    */

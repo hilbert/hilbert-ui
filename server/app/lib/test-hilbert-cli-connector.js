@@ -53,7 +53,7 @@ var TestHilbertCLIConnector = function () {
      * Starts a station
      *
      * @param {string} stationID - ID of the station
-     * @param {stream} output - Command output should be written here
+     * @param {Writable} output - Command output should be written here
      * @returns {Promise}
      */
 
@@ -67,7 +67,7 @@ var TestHilbertCLIConnector = function () {
      * Stops a station
      *
      * @param {string} stationID - ID of the station
-     * @param {stream} output - Command output should be written here
+     * @param {Writable} output - Command output should be written here
      * @returns {Promise}
      */
 
@@ -82,7 +82,7 @@ var TestHilbertCLIConnector = function () {
      *
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
-     * @param {stream} output - Command output should be written here
+     * @param {Writable} output - Command output should be written here
      * @returns {Promise}
      */
 

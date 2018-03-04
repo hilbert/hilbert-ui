@@ -99,7 +99,7 @@ var StationManager = function () {
                 _this.logger.error('Station manager: Repeated MKLivestatus polling errors (' + errorDigestSize + ' times)');
               }
             }
-            consecutiveErrors++;
+            consecutiveErrors += 1;
             setTimeout(pollLoopBody, pollDelay);
           });
         };
@@ -127,7 +127,7 @@ var StationManager = function () {
       this.signalUpdate();
 
       return this.hilbertCLI.getHilbertCfg(this.globalHilbertCLIOutputBuffer).then(function (hilbertCfg) {
-        return _this2.validateHilbertCfg(hilbertCfg);
+        return StationManager.validateHilbertCfg(hilbertCfg);
       }).then(function (hilbertCfg) {
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -217,25 +217,6 @@ var StationManager = function () {
 
         _this2.signalUpdate();
       });
-    }
-
-    /**
-     * Validates a hilbert configuration according to the schema
-     *
-     * Only the parts of the configuration used by this program are validated
-     *
-     * @param hilbertCfg
-     * @return {*}
-     */
-
-  }, {
-    key: 'validateHilbertCfg',
-    value: function validateHilbertCfg(hilbertCfg) {
-      var ajv = new Ajv();
-      if (!ajv.validate(HilbertCfgSchema, hilbertCfg)) {
-        throw new Error('Error in Hilbert CFG: ' + ajv.errorsText());
-      }
-      return hilbertCfg;
     }
 
     /**
@@ -426,7 +407,7 @@ var StationManager = function () {
         _this3.signalUpdate();
         return _this3.hilbertCLI.startStation(station.id, station.outputBuffer).then(function () {
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' started');
-          _this3.log('message', station, 'Station started');
+          _this3.log('info', station, 'Station started');
         }).catch(function () {
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to start');
           _this3.log('error', station, 'Error starting station');
@@ -487,7 +468,7 @@ var StationManager = function () {
         _this4.signalUpdate();
         return _this4.hilbertCLI.stopStation(station.id, station.outputBuffer).then(function () {
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' stopped');
-          _this4.log('message', station, 'Station stopped');
+          _this4.log('info', station, 'Station stopped');
         }).catch(function () {
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to stop');
           _this4.log('error', station, 'Error stopping station');
@@ -549,7 +530,7 @@ var StationManager = function () {
         _this5.signalUpdate();
         return _this5.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
           _this5.logger.verbose('Station manager: Changed app of station ' + eligibleStation + ' to ' + appID);
-          _this5.log('message', station, 'Launched app ' + appID);
+          _this5.log('info', station, 'Launched app ' + appID);
         }).catch(function () {
           _this5.logger.verbose('Station manager: Failed changing app of station ' + eligibleStation + ' to ' + appID);
           _this5.log('error', station, 'Failed to launch app ' + appID);
@@ -601,7 +582,7 @@ var StationManager = function () {
         newLogEntry.station_name = station.name;
       }
 
-      this.lastLogID++;
+      this.lastLogID += 1;
       this.logEntries.push(newLogEntry);
 
       var maxEntries = this.nconf.get('max_log_length');
@@ -670,6 +651,25 @@ var StationManager = function () {
     key: 'signalUpdate',
     value: function signalUpdate() {
       this.events.emit('stationUpdate');
+    }
+
+    /**
+     * Validates a hilbert configuration according to the schema
+     *
+     * Only the parts of the configuration used by this program are validated
+     *
+     * @param hilbertCfg
+     * @return {*}
+     */
+
+  }], [{
+    key: 'validateHilbertCfg',
+    value: function validateHilbertCfg(hilbertCfg) {
+      var ajv = new Ajv();
+      if (!ajv.validate(HilbertCfgSchema, hilbertCfg)) {
+        throw new Error('Error in Hilbert CFG: ' + ajv.errorsText());
+      }
+      return hilbertCfg;
     }
   }]);
 

@@ -29,7 +29,8 @@ export default class TerminalOutputBuffer extends Writable {
 
   /**
    * Returns the full output in the buffer
-   * @returns {string}
+   *
+   * @returns {Array}
    */
   getAll() {
     return this.getSince(0);
@@ -37,8 +38,9 @@ export default class TerminalOutputBuffer extends Writable {
 
   /**
    * Returns the output in the buffer since a certain time
+   *
    * @param {int} aTime - Timestamp
-   * @returns {string}
+   * @returns {Array} Array of text lines
    */
   getSince(aTime) {
     const data = [];

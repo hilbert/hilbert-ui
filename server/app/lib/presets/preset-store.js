@@ -75,7 +75,7 @@ var PresetStore = function () {
     /**
      * Closes the database
      *
-     * @return {Promise}
+     * @return {bluebird}
      */
 
   }, {
@@ -98,7 +98,7 @@ var PresetStore = function () {
     /**
      * Checks if the storage table exists in the database
      *
-     * @return {̦Promise}
+     * @return {bluebird}
      *  The promise resolves to a bool with the answer
      */
 
@@ -121,7 +121,7 @@ var PresetStore = function () {
     /**
      * Creates the storage tables in the database
      *
-     * @return {Promise}
+     * @return {bluebird}
      */
 
   }, {
@@ -161,7 +161,7 @@ var PresetStore = function () {
     /**
      * Loads all presets
      *
-     * @return {Promise<Array<Preset>>}
+     * @return {bluebird<Array<Preset>>}
      */
 
   }, {
@@ -215,7 +215,7 @@ var PresetStore = function () {
      * Loads a Preset object with a certain ID
      *
      * @param {String} id
-     * @return {Promise}
+     * @return {bluebird}
      *  The promise resolves to a Preset or null if it doesn't exist
      */
 
@@ -249,7 +249,7 @@ var PresetStore = function () {
      * Inserts a Preset in the database
      *
      * @param {Preset} preset
-     * @return {Promise}
+     * @return {bluebird}
      */
 
   }, {
@@ -275,7 +275,7 @@ var PresetStore = function () {
      * Updates a Preset in the database
      *
      * @param {Preset} preset
-     * @return {Promise}
+     * @return {bluebird}
      */
 
   }, {
@@ -302,7 +302,7 @@ var PresetStore = function () {
      * Removes a Preset from the database
      *
      * @param {Preset} preset
-     * @return {Promise}
+     * @return {bluebird}
      */
 
   }, {
@@ -326,7 +326,7 @@ var PresetStore = function () {
     /**
      * Returns a list of all presets as {id, name} objects.
      *
-     * @return {Promise}
+     * @return {bluebird}
      */
 
   }, {

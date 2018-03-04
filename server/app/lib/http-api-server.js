@@ -208,7 +208,7 @@ var HttpAPIServer = function () {
     value: function getStations(req, res) {
       var _this3 = this;
 
-      this.stationsLongPoll.handleRequest(req, res).then(function (updateID) {
+      this.stationsLongPoll.handleRequest(req).then(function (updateID) {
         var stations = _this3.stationManager.getStations().map(function (s) {
           return s.toJSON();
         });

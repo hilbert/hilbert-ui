@@ -49,7 +49,7 @@ export default class PresetStore {
   /**
    * Closes the database
    *
-   * @return {Promise}
+   * @return {bluebird}
    */
   close() {
     return new Promise((resolve, reject) => {
@@ -67,7 +67,7 @@ export default class PresetStore {
   /**
    * Checks if the storage table exists in the database
    *
-   * @return {̦Promise}
+   * @return {bluebird}
    *  The promise resolves to a bool with the answer
    */
   tableExists() {
@@ -88,7 +88,7 @@ export default class PresetStore {
   /**
    * Creates the storage tables in the database
    *
-   * @return {Promise}
+   * @return {bluebird}
    */
   createTables() {
     return new Promise((resolve, reject) => {
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS presets
   /**
    * Loads all presets
    *
-   * @return {Promise<Array<Preset>>}
+   * @return {bluebird<Array<Preset>>}
    */
   loadAllPresets() {
     return new Promise((resolve, reject) => {
@@ -163,7 +163,7 @@ FROM presets
    * Loads a Preset object with a certain ID
    *
    * @param {String} id
-   * @return {Promise}
+   * @return {bluebird}
    *  The promise resolves to a Preset or null if it doesn't exist
    */
   loadPreset(id) {
@@ -199,7 +199,7 @@ WHERE id = $id
    * Inserts a Preset in the database
    *
    * @param {Preset} preset
-   * @return {Promise}
+   * @return {bluebird}
    */
   insertPreset(preset) {
     return new Promise((resolve, reject) => {
@@ -226,7 +226,7 @@ VALUES ($name, $stationApps)
    * Updates a Preset in the database
    *
    * @param {Preset} preset
-   * @return {Promise}
+   * @return {bluebird}
    */
   updatePreset(preset) {
     return new Promise((resolve, reject) => {
@@ -255,7 +255,7 @@ WHERE id = $id
    * Removes a Preset from the database
    *
    * @param {Preset} preset
-   * @return {Promise}
+   * @return {bluebird}
    */
   removePreset(preset) {
     return new Promise((resolve, reject) => {
@@ -280,7 +280,7 @@ WHERE id = $id
   /**
    * Returns a list of all presets as {id, name} objects.
    *
-   * @return {Promise}
+   * @return {bluebird}
    */
   listAllPresets() {
     return new Promise((resolve, reject) => {

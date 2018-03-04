@@ -32,7 +32,7 @@ var HilbertCLIConnector = function () {
   /**
    * Reads the Hilbert Cfg
    * @param {stream.Writable} output
-   * @returns {Promise<Object>} Hilbert cfg object
+   * @returns {bluebird<Object>} Hilbert cfg object
    */
 
 
@@ -64,7 +64,7 @@ var HilbertCLIConnector = function () {
      * Start a station
      * @param {string} stationID - ID of the station
      * @param {stream.Writable} output - Command output should be written here
-     * @returns Promise
+     * @returns bluebird
      */
 
   }, {
@@ -87,7 +87,7 @@ var HilbertCLIConnector = function () {
      * Stop a station
      * @param {string} stationID - ID of the station
      * @param {stream.Writable} output - Command output should be written here
-     * @returns Promise
+     * @returns bluebird
      */
 
   }, {
@@ -111,7 +111,7 @@ var HilbertCLIConnector = function () {
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
      * @param {stream.Writable} output - Command output should be written here
-     * @returns {Promise}
+     * @returns {bluebird}
      */
 
   }, {
@@ -137,7 +137,7 @@ var HilbertCLIConnector = function () {
      * @param {string} command - Command to execute
      * @param {stream.Writable} output - Command output should be written here
      * @param {object} options - Options to pass child_process.exec
-     * @returns {Promise}
+     * @returns {bluebird}
      * @resolve {String} - stdout output
      * @reject {Error}
      */

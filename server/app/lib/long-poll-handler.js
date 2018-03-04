@@ -50,15 +50,15 @@ var LongPollHandler = function () {
    * there is a time out (in which case the client can send an empty
    * response)
    **
-   * @param req HTTP Request (express)
-   * @param res HTTP Response (express)
-   * @return {Promise}
+   * @param {object} req HTTP Request (express)
+   * @return {bluebird}
    */
+  // eslint-disable-next-line no-unused-vars
 
 
   _createClass(LongPollHandler, [{
     key: 'handleRequest',
-    value: function handleRequest(req, res) {
+    value: function handleRequest(req) {
       var _this = this;
 
       return new Promise(function (resolve, reject) {

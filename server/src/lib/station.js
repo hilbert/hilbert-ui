@@ -13,7 +13,7 @@ export default class Station {
     this.compatible_apps = config.compatible_applications;
 
     this.state = Station.UNKNOWN;
-    this.status = '';
+    this.setStatus('');
     this.app = '';
     this.switching_app = '';
     this.outputBuffer = new TerminalOutputBuffer();
@@ -41,17 +41,15 @@ export default class Station {
    * Returns true if the state was changed
    *
    * @param {Object} stationStatus - MKLivestatus status of the station
+   * @param {String} stationStatus.id - station.id
+   * @param {Number} stationStatus.state - Enum from Nagios.HostState
+   * @param {Number} stationStatus.state_type - Enum from Nagios.StateType
+   * @param {Number} stationStatus.app_state - Enum from Nagios.ServiceState
+   * @param {Number} stationStatus.app_state_type - Enum from Nagios.StateType
+   * @param {String} stationStatus.app_id - ID of the app
    * @returns {boolean}
    */
   updateFromMKLivestatus(stationStatus) {
-    // stationStatus:
-      // id: station.id,
-      // state: Nagios.HostState.DOWN,
-      // state_type: Nagios.StateType.HARD,
-      // app_state: Nagios.ServiceState.UNKNOWN,
-      // app_state_type: Nagios.StateType.HARD,
-      // app_id: '',
-
     let changes = false;
     if (this.app !== stationStatus.app_id) {
       this.app = stationStatus.app_id;
@@ -60,6 +58,8 @@ export default class Station {
 
     // todo: STARTING_STATION, STARTING_APP and STOPPING timeout
     // todo: SWITCHING_APP timeout
+    // todo: Come out of ERROR state
+    // todo: Come out of UNREACHABLE state
 
     if (this.state === Station.ERROR) {
       return false;
@@ -80,7 +80,7 @@ export default class Station {
       }
     } else if (this.state === Station.ON) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState(`Unexpectedly shut down (${this.currentTime()})`);
+        this.setOffState('Unexpectedly shut down');
         return true;
       }
     } else if (this.state === Station.OFF) {
@@ -90,7 +90,7 @@ export default class Station {
       }
     } else if (this.state === Station.STOPPING) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState(`Manually turned off (${this.currentTime()})`);
+        this.setOffState('Manually turned off');
         return true;
       }
     } else if (this.state === Station.STARTING_STATION) {
@@ -110,7 +110,7 @@ export default class Station {
       }
 
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState(`Unexpectedly shut down (${this.currentTime()})`);
+        this.setOffState('Unexpectedly shut down');
         return true;
       }
     }
@@ -126,7 +126,7 @@ export default class Station {
   setQueuedToStartState() {
     if (this.state === Station.OFF) {
       this.state = Station.STARTING_STATION;
-      this.status = 'Waiting to start...';
+      this.setStatus('Waiting to start...');
       return true;
     }
     return false;
@@ -140,7 +140,7 @@ export default class Station {
   setStartingState() {
     if (this.state === Station.OFF || this.state === Station.STARTING_STATION) {
       this.state = Station.STARTING_STATION;
-      this.status = 'Starting...';
+      this.setStatus('Starting...');
       return true;
     }
     return false;
@@ -154,7 +154,7 @@ export default class Station {
   setStartingAppState() {
     if (this.state === Station.STARTING_STATION) {
       this.state = Station.STARTING_APP;
-      this.status = 'Waiting for app...';
+      this.setStatus('Waiting for app...');
       return true;
     }
     return false;
@@ -168,7 +168,7 @@ export default class Station {
   setQueuedToStopState() {
     if (this.state === Station.ON) {
       this.state = Station.STOPPING;
-      this.status = 'Waiting to stop...';
+      this.setStatus('Waiting to stop...');
       return true;
     }
     return false;
@@ -182,7 +182,7 @@ export default class Station {
   setStoppingState() {
     if (this.state === Station.OFF || this.state === Station.STOPPING) {
       this.state = Station.STOPPING;
-      this.status = 'Stopping...';
+      this.setStatus('Stopping...');
       return true;
     }
     return false;
@@ -197,7 +197,7 @@ export default class Station {
   setQueuedToChangeAppState(appID) {
     if (this.state === Station.ON && appID !== this.app) {
       this.state = Station.SWITCHING_APP;
-      this.status = 'Waiting to change app...';
+      this.setStatus('Waiting to change app...');
       this.switching_app = appID;
       return true;
     }
@@ -213,7 +213,7 @@ export default class Station {
   setChangingAppState(appID) {
     if ((this.state === Station.ON || this.state === Station.SWITCHING_APP) && appID !== this.app) {
       this.state = Station.SWITCHING_APP;
-      this.status = `Opening ${appID}...`;
+      this.setStatus(`Opening ${appID}...`);
       this.switching_app = appID;
       return true;
     }
@@ -222,13 +222,13 @@ export default class Station {
 
   setOnState() {
     this.state = Station.ON;
-    this.status = '';
+    this.setStatus('');
     this.switching_app = '';
   }
 
-  setOffState(reason) {
+  setOffState(reason = '') {
     this.state = Station.OFF;
-    this.status = reason;
+    this.setStatus(reason, (reason !== ''));
     this.switching_app = '';
   }
 
@@ -239,16 +239,24 @@ export default class Station {
    */
   setErrorState(reason) {
     this.state = Station.ERROR;
-    this.status = reason;
+    this.setStatus(reason);
   }
 
   /**
-   * Prints the current time
+   * Sets the station status text
+   *
    * @private
+   * @param text {String} Status text
+   * @param withTimestamp {Boolean} Add a timestamp to the status
    */
-  currentTime() {
-    const now = new Date();
-    return `${now.getDate()}/${now.getMonth()} ${now.getHours()}:${now.getMinutes()}`;
+  setStatus(text, withTimestamp = false) {
+    let timestamp = '';
+    if (withTimestamp) {
+      const now = new Date();
+      timestamp = `${now.getDate()}/${now.getMonth()} ${now.getHours()}:${now.getMinutes()}`;
+    }
+
+    this.status = [text, timestamp].join(' ');
   }
 }
 

@@ -34,7 +34,7 @@ export default class TestHilbertCLIConnector {
    * Starts a station
    *
    * @param {string} stationID - ID of the station
-   * @param {stream} output - Command output should be written here
+   * @param {Writable} output - Command output should be written here
    * @returns {Promise}
    */
   startStation(stationID, output) {
@@ -45,7 +45,7 @@ export default class TestHilbertCLIConnector {
    * Stops a station
    *
    * @param {string} stationID - ID of the station
-   * @param {stream} output - Command output should be written here
+   * @param {Writable} output - Command output should be written here
    * @returns {Promise}
    */
   stopStation(stationID, output) {
@@ -57,7 +57,7 @@ export default class TestHilbertCLIConnector {
    *
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
-   * @param {stream} output - Command output should be written here
+   * @param {Writable} output - Command output should be written here
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {

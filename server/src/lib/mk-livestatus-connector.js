@@ -1,6 +1,7 @@
-const Promise = require('bluebird');
 import { exec } from 'child_process';
 import MKLivestatusQuery from './mk-livestatus-query';
+
+const Promise = require('bluebird');
 
 /**
  * Connects to the MK Livestatus service and
@@ -31,7 +32,7 @@ export default class MKLivestatusConnector {
       .then((stations) => {
         this.logger.debug('MKLivestatus: host state response received. Updating stations.');
         for (const station of stations) {
-          if (station.hasOwnProperty('id')) {
+          if (!('id' in station)) {
             state.set(station.id, station);
           }
         }
@@ -40,8 +41,7 @@ export default class MKLivestatusConnector {
       .then((stations) => {
         this.logger.debug('MKLivestatus: app state response received. Updating stations.');
         for (const station of stations) {
-          if (station.hasOwnProperty('id') &&
-              state.has(station.id)) {
+          if ('id' in station && state.has(station.id)) {
             const stationState = state.get(station.id);
             stationState.app_state = station.app_state;
             stationState.app_state_type = station.app_state_type;
@@ -96,14 +96,12 @@ export default class MKLivestatusConnector {
         for (const station of stations) {
           // todo: replace for better regexp / parsing
           const matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-          if (matches !== null && matches.hasOwnProperty('length') && matches.length > 1) {
+          if (matches !== null && ('length' in matches) && matches.length > 1) {
             station.app_id = matches[1];
+          } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+            station.app_id = '';
           } else {
-            if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
-              station.app_id = '';
-            } else {
-              throw new Error(`Error parsing app_id of station ${station.id}: ${station.app_id}`);
-            }
+            throw new Error(`Error parsing app_id of station ${station.id}: ${station.app_id}`);
           }
         }
         return stations;
@@ -124,7 +122,7 @@ export default class MKLivestatusConnector {
    * Sends a query command to MKLivestatus
    *
    * @param {String} queryString
-   * @returns {Promise}
+   * @returns {bluebird}
    * @resolve {Array} Response rows
    * @reject {Error}
    */

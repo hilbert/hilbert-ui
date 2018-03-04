@@ -1,5 +1,5 @@
 /**
- * Represents a Hilbert Application
+ * An application definition from Hilbert Cfg
  */
 export default class Application {
   constructor(id, cfg) {
@@ -12,7 +12,7 @@ export default class Application {
     return {
       id: this.id,
       name: this.name,
-      description: this.description
+      description: this.description,
     };
   }
 }

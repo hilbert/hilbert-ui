@@ -54,7 +54,8 @@ var TerminalOutputBuffer = function (_Writable) {
 
     /**
      * Returns the full output in the buffer
-     * @returns {string}
+     *
+     * @returns {Array}
      */
 
   }, {
@@ -65,8 +66,9 @@ var TerminalOutputBuffer = function (_Writable) {
 
     /**
      * Returns the output in the buffer since a certain time
+     *
      * @param {int} aTime - Timestamp
-     * @returns {string}
+     * @returns {Array} Array of text lines
      */
 
   }, {

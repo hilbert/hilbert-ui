@@ -63,7 +63,7 @@ export default class StationManager {
                 `Station manager: Repeated MKLivestatus polling errors (${errorDigestSize} times)`);
             }
           }
-          consecutiveErrors++;
+          consecutiveErrors += 1;
           setTimeout(pollLoopBody, pollDelay);
         });
       };
@@ -86,7 +86,7 @@ export default class StationManager {
     this.signalUpdate();
 
     return this.hilbertCLI.getHilbertCfg(this.globalHilbertCLIOutputBuffer)
-      .then(hilbertCfg => this.validateHilbertCfg(hilbertCfg))
+      .then(hilbertCfg => StationManager.validateHilbertCfg(hilbertCfg))
       .then((hilbertCfg) => {
         for (const [appID, appCfg] of Object.entries(hilbertCfg.Applications)) {
           this.addApplication(new Application(appID, appCfg));
@@ -103,22 +103,6 @@ export default class StationManager {
         }
         this.signalUpdate();
       });
-  }
-
-  /**
-   * Validates a hilbert configuration according to the schema
-   *
-   * Only the parts of the configuration used by this program are validated
-   *
-   * @param hilbertCfg
-   * @return {*}
-   */
-  validateHilbertCfg(hilbertCfg) {
-    const ajv = new Ajv();
-    if (!ajv.validate(HilbertCfgSchema, hilbertCfg)) {
-      throw new Error(`Error in Hilbert CFG: ${ajv.errorsText()}`);
-    }
-    return hilbertCfg;
   }
 
   /**
@@ -389,7 +373,7 @@ export default class StationManager {
       newLogEntry.station_name = station.name;
     }
 
-    this.lastLogID++;
+    this.lastLogID += 1;
     this.logEntries.push(newLogEntry);
 
     const maxEntries = this.nconf.get('max_log_length');
@@ -428,5 +412,22 @@ export default class StationManager {
    */
   signalUpdate() {
     this.events.emit('stationUpdate');
+  }
+
+
+  /**
+   * Validates a hilbert configuration according to the schema
+   *
+   * Only the parts of the configuration used by this program are validated
+   *
+   * @param hilbertCfg
+   * @return {*}
+   */
+  static validateHilbertCfg(hilbertCfg) {
+    const ajv = new Ajv();
+    if (!ajv.validate(HilbertCfgSchema, hilbertCfg)) {
+      throw new Error(`Error in Hilbert CFG: ${ajv.errorsText()}`);
+    }
+    return hilbertCfg;
   }
 }

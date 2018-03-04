@@ -112,7 +112,7 @@ export default class TestBackend {
    * Starts a station
    *
    * @param stationID
-   * @param {stream} output - Command output should be written here
+   * @param {Writable} output - Command output should be written here
    * @returns {Promise}
    */
   startStation(stationID, output) {
@@ -138,7 +138,7 @@ export default class TestBackend {
    * Stops a station
    *
    * @param stationID
-   * @param {stream} output - Command output should be written here
+   * @param {Writable} output - Command output should be written here
    * @returns {Promise}
    */
   stopStation(stationID, output) {
@@ -163,7 +163,7 @@ export default class TestBackend {
    *
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
-   * @param {stream} output - Command output should be written here
+   * @param {Writable} output - Command output should be written here
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {

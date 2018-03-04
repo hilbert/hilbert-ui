@@ -178,7 +178,7 @@ var MKLivestatusQuery = function () {
     value: function parseResponse(response) {
       var rows = JSON.parse(response);
 
-      if (!rows instanceof Array) {
+      if (!(rows instanceof Array)) {
         throw new Error('Unable to parse MKLivestatus response: ' + response);
       }
 
@@ -254,7 +254,7 @@ var MKLivestatusQuery = function () {
           var row = _step4.value;
 
           var rowObject = {};
-          for (var i = 0; i !== nameRow.length && i < 100; i++) {
+          for (var i = 0; i !== nameRow.length && i < 100; i += 1) {
             rowObject[nameRow[i]] = row[i];
           }
           objects.push(rowObject);

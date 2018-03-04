@@ -32,11 +32,11 @@ export default class LongPollHandler {
    * there is a time out (in which case the client can send an empty
    * response)
    **
-   * @param req HTTP Request (express)
-   * @param res HTTP Response (express)
-   * @return {Promise}
+   * @param {object} req HTTP Request (express)
+   * @return {bluebird}
    */
-  handleRequest(req, res) {
+// eslint-disable-next-line no-unused-vars
+  handleRequest(req) {
     return new Promise((resolve, reject) => {
       // If the client is out of sync we can respond right away
       if (Number(req.query.lastUpdateID) !== this.updateID) {

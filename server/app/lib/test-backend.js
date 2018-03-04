@@ -184,7 +184,7 @@ var TestBackend = function () {
      * Starts a station
      *
      * @param stationID
-     * @param {stream} output - Command output should be written here
+     * @param {Writable} output - Command output should be written here
      * @returns {Promise}
      */
 
@@ -214,7 +214,7 @@ var TestBackend = function () {
      * Stops a station
      *
      * @param stationID
-     * @param {stream} output - Command output should be written here
+     * @param {Writable} output - Command output should be written here
      * @returns {Promise}
      */
 
@@ -244,7 +244,7 @@ var TestBackend = function () {
      *
      * @param {string} stationID - ID of the station
      * @param {string} appID - ID of the app to set
-     * @param {stream} output - Command output should be written here
+     * @param {Writable} output - Command output should be written here
      * @returns {Promise}
      */
 

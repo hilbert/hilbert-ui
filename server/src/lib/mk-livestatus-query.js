@@ -104,7 +104,7 @@ export default class MKLivestatusQuery {
   execute() {
     return this.connector
       .sendCommand(this.toString())
-      .then((response) => this.parseResponse(response));
+      .then(response => this.parseResponse(response));
   }
 
   /**
@@ -118,7 +118,7 @@ export default class MKLivestatusQuery {
   parseResponse(response) {
     const rows = JSON.parse(response);
 
-    if (!rows instanceof Array) {
+    if (!(rows instanceof Array)) {
       throw new Error(`Unable to parse MKLivestatus response: ${response}`);
     }
 
@@ -146,7 +146,7 @@ export default class MKLivestatusQuery {
     const objects = [];
     for (const row of rest) {
       const rowObject = {};
-      for (let i = 0; (i !== nameRow.length) && (i < 100); i++) {
+      for (let i = 0; (i !== nameRow.length) && (i < 100); i += 1) {
         rowObject[nameRow[i]] = row[i];
       }
       objects.push(rowObject);

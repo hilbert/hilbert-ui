@@ -27,6 +27,7 @@ var Promise = require('bluebird');
  *
  * http://mathias-kettner.com/checkmk_livestatus.html
  */
+
 var MKLivestatusConnector = function () {
   function MKLivestatusConnector(nconf, logger) {
     _classCallCheck(this, MKLivestatusConnector);
@@ -63,7 +64,7 @@ var MKLivestatusConnector = function () {
           for (var _iterator = stations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var station = _step.value;
 
-            if (station.hasOwnProperty('id')) {
+            if (!('id' in station)) {
               state.set(station.id, station);
             }
           }
@@ -93,7 +94,7 @@ var MKLivestatusConnector = function () {
           for (var _iterator2 = stations[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var station = _step2.value;
 
-            if (station.hasOwnProperty('id') && state.has(station.id)) {
+            if ('id' in station && state.has(station.id)) {
               var stationState = state.get(station.id);
               stationState.app_state = station.app_state;
               stationState.app_state_type = station.app_state_type;
@@ -164,14 +165,12 @@ var MKLivestatusConnector = function () {
 
             // todo: replace for better regexp / parsing
             var matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-            if (matches !== null && matches.hasOwnProperty('length') && matches.length > 1) {
+            if (matches !== null && 'length' in matches && matches.length > 1) {
               station.app_id = matches[1];
+            } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+              station.app_id = '';
             } else {
-              if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
-                station.app_id = '';
-              } else {
-                throw new Error('Error parsing app_id of station ' + station.id + ': ' + station.app_id);
-              }
+              throw new Error('Error parsing app_id of station ' + station.id + ': ' + station.app_id);
             }
           }
         } catch (err) {
@@ -210,7 +209,7 @@ var MKLivestatusConnector = function () {
      * Sends a query command to MKLivestatus
      *
      * @param {String} queryString
-     * @returns {Promise}
+     * @returns {bluebird}
      * @resolve {Array} Response rows
      * @reject {Error}
      */

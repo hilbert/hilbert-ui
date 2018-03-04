@@ -125,7 +125,7 @@ export default class HttpAPIServer {
    * @param res
    */
   getStations(req, res) {
-    this.stationsLongPoll.handleRequest(req, res)
+    this.stationsLongPoll.handleRequest(req)
       .then((updateID) => {
         const stations = this.stationManager.getStations().map(s => s.toJSON());
         for (const station of stations) {
