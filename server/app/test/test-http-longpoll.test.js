@@ -37,7 +37,7 @@ describe('HTTP Longpoll', function () {
       port: '3000',
       test: true,
       scriptConcurrency: 20,
-      max_log_length: 100,
+      max_notifications: 100,
       log_directory: './log',
       log_level: 'info', // error, warn, info, verbose, debug, silly
       mkls_poll_delay: 1000,

@@ -31,8 +31,8 @@ export default class StationManager {
     this.mkLivestatus = mkLivestatus;
 
     this.events = new EventEmitter();
-    this.logEntries = [];
-    this.lastLogID = 1;
+    this.notifications = [];
+    this.lastNotificationID = 1;
 
     this.globalHilbertCLIOutputBuffer = new TerminalOutputBuffer();
     this.lastMKLivestatusDump = [];
@@ -236,11 +236,11 @@ export default class StationManager {
         this.signalUpdate();
         return this.hilbertCLI.startStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} started`);
-          this.log('info', station, 'Station started');
+          this.notify('info', station, 'Station started');
         })
         .catch(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} failed to start`);
-          this.log('error', station, 'Error starting station');
+          this.notify('error', station, 'Error starting station');
           station.setErrorState('Failure starting the station');
         })
         .then(() => {
@@ -277,11 +277,11 @@ export default class StationManager {
         this.signalUpdate();
         return this.hilbertCLI.stopStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Station ${eligibleStation} stopped`);
-          this.log('info', station, 'Station stopped');
+          this.notify('info', station, 'Station stopped');
         })
           .catch(() => {
             this.logger.verbose(`Station manager: Station ${eligibleStation} failed to stop`);
-            this.log('error', station, 'Error stopping station');
+            this.notify('error', station, 'Error stopping station');
             station.setErrorState('Failure stopping the station');
           })
           .then(() => {
@@ -321,12 +321,12 @@ export default class StationManager {
         return this.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.logger.verbose(
             `Station manager: Changed app of station ${eligibleStation} to ${appID}`);
-          this.log('info', station, `Launched app ${appID}`);
+          this.notify('info', station, `Launched app ${appID}`);
         })
         .catch(() => {
           this.logger.verbose(
             `Station manager: Failed changing app of station ${eligibleStation} to ${appID}`);
-          this.log('error', station, `Failed to launch app ${appID}`);
+          this.notify('error', station, `Failed to launch app ${appID}`);
           station.setErrorState(`Failed to open ${appID}`);
         })
         .then(() => {
@@ -338,9 +338,9 @@ export default class StationManager {
   }
 
   /**
-   * Return the station activity log
+   * Return the notification log
    *
-   * Each log entry is an object with the following structure:
+   * Each notification is an object with the following structure:
    * - id {string} : Unique id of the entry
    * - time {string} : Timestamp in ISO format
    * - type {string} : info | warning | error
@@ -348,37 +348,36 @@ export default class StationManager {
    *
    * @returns {Array}
    */
-  getLog() {
-    return this.logEntries;
+  getNotifications() {
+    return this.notifications;
   }
 
-
   /**
-   * Logs an event
+   * Generates a notification
    *
-   * @param {string} type - Event type: info | warning | error
+   * @param {string} type - Notification type: info | warning | error
    * @param {Station|null} station - station associated with the event logged
-   * @param {string} message - Message to log
+   * @param {string} message - Text of the notification
    */
-  log(type, station, message) {
-    const newLogEntry = {
-      id: this.lastLogID,
+  notify(type, station, message) {
+    const newNotification = {
+      id: this.lastNotificationID,
       time: new Date().toISOString(),
       type,
       message,
     };
 
     if (station !== null) {
-      newLogEntry.station_id = station.id;
-      newLogEntry.station_name = station.name;
+      newNotification.station_id = station.id;
+      newNotification.station_name = station.name;
     }
 
-    this.lastLogID += 1;
-    this.logEntries.push(newLogEntry);
+    this.lastNotificationID += 1;
+    this.notifications.push(newNotification);
 
-    const maxEntries = this.nconf.get('max_log_length');
-    if (this.logEntries.length > maxEntries) {
-      this.logEntries = this.logEntries.slice(this.logEntries.length - maxEntries);
+    const maxNotifications = this.nconf.get('max_notifications');
+    if (this.notifications.length > maxNotifications) {
+      this.notifications = this.notifications.slice(this.notifications.length - maxNotifications);
     }
   }
 

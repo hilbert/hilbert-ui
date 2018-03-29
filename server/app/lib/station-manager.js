@@ -62,8 +62,8 @@ var StationManager = function () {
     this.mkLivestatus = mkLivestatus;
 
     this.events = new EventEmitter();
-    this.logEntries = [];
-    this.lastLogID = 1;
+    this.notifications = [];
+    this.lastNotificationID = 1;
 
     this.globalHilbertCLIOutputBuffer = new _terminalOutputBuffer2.default();
     this.lastMKLivestatusDump = [];
@@ -407,10 +407,10 @@ var StationManager = function () {
         _this3.signalUpdate();
         return _this3.hilbertCLI.startStation(station.id, station.outputBuffer).then(function () {
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' started');
-          _this3.log('info', station, 'Station started');
+          _this3.notify('info', station, 'Station started');
         }).catch(function () {
           _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to start');
-          _this3.log('error', station, 'Error starting station');
+          _this3.notify('error', station, 'Error starting station');
           station.setErrorState('Failure starting the station');
         }).then(function () {
           _this3.signalUpdate();
@@ -468,10 +468,10 @@ var StationManager = function () {
         _this4.signalUpdate();
         return _this4.hilbertCLI.stopStation(station.id, station.outputBuffer).then(function () {
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' stopped');
-          _this4.log('info', station, 'Station stopped');
+          _this4.notify('info', station, 'Station stopped');
         }).catch(function () {
           _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to stop');
-          _this4.log('error', station, 'Error stopping station');
+          _this4.notify('error', station, 'Error stopping station');
           station.setErrorState('Failure stopping the station');
         }).then(function () {
           _this4.signalUpdate();
@@ -530,10 +530,10 @@ var StationManager = function () {
         _this5.signalUpdate();
         return _this5.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
           _this5.logger.verbose('Station manager: Changed app of station ' + eligibleStation + ' to ' + appID);
-          _this5.log('info', station, 'Launched app ' + appID);
+          _this5.notify('info', station, 'Launched app ' + appID);
         }).catch(function () {
           _this5.logger.verbose('Station manager: Failed changing app of station ' + eligibleStation + ' to ' + appID);
-          _this5.log('error', station, 'Failed to launch app ' + appID);
+          _this5.notify('error', station, 'Failed to launch app ' + appID);
           station.setErrorState('Failed to open ' + appID);
         }).then(function () {
           _this5.signalUpdate();
@@ -542,9 +542,9 @@ var StationManager = function () {
     }
 
     /**
-     * Return the station activity log
+     * Return the notification log
      *
-     * Each log entry is an object with the following structure:
+     * Each notification is an object with the following structure:
      * - id {string} : Unique id of the entry
      * - time {string} : Timestamp in ISO format
      * - type {string} : info | warning | error
@@ -554,40 +554,40 @@ var StationManager = function () {
      */
 
   }, {
-    key: 'getLog',
-    value: function getLog() {
-      return this.logEntries;
+    key: 'getNotifications',
+    value: function getNotifications() {
+      return this.notifications;
     }
 
     /**
-     * Logs an event
+     * Generates a notification
      *
-     * @param {string} type - Event type: info | warning | error
+     * @param {string} type - Notification type: info | warning | error
      * @param {Station|null} station - station associated with the event logged
-     * @param {string} message - Message to log
+     * @param {string} message - Text of the notification
      */
 
   }, {
-    key: 'log',
-    value: function log(type, station, message) {
-      var newLogEntry = {
-        id: this.lastLogID,
+    key: 'notify',
+    value: function notify(type, station, message) {
+      var newNotification = {
+        id: this.lastNotificationID,
         time: new Date().toISOString(),
         type: type,
         message: message
       };
 
       if (station !== null) {
-        newLogEntry.station_id = station.id;
-        newLogEntry.station_name = station.name;
+        newNotification.station_id = station.id;
+        newNotification.station_name = station.name;
       }
 
-      this.lastLogID += 1;
-      this.logEntries.push(newLogEntry);
+      this.lastNotificationID += 1;
+      this.notifications.push(newNotification);
 
-      var maxEntries = this.nconf.get('max_log_length');
-      if (this.logEntries.length > maxEntries) {
-        this.logEntries = this.logEntries.slice(this.logEntries.length - maxEntries);
+      var maxNotifications = this.nconf.get('max_notifications');
+      if (this.notifications.length > maxNotifications) {
+        this.notifications = this.notifications.slice(this.notifications.length - maxNotifications);
       }
     }
 

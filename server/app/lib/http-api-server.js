@@ -376,7 +376,7 @@ var HttpAPIServer = function () {
     value: function getNotifications(req, res) {
       this.logger.debug('HTTP request received: Get notifications');
       res.json({
-        notifications: this.stationManager.getLog()
+        notifications: this.stationManager.getNotifications()
       });
     }
   }, {
