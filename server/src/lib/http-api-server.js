@@ -1,5 +1,6 @@
 import LongPollHandler from './long-poll-handler';
 import PresetsModule from './presets/presets-module';
+import TestControllerModule from './test-backend/test-controller-module';
 
 const EventEmitter = require('events').EventEmitter;
 const Promise = require('bluebird');
@@ -23,6 +24,7 @@ export default class HttpAPIServer {
 
     this.apiModules = [
       new PresetsModule(this),
+      new TestControllerModule(this),
     ];
   }
 

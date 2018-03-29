@@ -8,6 +8,7 @@ import ConsoleViewer from './consoleViewer.jsx';
 import PresetsBlock from './presetsBlock.jsx';
 import Header from './header.jsx';
 import UIAPI from './uiAPI';
+import TestMenu from "./testMenu";
 
 export default class Dashboard extends React.Component {
 
@@ -587,6 +588,7 @@ export default class Dashboard extends React.Component {
                 </li>
               </ul>
             </li>
+            <TestMenu api={this.props.api} selection={this.state.selection} />
           </ul>
           <PresetsBlock
             presets={this.state.presets}

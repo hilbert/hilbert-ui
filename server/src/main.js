@@ -3,7 +3,7 @@ import StationManager from './lib/station-manager';
 import HilbertCLIConnector from './lib/hilbert-cli-connector';
 import MKLivestatusConnector from './lib/mk-livestatus-connector';
 import HttpAPIServer from './lib/http-api-server';
-import TestBackend from './lib/test-backend';
+import TestBackend from './lib/test-backend/test-backend';
 
 const appPackage = require('../package.json');
 const logger = require('winston');

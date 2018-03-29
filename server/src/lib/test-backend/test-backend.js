@@ -1,4 +1,4 @@
-import Nagios from './nagios';
+import Nagios from '../nagios';
 import TestHilbertCLIConnector from './test-hilbert-cli-connector';
 import TestMKLivestatusConnector from './test-mk-livestatus-connector';
 
@@ -89,7 +89,27 @@ export default class TestBackend {
   }
 
   getStationState() {
-    return this.state.values();
+    const answer = [];
+
+    const toStopUnexpectedly = this.nconf.get('test-backend:stop-unexpectedly') || [];
+    const unreachable = this.nconf.get('test-backend:unreachable') || [];
+    for (const stationState of this.state.values()) {
+      const newState = Object.assign({}, stationState);
+
+      if (toStopUnexpectedly.includes(stationState.id)) {
+        newState.state = Nagios.HostState.DOWN;
+        // This new state overrides the internal state
+        this.state.set(stationState.id, newState);
+      }
+      if (unreachable.includes(stationState.id)) {
+        newState.state = Nagios.HostState.UNREACHABLE;
+        // This new state is does not override the internal state
+      }
+
+      answer.push(newState);
+    }
+
+    return answer;
   }
 
   /**
@@ -116,7 +136,16 @@ export default class TestBackend {
    * @returns {Promise}
    */
   startStation(stationID, output) {
+    if (this.nconf.get('test-backend:sim-fail-cli') === true) {
+      return Promise.reject(new Error('Simulated Hilbert CLI failure'));
+    }
+
     return new Promise((resolve) => {
+      if (this.nconf.get('test-backend:sim-timeout') === true) {
+        output.write(`Simulating starting station ${stationID} with operation that times out.`);
+        return Promise.resolve();
+      }
+
       output.write(`Simulating starting station ${stationID}. Waiting a random delay...`);
       this.randomDelay(3000, 8000).then(() => {
         output.write('Wait finished.');
@@ -142,7 +171,16 @@ export default class TestBackend {
    * @returns {Promise}
    */
   stopStation(stationID, output) {
+    if (this.nconf.get('test-backend:sim-fail-cli') === true) {
+      return Promise.reject(new Error('Simulated Hilbert CLI failure'));
+    }
+
     return new Promise((resolve) => {
+      if (this.nconf.get('test-backend:sim-timeout') === true) {
+        output.write(`Simulating stopping station ${stationID} with operation that times out.`);
+        return Promise.resolve();
+      }
+
       output.write(`Simulating stopping station ${stationID}. Waiting a random delay...`);
       this.randomDelay(2000, 6000).then(() => {
         output.write('Wait finished.');
@@ -167,7 +205,16 @@ export default class TestBackend {
    * @returns {Promise}
    */
   changeApp(stationID, appID, output) {
+    if (this.nconf.get('test-backend:sim-fail-cli') === true) {
+      return Promise.reject(new Error('Simulated Hilbert CLI failure'));
+    }
+
     return new Promise((resolve, reject) => {
+      if (this.nconf.get('test-backend:sim-timeout') === true) {
+        output.write(`Simulating changing app for station ${stationID} to ${appID} with operation that times out.`);
+        return Promise.resolve();
+      }
+
       output.write(
         `Simulating changing app for station ${stationID} to ${appID}. Waiting a random delay...`);
       this.randomDelay(1000, 5000).then(() => {

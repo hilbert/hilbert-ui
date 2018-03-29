@@ -156,6 +156,55 @@ export default class UIAPI {
   }
 
   /**
+   * Gets the test backend flags
+   *
+   * @return {bluebird}
+   */
+  getTestFlags() {
+    return this.send('get', '/test-backend/flags');
+  }
+
+  /**
+   * Sets the test backend flags
+   *
+   * @param {object} flags
+   * @return {bluebird}
+   */
+  setTestFlags(flags) {
+    return this.send('post', '/test-backend/flags', flags);
+  }
+
+  /**
+   * Makes stations unrechable in the test backend
+   *
+   * @param {array} stationIDs
+   * @return {bluebird}
+   */
+  testMakeStationsUnreachable(stationIDs) {
+    return this.send('post', '/test-backend/stations/unreachable', { ids: stationIDs });
+  }
+
+  /**
+   * Makes stations reachable in the test backend
+   *
+   * @param {array} stationIDs
+   * @return {bluebird}
+   */
+  testMakeStationsReachable(stationIDs) {
+    return this.send('post', '/test-backend/stations/reachable', { ids: stationIDs });
+  }
+
+  /**
+   * Stops stations unexpectedly in the test backend
+   *
+   * @param {array} stationIDs
+   * @return {bluebird}
+   */
+  testStopStationsUnexpectedly(stationIDs) {
+    return this.send('post', '/test-backend/stations/stop-unexpectedly', { ids: stationIDs });
+  }
+
+  /**
    * Make an API call
    *
    * Returns a Bluebird Promise

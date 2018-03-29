@@ -1,6 +1,6 @@
 import StationManager from '../lib/station-manager';
 import HttpAPIServer from '../lib/http-api-server';
-import TestBackend from '../lib/test-backend';
+import TestBackend from '../lib/test-backend/test-backend';
 
 const request = require('supertest');
 const logger = require('winston');

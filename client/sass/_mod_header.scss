@@ -12,4 +12,17 @@
 
 .dropdown-menu {
   box-shadow: 0 6px 12px 0px rgba(0,0,0,0.2);
+
+  a.checked {
+    position: relative;
+    &:before {
+      content: "✓";
+      display: block;
+      position: absolute;
+      width: 1em;
+      height: 1em;
+      left: 0.4em;
+      top: 0.2em;
+    }
+  }
 }

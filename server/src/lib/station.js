@@ -58,7 +58,7 @@ export default class Station {
 
     // todo: STARTING_STATION, STARTING_APP and STOPPING timeout
     // todo: SWITCHING_APP timeout
-    // todo: Come out of ERROR state
+    // todo: Come out of ERROR state (with notification)
     // todo: Come out of UNREACHABLE state
 
     if (this.state === Station.ERROR) {

@@ -17,6 +17,10 @@ var _presetsModule = require('./presets/presets-module');
 
 var _presetsModule2 = _interopRequireDefault(_presetsModule);
 
+var _testControllerModule = require('./test-backend/test-controller-module');
+
+var _testControllerModule2 = _interopRequireDefault(_testControllerModule);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -42,7 +46,7 @@ var HttpAPIServer = function () {
 
     this.events = new EventEmitter();
 
-    this.apiModules = [new _presetsModule2.default(this)];
+    this.apiModules = [new _presetsModule2.default(this), new _testControllerModule2.default(this)];
   }
 
   /**

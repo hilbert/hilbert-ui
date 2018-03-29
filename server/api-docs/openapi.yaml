@@ -446,6 +446,119 @@ paths:
           description: A preset with the specified ID does not exist.
         500:
           description: Unspecified error.
+  /test-backend/flags:
+    get:
+      tags:
+        - "Test backend"
+      summary: "Get the test backend flags"
+      responses:
+        200:
+          description: Returns the values of the flags
+          schema:
+            type: object
+            properties:
+              testMode:
+                type: boolean
+              flags:
+                $ref: "#/definitions/TestBackendFlags"
+
+    post:
+      tags:
+        - "Test backend"
+      summary: "Set the test backend flags"
+      parameters:
+        - in: body
+          name: flags
+          description: The flag values you want to set
+          schema:
+            $ref: "#/definitions/TestBackendFlags"
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: "#/definitions/TestBackendFlags"
+  /test-backend/stations/unreachable:
+    post:
+      tags:
+        - "Test backend"
+      summary: Simulate stations becoming unreachable
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+        400:
+          description: Missing 'ids' argument
+  /test-backend/stations/reachable:
+    post:
+      tags:
+        - "Test backend"
+      summary: Simulate stations becoming reachable
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+        400:
+          description: Missing 'ids' argument
+  /test-backend/stations/stop-unexpectedly:
+    post:
+      tags:
+        - "Test backend"
+      summary: Simulate stations stopping unexpectedly
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Missing 'ids' argument
 definitions:
   PresetResponse:
     type: object
@@ -477,3 +590,15 @@ definitions:
             type: string
           stationID3:
             type: string
+  TestBackendFlags:
+    type: object
+    properties:
+      sim-fail-cli:
+        type: boolean
+        default: false
+      sim-unreachable:
+        type: boolean
+        default: false
+      sim-timeout:
+        type: boolean
+        default: false

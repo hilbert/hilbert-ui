@@ -21,7 +21,7 @@ var _httpApiServer = require('./lib/http-api-server');
 
 var _httpApiServer2 = _interopRequireDefault(_httpApiServer);
 
-var _testBackend = require('./lib/test-backend');
+var _testBackend = require('./lib/test-backend/test-backend');
 
 var _testBackend2 = _interopRequireDefault(_testBackend);
 
