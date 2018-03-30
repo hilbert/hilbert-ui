@@ -17,8 +17,8 @@ export default class Header extends React.Component {
   }
 
   handleNotificationsClicked(ev) {
-    if (this.props.onShowNotifications) {
-      this.props.onShowNotifications();
+    if (this.props.onShowNotificationLog) {
+      this.props.onShowNotificationLog();
     }
     ev.preventDefault();
   }
@@ -68,11 +68,11 @@ export default class Header extends React.Component {
 
 Header.propTypes = {
   onShowGlobalLog: React.PropTypes.func,
-  onShowNotifications: React.PropTypes.func,
+  onShowNotificationLog: React.PropTypes.func,
   children: React.PropTypes.node,
 };
 
 Header.defaultProps = {
   onShowGlobalLog: () => {},
-  onShowNotifications: () => {},
+  onShowNotificationLog: () => {},
 };

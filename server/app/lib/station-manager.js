@@ -584,11 +584,12 @@ var StationManager = function () {
 
       this.lastNotificationID += 1;
       this.notifications.push(newNotification);
-
       var maxNotifications = this.nconf.get('max_notifications');
       if (this.notifications.length > maxNotifications) {
         this.notifications = this.notifications.slice(this.notifications.length - maxNotifications);
       }
+
+      this.events.emit('notification', newNotification);
     }
 
     /**

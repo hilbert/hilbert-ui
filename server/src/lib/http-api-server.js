@@ -22,6 +22,8 @@ export default class HttpAPIServer {
 
     this.events = new EventEmitter();
 
+    this.notifications = [];
+
     this.apiModules = [
       new PresetsModule(this),
       new TestControllerModule(this),
@@ -41,6 +43,7 @@ export default class HttpAPIServer {
 
     return Promise.all(initializers).then(() => {
       this.setupRoutes();
+      this.stationManager.events.on('notification', this.onNotification.bind(this));
     });
   }
 
@@ -79,6 +82,43 @@ export default class HttpAPIServer {
       apiModule.setupRoutes(moduleRouter);
       this.server.use(moduleRouter);
     }
+  }
+
+  /**
+   * Event handler for notifications from the StationManager
+   *
+   * Notifications are added to a list associated with the long polling updateID in order to
+   * only send new notifications to users. The list is truncated to max_notifications.
+   *
+   * @param {object} notification
+   */
+  onNotification(notification) {
+    notification.updateID = this.stationsLongPoll.getNextUpdateID();
+    this.notifications.push(notification);
+    const maxNotifications = this.nconf.get('max_notifications');
+    if (this.notifications.length > maxNotifications) {
+      this.notifications = this.notifications.slice(this.notifications.length - maxNotifications);
+    }
+
+    this.stationsLongPoll.signalUpdate();
+  }
+
+  /**
+   * Return stored notifications
+   *
+   * Each notification is an object with the following structure:
+   *  - id {string} : Unique id of the entry
+   *  - updateID {number} : Long polling update ID after which the notification was generated
+   *  - time {string} : Timestamp in ISO format
+   *  - type {string} : info | warning | error
+   *  - message {string} : Event description
+   *
+   * @param {number} lastUpdateID
+   *  Last seen update. Only notifications created after this updateID are sent.
+   * @returns {Array}
+   */
+  getLatestNotifications(lastUpdateID = 0) {
+    return this.notifications.filter(n => n.updateID > lastUpdateID);
   }
 
   /**
@@ -135,9 +175,11 @@ export default class HttpAPIServer {
         for (const station of stations) {
           station.icon = HttpAPIServer.getIconURL(station.app);
         }
+        const lastUpdateID = parseInt(req.query.lastUpdateID, 10) || 0;
         res.json({
           updateID,
           stations,
+          notifications: lastUpdateID !== 0 ? this.getLatestNotifications(lastUpdateID) : [],
         });
       })
       .catch(() => {
@@ -249,7 +291,7 @@ export default class HttpAPIServer {
   getNotifications(req, res) {
     this.logger.debug('HTTP request received: Get notifications');
     res.json({
-      notifications: this.stationManager.getNotifications(),
+      notifications: this.getLatestNotifications(),
     });
   }
 
@@ -301,7 +343,7 @@ export default class HttpAPIServer {
       body: {
         ids: Joi.array().items(Joi.string()).required(),
       },
-      app: Joi.string().required()
+      app: Joi.string().required(),
     };
   }
 

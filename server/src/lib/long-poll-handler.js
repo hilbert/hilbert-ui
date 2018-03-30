@@ -39,7 +39,7 @@ export default class LongPollHandler {
   handleRequest(req) {
     return new Promise((resolve, reject) => {
       // If the client is out of sync we can respond right away
-      if (Number(req.query.lastUpdateID) !== this.updateID) {
+      if (parseInt(req.query.lastUpdateID, 10) !== this.updateID) {
         resolve(this.updateID);
       } else {
         // If the client is synced...
@@ -65,12 +65,21 @@ export default class LongPollHandler {
   }
 
   /**
+   * Returns the updateID of the next update
+   *
+   * @return {number}
+   */
+  getNextUpdateID() {
+    return this.updateID + 1;
+  }
+
+  /**
    * Signal the handler that the data associated with this endpoint updated
    *
    * The handler emits an internal event to wake all waiting requests.
    */
   signalUpdate() {
-    this.updateID += 1;
+    this.updateID = this.getNextUpdateID();
     this.updateEventEmitter.emit('update');
   }
 }

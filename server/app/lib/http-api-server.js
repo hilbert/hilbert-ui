@@ -46,6 +46,8 @@ var HttpAPIServer = function () {
 
     this.events = new EventEmitter();
 
+    this.notifications = [];
+
     this.apiModules = [new _presetsModule2.default(this), new _testControllerModule2.default(this)];
   }
 
@@ -89,6 +91,7 @@ var HttpAPIServer = function () {
 
       return Promise.all(initializers).then(function () {
         _this.setupRoutes();
+        _this.stationManager.events.on('notification', _this.onNotification.bind(_this));
       });
     }
 
@@ -153,6 +156,53 @@ var HttpAPIServer = function () {
           }
         }
       }
+    }
+
+    /**
+     * Event handler for notifications from the StationManager
+     *
+     * Notifications are added to a list associated with the long polling updateID in order to
+     * only send new notifications to users. The list is truncated to max_notifications.
+     *
+     * @param {object} notification
+     */
+
+  }, {
+    key: 'onNotification',
+    value: function onNotification(notification) {
+      notification.updateID = this.stationsLongPoll.getNextUpdateID();
+      this.notifications.push(notification);
+      var maxNotifications = this.nconf.get('max_notifications');
+      if (this.notifications.length > maxNotifications) {
+        this.notifications = this.notifications.slice(this.notifications.length - maxNotifications);
+      }
+
+      this.stationsLongPoll.signalUpdate();
+    }
+
+    /**
+     * Return stored notifications
+     *
+     * Each notification is an object with the following structure:
+     *  - id {string} : Unique id of the entry
+     *  - updateID {number} : Long polling update ID after which the notification was generated
+     *  - time {string} : Timestamp in ISO format
+     *  - type {string} : info | warning | error
+     *  - message {string} : Event description
+     *
+     * @param {number} lastUpdateID
+     *  Last seen update. Only notifications created after this updateID are sent.
+     * @returns {Array}
+     */
+
+  }, {
+    key: 'getLatestNotifications',
+    value: function getLatestNotifications() {
+      var lastUpdateID = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+
+      return this.notifications.filter(function (n) {
+        return n.updateID > lastUpdateID;
+      });
     }
 
     /**
@@ -243,9 +293,11 @@ var HttpAPIServer = function () {
           }
         }
 
+        var lastUpdateID = parseInt(req.query.lastUpdateID, 10) || 0;
         res.json({
           updateID: updateID,
-          stations: stations
+          stations: stations,
+          notifications: lastUpdateID !== 0 ? _this3.getLatestNotifications(lastUpdateID) : []
         });
       }).catch(function () {
         res.json({});
@@ -376,7 +428,7 @@ var HttpAPIServer = function () {
     value: function getNotifications(req, res) {
       this.logger.debug('HTTP request received: Get notifications');
       res.json({
-        notifications: this.stationManager.getNotifications()
+        notifications: this.getLatestNotifications()
       });
     }
   }, {

@@ -116,5 +116,5 @@ LogViewer.propTypes = {
 
 LogViewer.defaultProps = {
   log: [],
-  title: 'Event Log',
+  title: 'Latest Notifications',
 };

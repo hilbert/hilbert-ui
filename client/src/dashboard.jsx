@@ -27,7 +27,7 @@ export default class Dashboard extends React.Component {
     this.changeAppSelected = this.changeAppSelected.bind(this);
     this.showTerminalLog = this.showTerminalLog.bind(this);
     this.showGlobalLog = this.showGlobalLog.bind(this);
-    this.showNotifications = this.showNotifications.bind(this);
+    this.showNotificationLog = this.showNotificationLog.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -275,7 +275,7 @@ export default class Dashboard extends React.Component {
     }
   }
 
-  showNotifications() {
+  showNotificationLog() {
     if (this.logViewer !== null) {
       this.logViewer.openModal();
       this.props.api.getNotifications()
@@ -405,6 +405,9 @@ export default class Dashboard extends React.Component {
           this.updateID = data.updateID;
           this.setState({ stations: data.stations });
         }
+        if (data.notifications !== undefined) {
+          this.showNotifications(data.notifications);
+        }
       })
       .catch(err => console.error(err));
   }
@@ -417,6 +420,32 @@ export default class Dashboard extends React.Component {
         }
       })
       .catch(err => console.error(err));
+  }
+
+  showNotifications(notifications) {
+    const types = {
+      info: 'success',
+      warning: 'warning',
+      error: 'danger',
+    };
+
+    const icons = {
+      info: 'fa-info-circle',
+      warning: 'fa-exclamation-triangle',
+      error: 'fa-exclamation-circle',
+    };
+
+    for (const notification of notifications) {
+      $.notify({
+        title: notification.station_name,
+        message: notification.message,
+        icon: `fa ${icons[notification.type] || 'fa-info-circle'}`,
+      }, {
+        type: types[notification.type] || 'info',
+        offset: { x: 10, y: $('.navbar').height() + 5 },
+        delay: 15000,
+      });
+    }
   }
 
   render() {
@@ -555,7 +584,7 @@ export default class Dashboard extends React.Component {
         {messageBar}
         <Header
           onShowGlobalLog={this.showGlobalLog}
-          onShowNotifications={this.showNotifications}
+          onShowNotificationLog={this.showNotificationLog}
         >
           <ul className="nav navbar-nav">
             <li className="dropdown">

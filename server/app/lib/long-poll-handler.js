@@ -63,7 +63,7 @@ var LongPollHandler = function () {
 
       return new Promise(function (resolve, reject) {
         // If the client is out of sync we can respond right away
-        if (Number(req.query.lastUpdateID) !== _this.updateID) {
+        if (parseInt(req.query.lastUpdateID, 10) !== _this.updateID) {
           resolve(_this.updateID);
         } else {
           (function () {
@@ -91,6 +91,18 @@ var LongPollHandler = function () {
     }
 
     /**
+     * Returns the updateID of the next update
+     *
+     * @return {number}
+     */
+
+  }, {
+    key: 'getNextUpdateID',
+    value: function getNextUpdateID() {
+      return this.updateID + 1;
+    }
+
+    /**
      * Signal the handler that the data associated with this endpoint updated
      *
      * The handler emits an internal event to wake all waiting requests.
@@ -99,7 +111,7 @@ var LongPollHandler = function () {
   }, {
     key: 'signalUpdate',
     value: function signalUpdate() {
-      this.updateID += 1;
+      this.updateID = this.getNextUpdateID();
       this.updateEventEmitter.emit('update');
     }
   }]);

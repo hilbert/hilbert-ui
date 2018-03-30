@@ -137,6 +137,18 @@ body {
 .with-message_bar {
   padding-bottom: 100px; }
 
+.alert {
+  box-shadow: 0 6px 10px 0px rgba(0, 0, 0, 0.3); }
+  .alert > [data-notify=title] {
+    font-weight: bold;
+    margin-right: 0.2em; }
+  .alert > [data-notify=icon] {
+    display: block;
+    float: left;
+    font-size: 2em;
+    margin-right: 0.4em;
+    margin-top: -0.15em; }
+
 .station {
   position: relative;
   margin: 10px 0;

@@ -70,7 +70,7 @@ paths:
     get:
       tags:
         - "Stations"
-      summary: "Get the list of stations"
+      summary: "Get the list of stations and the latest notifications."
       parameters:
         - in: query
           name: lastUpdateID
@@ -135,6 +135,30 @@ paths:
                     icon:
                       type: string
                       description: URI of the icon of the currently running app.
+              notifications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                      description: Notification ID
+                    time:
+                      type: string
+                      description: Timestamp in ISO format (yyyy-mm-ddThh:mm:ss.mmmZ)
+                    type:
+                      type: string
+                      description: Notification type
+                      enum: [info, warning, error]
+                    message:
+                      type: string
+                      description: The notification text
+                    station_id:
+                      type: string
+                      description: ID of the station that generated the notification
+                    station_name:
+                      type: string
+                      description: Name of the station that generated the notification
   /stations/start:
     post:
       tags:

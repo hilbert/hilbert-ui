@@ -61,16 +61,20 @@ export default class Station {
     // todo: Come out of ERROR state (with notification)
     // todo: Come out of UNREACHABLE state
 
-    if (this.state === Station.ERROR) {
-      return false;
-    }
-
     if (stationStatus.state === Nagios.HostState.UNREACHABLE) {
       this.setErrorState('Station unreachable');
       return true;
     }
 
-    if (this.state === Station.UNKNOWN) {
+    if (this.state === Station.ERROR) {
+      if (stationStatus.state === Nagios.HostState.DOWN) {
+        this.setOffState();
+        return true;
+      } else if (stationStatus.state === Nagios.HostState.UP) {
+        this.setOnState();
+        return true;
+      }
+    } else if (this.state === Station.UNKNOWN) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
         this.setOffState();
         return true;
