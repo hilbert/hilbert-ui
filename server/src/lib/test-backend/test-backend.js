@@ -98,6 +98,9 @@ export default class TestBackend {
 
       if (toStopUnexpectedly.includes(stationState.id)) {
         newState.state = Nagios.HostState.DOWN;
+        newState.app_state = Nagios.ServiceState.DOWN;
+        newState.app_state_type = Nagios.StateType.HARD;
+        newState.app_id = '';
         // This new state overrides the internal state
         this.state.set(stationState.id, newState);
       }
@@ -108,6 +111,7 @@ export default class TestBackend {
 
       answer.push(newState);
     }
+    this.nconf.set('test-backend:stop-unexpectedly', []);
 
     return answer;
   }

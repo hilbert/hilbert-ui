@@ -172,6 +172,9 @@ var TestBackend = function () {
 
           if (toStopUnexpectedly.includes(stationState.id)) {
             newState.state = _nagios2.default.HostState.DOWN;
+            newState.app_state = _nagios2.default.ServiceState.DOWN;
+            newState.app_state_type = _nagios2.default.StateType.HARD;
+            newState.app_id = '';
             // This new state overrides the internal state
             this.state.set(stationState.id, newState);
           }
@@ -196,6 +199,8 @@ var TestBackend = function () {
           }
         }
       }
+
+      this.nconf.set('test-backend:stop-unexpectedly', []);
 
       return answer;
     }
