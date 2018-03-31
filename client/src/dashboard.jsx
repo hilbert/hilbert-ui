@@ -408,8 +408,7 @@ export default class Dashboard extends React.Component {
         if (data.notifications !== undefined) {
           this.showNotifications(data.notifications);
         }
-      })
-      .catch(err => console.error(err));
+      });
   }
 
   fetchPresets() {
