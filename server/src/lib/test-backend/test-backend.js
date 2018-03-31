@@ -147,7 +147,7 @@ export default class TestBackend {
     return new Promise((resolve) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating starting station ${stationID} with operation that times out.`);
-        return Promise.resolve();
+        resolve();
       }
 
       output.write(`Simulating starting station ${stationID}. Waiting a random delay...`);
@@ -163,7 +163,8 @@ export default class TestBackend {
           stationState.app_id = stationCfg.default_app;
           output.write(`Station state set to UP with app ${stationState.app_id}.`);
         }
-      }).then(resolve);
+      });
+      resolve();
     });
   }
 
@@ -182,7 +183,7 @@ export default class TestBackend {
     return new Promise((resolve) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating stopping station ${stationID} with operation that times out.`);
-        return Promise.resolve();
+        resolve();
       }
 
       output.write(`Simulating stopping station ${stationID}. Waiting a random delay...`);
@@ -196,7 +197,9 @@ export default class TestBackend {
           stationState.app_id = '';
           output.write('Station state set to DOWN.');
         }
-      }).then(resolve);
+      });
+
+      resolve();
     });
   }
 
@@ -216,7 +219,7 @@ export default class TestBackend {
     return new Promise((resolve, reject) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating changing app for station ${stationID} to ${appID} with operation that times out.`);
-        return Promise.resolve();
+        resolve();
       }
 
       output.write(
@@ -230,14 +233,8 @@ export default class TestBackend {
           stationState.app_id = appID;
           output.write('App changed.');
         }
-      }).then(() => {
-        if (appID === 'Sky explorer / Aladin lite') {
-          output.write('Simulating failure when changing app to Sky explorer');
-          reject();
-        } else {
-          resolve();
-        }
       });
+      resolve();
     });
   }
 

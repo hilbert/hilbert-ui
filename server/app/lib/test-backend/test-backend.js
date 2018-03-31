@@ -246,7 +246,7 @@ var TestBackend = function () {
       return new Promise(function (resolve) {
         if (_this2.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating starting station ' + stationID + ' with operation that times out.');
-          return Promise.resolve();
+          resolve();
         }
 
         output.write('Simulating starting station ' + stationID + '. Waiting a random delay...');
@@ -261,7 +261,8 @@ var TestBackend = function () {
             stationState.app_id = stationCfg.default_app;
             output.write('Station state set to UP with app ' + stationState.app_id + '.');
           }
-        }).then(resolve);
+        });
+        resolve();
       });
     }
 
@@ -285,7 +286,7 @@ var TestBackend = function () {
       return new Promise(function (resolve) {
         if (_this3.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating stopping station ' + stationID + ' with operation that times out.');
-          return Promise.resolve();
+          resolve();
         }
 
         output.write('Simulating stopping station ' + stationID + '. Waiting a random delay...');
@@ -299,7 +300,9 @@ var TestBackend = function () {
             stationState.app_id = '';
             output.write('Station state set to DOWN.');
           }
-        }).then(resolve);
+        });
+
+        resolve();
       });
     }
 
@@ -324,7 +327,7 @@ var TestBackend = function () {
       return new Promise(function (resolve, reject) {
         if (_this4.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating changing app for station ' + stationID + ' to ' + appID + ' with operation that times out.');
-          return Promise.resolve();
+          resolve();
         }
 
         output.write('Simulating changing app for station ' + stationID + ' to ' + appID + '. Waiting a random delay...');
@@ -337,14 +340,8 @@ var TestBackend = function () {
             stationState.app_id = appID;
             output.write('App changed.');
           }
-        }).then(function () {
-          if (appID === 'Sky explorer / Aladin lite') {
-            output.write('Simulating failure when changing app to Sky explorer');
-            reject();
-          } else {
-            resolve();
-          }
         });
+        resolve();
       });
     }
 
