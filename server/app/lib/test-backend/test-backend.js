@@ -246,22 +246,22 @@ var TestBackend = function () {
       return new Promise(function (resolve) {
         if (_this2.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating starting station ' + stationID + ' with operation that times out.');
-          resolve();
+        } else {
+          output.write('Simulating starting station ' + stationID + '. Waiting a random delay...');
+          _this2.randomDelay(3000, 8000).then(function () {
+            output.write('Wait finished.');
+            var stationState = _this2.state.get(stationID);
+            var stationCfg = _this2.station_cfg.get(stationID);
+            if (stationState && stationState.state === _nagios2.default.HostState.DOWN) {
+              stationState.state = _nagios2.default.HostState.UP;
+              stationState.app_state = _nagios2.default.ServiceState.OK;
+              stationState.app_state_type = _nagios2.default.StateType.HARD;
+              stationState.app_id = stationCfg.default_app;
+              output.write('Station state set to UP with app ' + stationState.app_id + '.');
+            }
+          });
         }
 
-        output.write('Simulating starting station ' + stationID + '. Waiting a random delay...');
-        _this2.randomDelay(3000, 8000).then(function () {
-          output.write('Wait finished.');
-          var stationState = _this2.state.get(stationID);
-          var stationCfg = _this2.station_cfg.get(stationID);
-          if (stationState && stationState.state === _nagios2.default.HostState.DOWN) {
-            stationState.state = _nagios2.default.HostState.UP;
-            stationState.app_state = _nagios2.default.ServiceState.OK;
-            stationState.app_state_type = _nagios2.default.StateType.HARD;
-            stationState.app_id = stationCfg.default_app;
-            output.write('Station state set to UP with app ' + stationState.app_id + '.');
-          }
-        });
         resolve();
       });
     }
@@ -286,21 +286,20 @@ var TestBackend = function () {
       return new Promise(function (resolve) {
         if (_this3.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating stopping station ' + stationID + ' with operation that times out.');
-          resolve();
+        } else {
+          output.write('Simulating stopping station ' + stationID + '. Waiting a random delay...');
+          _this3.randomDelay(2000, 6000).then(function () {
+            output.write('Wait finished.');
+            var stationState = _this3.state.get(stationID);
+            if (stationState && stationState.state === _nagios2.default.HostState.UP) {
+              stationState.state = _nagios2.default.HostState.DOWN;
+              stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
+              stationState.app_state_type = _nagios2.default.StateType.HARD;
+              stationState.app_id = '';
+              output.write('Station state set to DOWN.');
+            }
+          });
         }
-
-        output.write('Simulating stopping station ' + stationID + '. Waiting a random delay...');
-        _this3.randomDelay(2000, 6000).then(function () {
-          output.write('Wait finished.');
-          var stationState = _this3.state.get(stationID);
-          if (stationState && stationState.state === _nagios2.default.HostState.UP) {
-            stationState.state = _nagios2.default.HostState.DOWN;
-            stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
-            stationState.app_state_type = _nagios2.default.StateType.HARD;
-            stationState.app_id = '';
-            output.write('Station state set to DOWN.');
-          }
-        });
 
         resolve();
       });
@@ -327,20 +326,20 @@ var TestBackend = function () {
       return new Promise(function (resolve, reject) {
         if (_this4.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating changing app for station ' + stationID + ' to ' + appID + ' with operation that times out.');
-          resolve();
+        } else {
+          output.write('Simulating changing app for station ' + stationID + ' to ' + appID + '. Waiting a random delay...');
+          _this4.randomDelay(1000, 5000).then(function () {
+            output.write('Wait finished.');
+            var stationState = _this4.state.get(stationID);
+            var stationCfg = _this4.station_cfg.get(stationID);
+
+            if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
+              stationState.app_id = appID;
+              output.write('App changed.');
+            }
+          });
         }
 
-        output.write('Simulating changing app for station ' + stationID + ' to ' + appID + '. Waiting a random delay...');
-        _this4.randomDelay(1000, 5000).then(function () {
-          output.write('Wait finished.');
-          var stationState = _this4.state.get(stationID);
-          var stationCfg = _this4.station_cfg.get(stationID);
-
-          if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
-            stationState.app_id = appID;
-            output.write('App changed.');
-          }
-        });
         resolve();
       });
     }

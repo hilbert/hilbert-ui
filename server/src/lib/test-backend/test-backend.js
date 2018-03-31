@@ -147,23 +147,23 @@ export default class TestBackend {
     return new Promise((resolve) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating starting station ${stationID} with operation that times out.`);
-        resolve();
+      } else {
+        output.write(`Simulating starting station ${stationID}. Waiting a random delay...`);
+        this.randomDelay(3000, 8000).then(() => {
+          output.write('Wait finished.');
+          const stationState = this.state.get(stationID);
+          const stationCfg = this.station_cfg.get(stationID);
+          if (stationState &&
+            (stationState.state === Nagios.HostState.DOWN)) {
+            stationState.state = Nagios.HostState.UP;
+            stationState.app_state = Nagios.ServiceState.OK;
+            stationState.app_state_type = Nagios.StateType.HARD;
+            stationState.app_id = stationCfg.default_app;
+            output.write(`Station state set to UP with app ${stationState.app_id}.`);
+          }
+        });
       }
 
-      output.write(`Simulating starting station ${stationID}. Waiting a random delay...`);
-      this.randomDelay(3000, 8000).then(() => {
-        output.write('Wait finished.');
-        const stationState = this.state.get(stationID);
-        const stationCfg = this.station_cfg.get(stationID);
-        if (stationState &&
-          (stationState.state === Nagios.HostState.DOWN)) {
-          stationState.state = Nagios.HostState.UP;
-          stationState.app_state = Nagios.ServiceState.OK;
-          stationState.app_state_type = Nagios.StateType.HARD;
-          stationState.app_id = stationCfg.default_app;
-          output.write(`Station state set to UP with app ${stationState.app_id}.`);
-        }
-      });
       resolve();
     });
   }
@@ -183,21 +183,20 @@ export default class TestBackend {
     return new Promise((resolve) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating stopping station ${stationID} with operation that times out.`);
-        resolve();
+      } else {
+        output.write(`Simulating stopping station ${stationID}. Waiting a random delay...`);
+        this.randomDelay(2000, 6000).then(() => {
+          output.write('Wait finished.');
+          const stationState = this.state.get(stationID);
+          if (stationState && (stationState.state === Nagios.HostState.UP)) {
+            stationState.state = Nagios.HostState.DOWN;
+            stationState.app_state = Nagios.ServiceState.UNKNOWN;
+            stationState.app_state_type = Nagios.StateType.HARD;
+            stationState.app_id = '';
+            output.write('Station state set to DOWN.');
+          }
+        });
       }
-
-      output.write(`Simulating stopping station ${stationID}. Waiting a random delay...`);
-      this.randomDelay(2000, 6000).then(() => {
-        output.write('Wait finished.');
-        const stationState = this.state.get(stationID);
-        if (stationState && (stationState.state === Nagios.HostState.UP)) {
-          stationState.state = Nagios.HostState.DOWN;
-          stationState.app_state = Nagios.ServiceState.UNKNOWN;
-          stationState.app_state_type = Nagios.StateType.HARD;
-          stationState.app_id = '';
-          output.write('Station state set to DOWN.');
-        }
-      });
 
       resolve();
     });
@@ -219,21 +218,21 @@ export default class TestBackend {
     return new Promise((resolve, reject) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating changing app for station ${stationID} to ${appID} with operation that times out.`);
-        resolve();
+      } else {
+        output.write(
+          `Simulating changing app for station ${stationID} to ${appID}. Waiting a random delay...`);
+        this.randomDelay(1000, 5000).then(() => {
+          output.write('Wait finished.');
+          const stationState = this.state.get(stationID);
+          const stationCfg = this.station_cfg.get(stationID);
+
+          if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
+            stationState.app_id = appID;
+            output.write('App changed.');
+          }
+        });
       }
 
-      output.write(
-        `Simulating changing app for station ${stationID} to ${appID}. Waiting a random delay...`);
-      this.randomDelay(1000, 5000).then(() => {
-        output.write('Wait finished.');
-        const stationState = this.state.get(stationID);
-        const stationCfg = this.station_cfg.get(stationID);
-
-        if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
-          stationState.app_id = appID;
-          output.write('App changed.');
-        }
-      });
       resolve();
     });
   }
