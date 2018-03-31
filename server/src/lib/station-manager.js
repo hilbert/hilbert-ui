@@ -133,6 +133,18 @@ export default class StationManager {
     this.logger.verbose(`Station manager: Adding station ${aStation.id}`);
     this.stationList.push(aStation);
     this.stationIndex.set(aStation.id, aStation);
+    aStation.events.on('stateChange', (station, type, message) => {
+      this.notify(type, station, message);
+      if (type === 'info') {
+        this.logger.info(`Station manager: ${station.id}: ${message}`);
+      } else if (type === 'warning') {
+        this.logger.warn(`Station manager: ${station.id}: ${message}`);
+      } else if (type === 'error') {
+        this.logger.error(`Station manager: ${station.id}: ${message}`);
+      } else {
+        this.logger.verbose(`Station manager: ${station.id}: ${message}`);
+      }
+    });
   }
 
   /**
@@ -235,11 +247,10 @@ export default class StationManager {
         station.setStartingState();
         this.signalUpdate();
         return this.hilbertCLI.startStation(station.id, station.outputBuffer).then(() => {
-          this.logger.verbose(`Station manager: Station ${eligibleStation} started`);
-          this.notify('info', station, 'Station started');
+          this.logger.verbose(`Station manager: Waiting for station ${eligibleStation} to start`);
         })
         .catch(() => {
-          this.logger.verbose(`Station manager: Station ${eligibleStation} failed to start`);
+          this.logger.verbose(`Station manager: Error starting station ${eligibleStation}`);
           this.notify('error', station, 'Error starting station');
           station.setErrorState('Failure starting the station');
         })
@@ -276,11 +287,10 @@ export default class StationManager {
         station.setStoppingState();
         this.signalUpdate();
         return this.hilbertCLI.stopStation(station.id, station.outputBuffer).then(() => {
-          this.logger.verbose(`Station manager: Station ${eligibleStation} stopped`);
-          this.notify('info', station, 'Station stopped');
+          this.logger.verbose(`Station manager: Waiting for station ${eligibleStation} to stop`);
         })
           .catch(() => {
-            this.logger.verbose(`Station manager: Station ${eligibleStation} failed to stop`);
+            this.logger.verbose(`Station manager: Error stopping station ${eligibleStation}`);
             this.notify('error', station, 'Error stopping station');
             station.setErrorState('Failure stopping the station');
           })
@@ -320,12 +330,11 @@ export default class StationManager {
         this.signalUpdate();
         return this.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.logger.verbose(
-            `Station manager: Changed app of station ${eligibleStation} to ${appID}`);
-          this.notify('info', station, `Launched app ${appID}`);
+            `Station manager: Waiting for app of station ${eligibleStation} to change to ${appID}`);
         })
         .catch(() => {
           this.logger.verbose(
-            `Station manager: Failed changing app of station ${eligibleStation} to ${appID}`);
+            `Station manager: Error changing app of station ${eligibleStation} to ${appID}`);
           this.notify('error', station, `Failed to launch app ${appID}`);
           station.setErrorState(`Failed to open ${appID}`);
         })

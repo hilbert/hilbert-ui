@@ -99,8 +99,6 @@ export default class HttpAPIServer {
     if (this.notifications.length > maxNotifications) {
       this.notifications = this.notifications.slice(this.notifications.length - maxNotifications);
     }
-
-    this.stationsLongPoll.signalUpdate();
   }
 
   /**

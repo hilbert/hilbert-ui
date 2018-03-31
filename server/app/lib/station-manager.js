@@ -253,9 +253,23 @@ var StationManager = function () {
   }, {
     key: 'addStation',
     value: function addStation(aStation) {
+      var _this3 = this;
+
       this.logger.verbose('Station manager: Adding station ' + aStation.id);
       this.stationList.push(aStation);
       this.stationIndex.set(aStation.id, aStation);
+      aStation.events.on('stateChange', function (station, type, message) {
+        _this3.notify(type, station, message);
+        if (type === 'info') {
+          _this3.logger.info('Station manager: ' + station.id + ': ' + message);
+        } else if (type === 'warning') {
+          _this3.logger.warn('Station manager: ' + station.id + ': ' + message);
+        } else if (type === 'error') {
+          _this3.logger.error('Station manager: ' + station.id + ': ' + message);
+        } else {
+          _this3.logger.verbose('Station manager: ' + station.id + ': ' + message);
+        }
+      });
     }
 
     /**
@@ -367,7 +381,7 @@ var StationManager = function () {
   }, {
     key: 'startStations',
     value: function startStations(stationIDs) {
-      var _this3 = this;
+      var _this4 = this;
 
       var eligibleStations = [];
       var _iteratorNormalCompletion4 = true;
@@ -401,19 +415,18 @@ var StationManager = function () {
       this.signalUpdate();
 
       return Promise.map(eligibleStations, function (eligibleStation) {
-        _this3.logger.verbose('Station manager: Starting station ' + eligibleStation);
-        var station = _this3.getStationByID(eligibleStation);
+        _this4.logger.verbose('Station manager: Starting station ' + eligibleStation);
+        var station = _this4.getStationByID(eligibleStation);
         station.setStartingState();
-        _this3.signalUpdate();
-        return _this3.hilbertCLI.startStation(station.id, station.outputBuffer).then(function () {
-          _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' started');
-          _this3.notify('info', station, 'Station started');
+        _this4.signalUpdate();
+        return _this4.hilbertCLI.startStation(station.id, station.outputBuffer).then(function () {
+          _this4.logger.verbose('Station manager: Waiting for station ' + eligibleStation + ' to start');
         }).catch(function () {
-          _this3.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to start');
-          _this3.notify('error', station, 'Error starting station');
+          _this4.logger.verbose('Station manager: Error starting station ' + eligibleStation);
+          _this4.notify('error', station, 'Error starting station');
           station.setErrorState('Failure starting the station');
         }).then(function () {
-          _this3.signalUpdate();
+          _this4.signalUpdate();
         });
       }, { concurrency: this.nconf.get('scriptConcurrency') });
     }
@@ -428,7 +441,7 @@ var StationManager = function () {
   }, {
     key: 'stopStations',
     value: function stopStations(stationIDs) {
-      var _this4 = this;
+      var _this5 = this;
 
       var eligibleStations = [];
       var _iteratorNormalCompletion5 = true;
@@ -462,19 +475,18 @@ var StationManager = function () {
       this.signalUpdate();
 
       return Promise.map(eligibleStations, function (eligibleStation) {
-        _this4.logger.verbose('Station manager: Stopping station ' + eligibleStation);
-        var station = _this4.getStationByID(eligibleStation);
+        _this5.logger.verbose('Station manager: Stopping station ' + eligibleStation);
+        var station = _this5.getStationByID(eligibleStation);
         station.setStoppingState();
-        _this4.signalUpdate();
-        return _this4.hilbertCLI.stopStation(station.id, station.outputBuffer).then(function () {
-          _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' stopped');
-          _this4.notify('info', station, 'Station stopped');
+        _this5.signalUpdate();
+        return _this5.hilbertCLI.stopStation(station.id, station.outputBuffer).then(function () {
+          _this5.logger.verbose('Station manager: Waiting for station ' + eligibleStation + ' to stop');
         }).catch(function () {
-          _this4.logger.verbose('Station manager: Station ' + eligibleStation + ' failed to stop');
-          _this4.notify('error', station, 'Error stopping station');
+          _this5.logger.verbose('Station manager: Error stopping station ' + eligibleStation);
+          _this5.notify('error', station, 'Error stopping station');
           station.setErrorState('Failure stopping the station');
         }).then(function () {
-          _this4.signalUpdate();
+          _this5.signalUpdate();
         });
       }, { concurrency: this.nconf.get('scriptConcurrency') });
     }
@@ -490,7 +502,7 @@ var StationManager = function () {
   }, {
     key: 'changeApp',
     value: function changeApp(stationIDs, appID) {
-      var _this5 = this;
+      var _this6 = this;
 
       var eligibleStations = [];
       var _iteratorNormalCompletion6 = true;
@@ -524,19 +536,18 @@ var StationManager = function () {
       this.signalUpdate();
 
       return Promise.map(eligibleStations, function (eligibleStation) {
-        _this5.logger.verbose('Station manager: Changing app of station ' + eligibleStation + ' to ' + appID);
-        var station = _this5.getStationByID(eligibleStation);
+        _this6.logger.verbose('Station manager: Changing app of station ' + eligibleStation + ' to ' + appID);
+        var station = _this6.getStationByID(eligibleStation);
         station.setChangingAppState(appID);
-        _this5.signalUpdate();
-        return _this5.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
-          _this5.logger.verbose('Station manager: Changed app of station ' + eligibleStation + ' to ' + appID);
-          _this5.notify('info', station, 'Launched app ' + appID);
+        _this6.signalUpdate();
+        return _this6.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(function () {
+          _this6.logger.verbose('Station manager: Waiting for app of station ' + eligibleStation + ' to change to ' + appID);
         }).catch(function () {
-          _this5.logger.verbose('Station manager: Failed changing app of station ' + eligibleStation + ' to ' + appID);
-          _this5.notify('error', station, 'Failed to launch app ' + appID);
+          _this6.logger.verbose('Station manager: Error changing app of station ' + eligibleStation + ' to ' + appID);
+          _this6.notify('error', station, 'Failed to launch app ' + appID);
           station.setErrorState('Failed to open ' + appID);
         }).then(function () {
-          _this5.signalUpdate();
+          _this6.signalUpdate();
         });
       }, { concurrency: this.nconf.get('scriptConcurrency') });
     }
@@ -600,7 +611,7 @@ var StationManager = function () {
   }, {
     key: 'pollMKLivestatus',
     value: function pollMKLivestatus() {
-      var _this6 = this;
+      var _this7 = this;
 
       return this.mkLivestatus.getState().then(function (allStationsStatus) {
         var lastState = [];
@@ -614,7 +625,7 @@ var StationManager = function () {
             var stationStatus = _step7.value;
 
             lastState.push(stationStatus);
-            var station = _this6.getStationByID(stationStatus.id);
+            var station = _this7.getStationByID(stationStatus.id);
             if (station) {
               if (station.updateFromMKLivestatus(stationStatus)) {
                 changes = true;
@@ -636,10 +647,10 @@ var StationManager = function () {
           }
         }
 
-        _this6.lastMKLivestatusDump = lastState;
+        _this7.lastMKLivestatusDump = lastState;
 
         if (changes) {
-          _this6.signalUpdate();
+          _this7.signalUpdate();
         }
       });
     }

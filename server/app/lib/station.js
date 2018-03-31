@@ -21,6 +21,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var EventEmitter = require('events').EventEmitter;
+
 var Station = function () {
   function Station(id, config) {
     _classCallCheck(this, Station);
@@ -38,6 +40,7 @@ var Station = function () {
     this.app = '';
     this.switching_app = '';
     this.outputBuffer = new _terminalOutputBuffer2.default();
+    this.events = new EventEmitter();
   }
 
   _createClass(Station, [{
@@ -87,8 +90,9 @@ var Station = function () {
       // todo: Come out of ERROR state (with notification)
       // todo: Come out of UNREACHABLE state
 
-      if (stationStatus.state === _nagios2.default.HostState.UNREACHABLE) {
+      if (this.state !== Station.ERROR && stationStatus.state === _nagios2.default.HostState.UNREACHABLE) {
         this.setErrorState('Station unreachable');
+        this.events.emit('stateChange', this, 'error', 'Station unreachable');
         return true;
       }
 
@@ -111,6 +115,7 @@ var Station = function () {
       } else if (this.state === Station.ON) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
           this.setOffState('Unexpectedly shut down');
+          this.events.emit('stateChange', this, 'warning', 'Station stopped unexpectedly');
           return true;
         }
       } else if (this.state === Station.OFF) {
@@ -120,6 +125,7 @@ var Station = function () {
         }
       } else if (this.state === Station.STOPPING) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
+          this.events.emit('stateChange', this, 'info', 'Station stopped');
           this.setOffState('Manually turned off');
           return true;
         }
@@ -130,17 +136,20 @@ var Station = function () {
         }
       } else if (this.state === Station.STARTING_APP) {
         if (stationStatus.app_state === _nagios2.default.ServiceState.OK) {
+          this.events.emit('stateChange', this, 'info', 'Station started');
           this.setOnState();
           return true;
         }
       } else if (this.state === Station.SWITCHING_APP) {
         if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
+          this.events.emit('stateChange', this, 'info', 'App changed');
           this.setOnState();
           return true;
         }
 
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
           this.setOffState('Unexpectedly shut down');
+          this.events.emit('stateChange', this, 'warning', 'Station stopped unexpectedly');
           return true;
         }
       }

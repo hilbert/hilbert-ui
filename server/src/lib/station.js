@@ -1,6 +1,8 @@
 import TerminalOutputBuffer from './terminal-output-buffer';
 import Nagios from './nagios';
 
+const EventEmitter = require('events').EventEmitter;
+
 export default class Station {
 
   constructor(id, config) {
@@ -17,6 +19,7 @@ export default class Station {
     this.app = '';
     this.switching_app = '';
     this.outputBuffer = new TerminalOutputBuffer();
+    this.events = new EventEmitter();
   }
 
   toJSON() {
@@ -61,8 +64,9 @@ export default class Station {
     // todo: Come out of ERROR state (with notification)
     // todo: Come out of UNREACHABLE state
 
-    if (stationStatus.state === Nagios.HostState.UNREACHABLE) {
+    if (this.state !== Station.ERROR && stationStatus.state === Nagios.HostState.UNREACHABLE) {
       this.setErrorState('Station unreachable');
+      this.events.emit('stateChange', this, 'error', 'Station unreachable');
       return true;
     }
 
@@ -85,6 +89,7 @@ export default class Station {
     } else if (this.state === Station.ON) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
         this.setOffState('Unexpectedly shut down');
+        this.events.emit('stateChange', this, 'warning', 'Station stopped unexpectedly');
         return true;
       }
     } else if (this.state === Station.OFF) {
@@ -94,6 +99,7 @@ export default class Station {
       }
     } else if (this.state === Station.STOPPING) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
+        this.events.emit('stateChange', this, 'info', 'Station stopped');
         this.setOffState('Manually turned off');
         return true;
       }
@@ -104,17 +110,20 @@ export default class Station {
       }
     } else if (this.state === Station.STARTING_APP) {
       if (stationStatus.app_state === Nagios.ServiceState.OK) {
+        this.events.emit('stateChange', this, 'info', 'Station started');
         this.setOnState();
         return true;
       }
     } else if (this.state === Station.SWITCHING_APP) {
       if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
+        this.events.emit('stateChange', this, 'info', 'App changed');
         this.setOnState();
         return true;
       }
 
       if (stationStatus.state === Nagios.HostState.DOWN) {
         this.setOffState('Unexpectedly shut down');
+        this.events.emit('stateChange', this, 'warning', 'Station stopped unexpectedly');
         return true;
       }
     }
