@@ -8,7 +8,8 @@ import ConsoleViewer from './consoleViewer.jsx';
 import PresetsBlock from './presetsBlock.jsx';
 import Header from './header.jsx';
 import UIAPI from './uiAPI';
-import TestMenu from "./testMenu";
+import TestMenu from './testMenu';
+import NotificationManager from './notificationManager';
 
 export default class Dashboard extends React.Component {
 
@@ -35,6 +36,7 @@ export default class Dashboard extends React.Component {
     this.consoleViewer = null;
     this.updateID = 0;
     this.serverConnectionRetry = 0;
+    this.notificationManager = new NotificationManager();
   }
 
   componentDidMount() {
@@ -406,7 +408,9 @@ export default class Dashboard extends React.Component {
           this.setState({ stations: data.stations });
         }
         if (data.notifications !== undefined) {
-          this.showNotifications(data.notifications);
+          for (const notification of data.notifications) {
+            this.notificationManager.push(notification);
+          }
         }
       });
   }
@@ -419,32 +423,6 @@ export default class Dashboard extends React.Component {
         }
       })
       .catch(err => console.error(err));
-  }
-
-  showNotifications(notifications) {
-    const types = {
-      info: 'success',
-      warning: 'warning',
-      error: 'danger',
-    };
-
-    const icons = {
-      info: 'fa-info-circle',
-      warning: 'fa-exclamation-triangle',
-      error: 'fa-exclamation-circle',
-    };
-
-    for (const notification of notifications) {
-      $.notify({
-        title: notification.station_name,
-        message: notification.message,
-        icon: `fa ${icons[notification.type] || 'fa-info-circle'}`,
-      }, {
-        type: types[notification.type] || 'info',
-        offset: { x: 10, y: $('.navbar').height() + 5 },
-        delay: 15000,
-      });
-    }
   }
 
   render() {
