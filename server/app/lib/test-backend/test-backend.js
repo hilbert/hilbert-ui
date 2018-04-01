@@ -248,17 +248,27 @@ var TestBackend = function () {
           output.write('Simulating starting station ' + stationID + ' with operation that times out.');
         } else {
           output.write('Simulating starting station ' + stationID + '. Waiting a random delay...');
-          _this2.randomDelay(3000, 8000).then(function () {
+          _this2.randomDelay(2500, 5000).then(function () {
             output.write('Wait finished.');
             var stationState = _this2.state.get(stationID);
-            var stationCfg = _this2.station_cfg.get(stationID);
             if (stationState && stationState.state === _nagios2.default.HostState.DOWN) {
               stationState.state = _nagios2.default.HostState.UP;
-              stationState.app_state = _nagios2.default.ServiceState.OK;
+              stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
               stationState.app_state_type = _nagios2.default.StateType.HARD;
-              stationState.app_id = stationCfg.default_app;
-              output.write('Station state set to UP with app ' + stationState.app_id + '.');
+              stationState.app_id = '';
+              return _this2.randomDelay(2500, 5000).then(function () {
+                if (_this2.nconf.get('test-backend:sim-unexpected-off') === true) {
+                  stationState.state = _nagios2.default.HostState.DOWN;
+                } else {
+                  var stationCfg = _this2.station_cfg.get(stationID);
+                  stationState.app_state = _nagios2.default.ServiceState.OK;
+                  stationState.app_state_type = _nagios2.default.StateType.HARD;
+                  stationState.app_id = stationCfg.default_app;
+                  output.write('Station state set to UP with app ' + stationState.app_id + '.');
+                }
+              });
             }
+            return Promise.resolve();
           });
         }
 
@@ -326,13 +336,17 @@ var TestBackend = function () {
       return new Promise(function (resolve, reject) {
         if (_this4.nconf.get('test-backend:sim-timeout') === true) {
           output.write('Simulating changing app for station ' + stationID + ' to ' + appID + ' with operation that times out.');
+        } else if (_this4.nconf.get('test-backend:sim-unexpected-off')) {
+          var stationState = _this4.state.get(stationID);
+          stationState.state = _nagios2.default.HostState.DOWN;
+          stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
+          stationState.app_id = '';
         } else {
           output.write('Simulating changing app for station ' + stationID + ' to ' + appID + '. Waiting a random delay...');
           _this4.randomDelay(1000, 5000).then(function () {
             output.write('Wait finished.');
             var stationState = _this4.state.get(stationID);
             var stationCfg = _this4.station_cfg.get(stationID);
-
             if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
               stationState.app_id = appID;
               output.write('App changed.');

@@ -92,4 +92,5 @@ export default class TestControllerModule {
 TestControllerModule.FlagNames = [
   'sim-fail-cli',
   'sim-timeout',
+  'sim-unexpected-off',
 ];

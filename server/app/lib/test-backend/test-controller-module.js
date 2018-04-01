@@ -133,5 +133,5 @@ var TestControllerModule = function () {
 exports.default = TestControllerModule;
 
 
-TestControllerModule.FlagNames = ['sim-fail-cli', 'sim-timeout'];
+TestControllerModule.FlagNames = ['sim-fail-cli', 'sim-timeout', 'sim-unexpected-off'];
 //# sourceMappingURL=test-controller-module.js.map

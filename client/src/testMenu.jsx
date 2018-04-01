@@ -8,13 +8,14 @@ export default class TestMenu extends React.Component {
       visible: false,
       flags: {
         'sim-fail-cli': false,
-        'sim-unreachable': false,
         'sim-timeout': false,
+        'sim-unexpected-off': false,
       },
     };
 
     this.toggleSimFailCli = this.toggleFlag.bind(this, 'sim-fail-cli');
     this.toggleSimTimeout = this.toggleFlag.bind(this, 'sim-timeout');
+    this.toggleUnexpectedOff = this.toggleFlag.bind(this, 'sim-unexpected-off');
 
     this.makeStationsUnreachable = this.makeStationsUnreachable.bind(this);
     this.makeStationsReachable = this.makeStationsReachable.bind(this);
@@ -47,8 +48,8 @@ export default class TestMenu extends React.Component {
       visible: response.testMode,
       flags: {
         'sim-fail-cli': response.flags['sim-fail-cli'] || false,
-        'sim-unreachable': response.flags['sim-unreachable'] || false,
         'sim-timeout': response.flags['sim-timeout'] || false,
+        'sim-unexpected-off': response.flags['sim-unexpected-off'] || false,
       },
     });
   }
@@ -80,12 +81,17 @@ export default class TestMenu extends React.Component {
         <ul className="dropdown-menu">
           <li>
             <a href="#" className={this.state.flags['sim-fail-cli'] ? 'checked' : ''} onClick={this.toggleSimFailCli}>
-              Simulate CLI fail
+              Simulate CLI fail in operations
             </a>
           </li>
           <li>
             <a href="#" className={this.state.flags['sim-timeout'] ? 'checked' : ''} onClick={this.toggleSimTimeout}>
-              Simulate operation timeout
+              Simulate operations timeout
+            </a>
+          </li>
+          <li>
+            <a href="#" className={this.state.flags['sim-unexpected-off'] ? 'checked' : ''} onClick={this.toggleUnexpectedOff}>
+              Simulate stations stop during operations
             </a>
           </li>
           <li className="divider"></li>

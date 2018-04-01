@@ -88,7 +88,7 @@ export default class Station {
       }
     } else if (this.state === Station.ON) {
       if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState('Unexpectedly shut down');
+        this.setOffState('Unexpected stop');
         this.events.emit('stateChange', this, 'warning', 'Station stopped unexpectedly');
         return true;
       }
@@ -109,21 +109,27 @@ export default class Station {
         return true;
       }
     } else if (this.state === Station.STARTING_APP) {
+      if (stationStatus.state === Nagios.HostState.DOWN) {
+        this.setErrorState('Unexpected stop starting app. Please wait...');
+        this.events.emit('stateChange', this, 'warning', 'Station stopped while starting app');
+        this.errorLock();
+        return true;
+      }
       if (stationStatus.app_state === Nagios.ServiceState.OK) {
         this.events.emit('stateChange', this, 'info', 'Station started');
         this.setOnState();
         return true;
       }
     } else if (this.state === Station.SWITCHING_APP) {
+      if (stationStatus.state === Nagios.HostState.DOWN) {
+        this.setErrorState('Unexpected stop changing app. Please wait...');
+        this.events.emit('stateChange', this, 'warning', 'Station stopped while changing app');
+        this.errorLock();
+        return true;
+      }
       if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
         this.events.emit('stateChange', this, 'info', 'App changed');
         this.setOnState();
-        return true;
-      }
-
-      if (stationStatus.state === Nagios.HostState.DOWN) {
-        this.setOffState('Unexpectedly shut down');
-        this.events.emit('stateChange', this, 'warning', 'Station stopped unexpectedly');
         return true;
       }
     }

@@ -149,18 +149,28 @@ export default class TestBackend {
         output.write(`Simulating starting station ${stationID} with operation that times out.`);
       } else {
         output.write(`Simulating starting station ${stationID}. Waiting a random delay...`);
-        this.randomDelay(3000, 8000).then(() => {
+        this.randomDelay(2500, 5000).then(() => {
           output.write('Wait finished.');
           const stationState = this.state.get(stationID);
-          const stationCfg = this.station_cfg.get(stationID);
           if (stationState &&
             (stationState.state === Nagios.HostState.DOWN)) {
             stationState.state = Nagios.HostState.UP;
-            stationState.app_state = Nagios.ServiceState.OK;
+            stationState.app_state = Nagios.ServiceState.UNKNOWN;
             stationState.app_state_type = Nagios.StateType.HARD;
-            stationState.app_id = stationCfg.default_app;
-            output.write(`Station state set to UP with app ${stationState.app_id}.`);
+            stationState.app_id = '';
+            return this.randomDelay(2500, 5000).then(() => {
+              if (this.nconf.get('test-backend:sim-unexpected-off') === true) {
+                stationState.state = Nagios.HostState.DOWN;
+              } else {
+                const stationCfg = this.station_cfg.get(stationID);
+                stationState.app_state = Nagios.ServiceState.OK;
+                stationState.app_state_type = Nagios.StateType.HARD;
+                stationState.app_id = stationCfg.default_app;
+                output.write(`Station state set to UP with app ${stationState.app_id}.`);
+              }
+            });
           }
+          return Promise.resolve();
         });
       }
 
@@ -218,6 +228,11 @@ export default class TestBackend {
     return new Promise((resolve, reject) => {
       if (this.nconf.get('test-backend:sim-timeout') === true) {
         output.write(`Simulating changing app for station ${stationID} to ${appID} with operation that times out.`);
+      } else if (this.nconf.get('test-backend:sim-unexpected-off')) {
+        const stationState = this.state.get(stationID);
+        stationState.state = Nagios.HostState.DOWN;
+        stationState.app_state = Nagios.ServiceState.UNKNOWN;
+        stationState.app_id = '';
       } else {
         output.write(
           `Simulating changing app for station ${stationID} to ${appID}. Waiting a random delay...`);
@@ -225,7 +240,6 @@ export default class TestBackend {
           output.write('Wait finished.');
           const stationState = this.state.get(stationID);
           const stationCfg = this.station_cfg.get(stationID);
-
           if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
             stationState.app_id = appID;
             output.write('App changed.');
