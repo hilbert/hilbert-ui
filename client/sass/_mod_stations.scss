@@ -97,6 +97,17 @@ $station-light-width: 28px;
       color: $color-black;
     }
   }
+
+  .station-lock {
+    position: absolute;
+    top: 24px;
+    left: 57px;
+    height: auto;
+    color: white;
+    font-size: 33px;
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    opacity: 0.8;
+  }
 }
 
 .station-state-unk {
@@ -160,3 +171,13 @@ $station-light-width: 28px;
     background-color: rgba(217, 237, 255, 0.95);
   }
 }
+
+.station-locked {
+  .station-icon,
+  .station-app,
+  .station-name,
+  .station-profile {
+    opacity: 0.5;
+  }
+}
+

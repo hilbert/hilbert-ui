@@ -252,7 +252,8 @@ export default class StationManager {
         .catch(() => {
           this.logger.verbose(`Station manager: Error starting station ${eligibleStation}`);
           this.notify('error', station, 'Error starting station');
-          station.setErrorState('Failure starting the station');
+          station.setErrorState('Failure starting the station. Please wait...');
+          station.errorLock();
         })
         .then(() => {
           this.signalUpdate();
@@ -292,7 +293,8 @@ export default class StationManager {
           .catch(() => {
             this.logger.verbose(`Station manager: Error stopping station ${eligibleStation}`);
             this.notify('error', station, 'Error stopping station');
-            station.setErrorState('Failure stopping the station');
+            station.setErrorState('Failure stopping the station. Please wait...');
+            station.errorLock();
           })
           .then(() => {
             this.signalUpdate();
@@ -336,7 +338,8 @@ export default class StationManager {
           this.logger.verbose(
             `Station manager: Error changing app of station ${eligibleStation} to ${appID}`);
           this.notify('error', station, `Failed to launch app ${appID}`);
-          station.setErrorState(`Failed to open ${appID}`);
+          station.setErrorState(`Failed to open ${appID}. Please wait...`);
+          station.errorLock();
         })
         .then(() => {
           this.signalUpdate();

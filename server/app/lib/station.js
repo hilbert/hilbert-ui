@@ -45,6 +45,9 @@ var Station = function () {
     this.events = new EventEmitter();
     this.transitionTimeout = null;
     this.onTransitionTimeout = this.onTransitionTimeout.bind(this);
+
+    this.errorLockTimeout = null;
+    this.errorLockStartTime = null;
   }
 
   _createClass(Station, [{
@@ -59,6 +62,8 @@ var Station = function () {
         state: this.state,
         app: this.app,
         status: this.status,
+        locked: this.isErrorLocked(),
+        locked_seconds: this.errorLockRemainingSeconds(),
         default_app: this.default_app,
         compatible_apps: this.compatible_apps,
         switching_app: this.switching_app
@@ -93,6 +98,10 @@ var Station = function () {
       // todo: SWITCHING_APP timeout
       // todo: Come out of ERROR state (with notification)
       // todo: Come out of UNREACHABLE state
+
+      if (this.state === Station.ERROR && this.isErrorLocked()) {
+        return false;
+      }
 
       if (this.state !== Station.ERROR && stationStatus.state === _nagios2.default.HostState.UNREACHABLE) {
         this.setErrorState('Station unreachable');
@@ -162,7 +171,7 @@ var Station = function () {
   }, {
     key: 'setQueuedToStartState',
     value: function setQueuedToStartState() {
-      if (this.state === Station.OFF) {
+      if (!this.isErrorLocked() && this.state === Station.OFF) {
         this.state = Station.STARTING_STATION;
         this.setStatus('Waiting to start...');
         this.startTransitionTimeout();
@@ -216,7 +225,7 @@ var Station = function () {
   }, {
     key: 'setQueuedToStopState',
     value: function setQueuedToStopState() {
-      if (this.state === Station.ON) {
+      if (!this.isErrorLocked() && this.state === Station.ON) {
         this.state = Station.STOPPING;
         this.setStatus('Waiting to stop...');
         this.startTransitionTimeout();
@@ -253,7 +262,7 @@ var Station = function () {
   }, {
     key: 'setQueuedToChangeAppState',
     value: function setQueuedToChangeAppState(appID) {
-      if (this.state === Station.ON && appID !== this.app) {
+      if (!this.isErrorLocked() && this.state === Station.ON && appID !== this.app) {
         this.state = Station.SWITCHING_APP;
         this.setStatus('Waiting to change app...');
         this.switching_app = appID;
@@ -379,6 +388,71 @@ var Station = function () {
       this.events.emit('stateChange', this, 'error', messages[this.state] || 'Operation timed out');
 
       this.state = Station.UNKNOWN;
+    }
+
+    /**
+     * Locks the station for a number of seconds after an error
+     *
+     * While the station is locked no operations (stop, start, change app) can be started.
+     */
+
+  }, {
+    key: 'errorLock',
+    value: function errorLock() {
+      var _this = this;
+
+      this.clearErrorLock();
+
+      this.errorLockStartTime = Date.now();
+      this.errorLockTimeout = setTimeout(function () {
+        _this.errorLockTimeout = null;
+        _this.errorLockStartTime = null;
+      }, this.nconf.get('error_lock_time') * 1000);
+    }
+
+    /**
+     * Pre-empts an error lock
+     *
+     * The station is unlocked immediately and its error lock timer is cleared.
+     */
+
+  }, {
+    key: 'clearErrorLock',
+    value: function clearErrorLock() {
+      if (this.errorLockTimeout !== null) {
+        clearTimeout(this.errorLockTimeout);
+        this.errorLockTimeout = null;
+        this.errorLockStartTime = null;
+      }
+    }
+
+    /**
+     * True if the station is locked because of an error
+     */
+
+  }, {
+    key: 'isErrorLocked',
+    value: function isErrorLocked() {
+      return this.errorLockTimeout !== null;
+    }
+
+    /**
+     * Returns the number of seconds remaining before the error lock will end
+     *
+     * @return {number}
+     */
+
+  }, {
+    key: 'errorLockRemainingSeconds',
+    value: function errorLockRemainingSeconds() {
+      if (this.errorLockTimeout === null || this.errorLockStartTime === null) {
+        return 0;
+      }
+
+      var elapsedSeconds = Math.floor((Date.now() - this.errorLockStartTime) / 1000);
+      var wait = this.nconf.get('error_lock_time') || 0;
+
+      return Math.max(wait - elapsedSeconds, 0);
     }
   }]);
 

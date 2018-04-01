@@ -117,6 +117,12 @@ paths:
                       type: string
                       description: "The station's status message which gives extra human readable
                         details about the state"
+                    locked:
+                      type: boolean
+                      description: "True if the station is temporarily locked"
+                    locked_seconds:
+                      type: number
+                      description: "Number of seconds of lock remaining"
                     app:
                       type: string
                       description: ID of the app currently running in the station

@@ -5,5 +5,7 @@
   "hilbert_cfg": "../../hilbert-cli/tests/data",
   "mkls_cmd": "ssh ur@supernova.mfo.de \"nc localhost 6557\"",
   "log_level": "debug",
+  "operation_timeout": 600,
+  "error_lock_time": 30,
   "db_path": "../work/db/hilbert-dev.sqlite"
 }

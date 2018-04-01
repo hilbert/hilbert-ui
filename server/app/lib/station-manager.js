@@ -424,7 +424,8 @@ var StationManager = function () {
         }).catch(function () {
           _this4.logger.verbose('Station manager: Error starting station ' + eligibleStation);
           _this4.notify('error', station, 'Error starting station');
-          station.setErrorState('Failure starting the station');
+          station.setErrorState('Failure starting the station. Please wait...');
+          station.errorLock();
         }).then(function () {
           _this4.signalUpdate();
         });
@@ -484,7 +485,8 @@ var StationManager = function () {
         }).catch(function () {
           _this5.logger.verbose('Station manager: Error stopping station ' + eligibleStation);
           _this5.notify('error', station, 'Error stopping station');
-          station.setErrorState('Failure stopping the station');
+          station.setErrorState('Failure stopping the station. Please wait...');
+          station.errorLock();
         }).then(function () {
           _this5.signalUpdate();
         });
@@ -545,7 +547,8 @@ var StationManager = function () {
         }).catch(function () {
           _this6.logger.verbose('Station manager: Error changing app of station ' + eligibleStation + ' to ' + appID);
           _this6.notify('error', station, 'Failed to launch app ' + appID);
-          station.setErrorState('Failed to open ' + appID);
+          station.setErrorState('Failed to open ' + appID + '. Please wait...');
+          station.errorLock();
         }).then(function () {
           _this6.signalUpdate();
         });

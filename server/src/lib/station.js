@@ -24,6 +24,9 @@ export default class Station {
     this.events = new EventEmitter();
     this.transitionTimeout = null;
     this.onTransitionTimeout = this.onTransitionTimeout.bind(this);
+
+    this.errorLockTimeout = null;
+    this.errorLockStartTime = null;
   }
 
   toJSON() {
@@ -36,6 +39,8 @@ export default class Station {
       state: this.state,
       app: this.app,
       status: this.status,
+      locked: this.isErrorLocked(),
+      locked_seconds: this.errorLockRemainingSeconds(),
       default_app: this.default_app,
       compatible_apps: this.compatible_apps,
       switching_app: this.switching_app,
@@ -67,6 +72,10 @@ export default class Station {
     // todo: SWITCHING_APP timeout
     // todo: Come out of ERROR state (with notification)
     // todo: Come out of UNREACHABLE state
+
+    if (this.state === Station.ERROR && this.isErrorLocked()) {
+      return false;
+    }
 
     if (this.state !== Station.ERROR && stationStatus.state === Nagios.HostState.UNREACHABLE) {
       this.setErrorState('Station unreachable');
@@ -133,7 +142,7 @@ export default class Station {
    * @return {boolean} The transition was successful
    */
   setQueuedToStartState() {
-    if (this.state === Station.OFF) {
+    if (!this.isErrorLocked() && this.state === Station.OFF) {
       this.state = Station.STARTING_STATION;
       this.setStatus('Waiting to start...');
       this.startTransitionTimeout();
@@ -178,7 +187,7 @@ export default class Station {
    * @return {boolean} The transition was succesful
    */
   setQueuedToStopState() {
-    if (this.state === Station.ON) {
+    if (!this.isErrorLocked() && this.state === Station.ON) {
       this.state = Station.STOPPING;
       this.setStatus('Waiting to stop...');
       this.startTransitionTimeout();
@@ -209,7 +218,7 @@ export default class Station {
    * @return {boolean} The transition was successful
    */
   setQueuedToChangeAppState(appID) {
-    if (this.state === Station.ON && appID !== this.app) {
+    if (!this.isErrorLocked() && this.state === Station.ON && appID !== this.app) {
       this.state = Station.SWITCHING_APP;
       this.setStatus('Waiting to change app...');
       this.switching_app = appID;
@@ -311,6 +320,57 @@ export default class Station {
     this.events.emit('stateChange', this, 'error', messages[this.state] || 'Operation timed out');
 
     this.state = Station.UNKNOWN;
+  }
+
+  /**
+   * Locks the station for a number of seconds after an error
+   *
+   * While the station is locked no operations (stop, start, change app) can be started.
+   */
+  errorLock() {
+    this.clearErrorLock();
+
+    this.errorLockStartTime = Date.now();
+    this.errorLockTimeout = setTimeout(() => {
+      this.errorLockTimeout = null;
+      this.errorLockStartTime = null;
+    }, this.nconf.get('error_lock_time') * 1000);
+  }
+
+  /**
+   * Pre-empts an error lock
+   *
+   * The station is unlocked immediately and its error lock timer is cleared.
+   */
+  clearErrorLock() {
+    if (this.errorLockTimeout !== null) {
+      clearTimeout(this.errorLockTimeout);
+      this.errorLockTimeout = null;
+      this.errorLockStartTime = null;
+    }
+  }
+
+  /**
+   * True if the station is locked because of an error
+   */
+  isErrorLocked() {
+    return (this.errorLockTimeout !== null);
+  }
+
+  /**
+   * Returns the number of seconds remaining before the error lock will end
+   *
+   * @return {number}
+   */
+  errorLockRemainingSeconds() {
+    if (this.errorLockTimeout === null || this.errorLockStartTime === null) {
+      return 0;
+    }
+
+    const elapsedSeconds = Math.floor((Date.now() - this.errorLockStartTime) / 1000);
+    const wait = this.nconf.get('error_lock_time') || 0;
+
+    return Math.max(wait - elapsedSeconds, 0);
   }
 }
 

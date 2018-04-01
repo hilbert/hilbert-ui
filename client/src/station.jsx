@@ -28,6 +28,12 @@ export default class Station extends React.Component {
       stationClasses.push('station-selected');
     }
 
+    let lock = null;
+    if (this.props.station.locked) {
+      stationClasses.push('station-locked');
+      lock = <div className="station-lock"><i className="fa fa-lock" /></div>;
+    }
+
     let appName = this.props.station.app;
     let appDesc = '';
     if (this.props.applications[this.props.station.app] !== undefined) {
@@ -39,7 +45,7 @@ export default class Station extends React.Component {
     let profileDesc = '';
     if (this.props.stationProfiles[this.props.station.profile] !== undefined) {
       profileName = this.props.stationProfiles[this.props.station.profile].name;
-      profileDesc= this.props.stationProfiles[this.props.station.profile].description;
+      profileDesc = this.props.stationProfiles[this.props.station.profile].description;
     }
 
     return (
@@ -56,6 +62,7 @@ export default class Station extends React.Component {
         <div className="station-profile" title={profileDesc}>{profileName}</div>
         <div className="station-app" title={appDesc}>{appName}</div>
         <div className="station-status">{this.props.station.status}</div>
+        { lock }
         <a className="station-output-button" onClick={(ev) => { this.handleOpenTerminalLog(ev); }}>
           <i className="fa fa-desktop"></i>
         </a>
@@ -71,6 +78,8 @@ Station.propTypes = {
     state: React.PropTypes.string,
     profile: React.PropTypes.string,
     status: React.PropTypes.string,
+    locked: React.PropTypes.bool,
+    locked_seconds: React.PropTypes.number,
     app: React.PropTypes.string,
     icon: React.PropTypes.string,
   }).isRequired,
