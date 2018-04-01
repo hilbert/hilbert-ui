@@ -46,6 +46,7 @@ nconf.defaults({
   mkls_cmd: 'nc localhost 6557',
   long_poll_timeout: 15,
   operation_timeout: 600,
+  error_lock_time: 30,
   db_path: ''
 });
 

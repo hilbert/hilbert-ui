@@ -22,6 +22,8 @@ describe('HTTP API', () => {
       mkls_poll_delay: 1000,
       mkls_cmd: 'nc localhost 6557',
       long_poll_timeout: 0,
+      operation_timeout: 10,
+      error_lock_time: 10,
       db_path: '',
     });
 
