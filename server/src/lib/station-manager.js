@@ -98,7 +98,7 @@ export default class StationManager {
 
         for (const [stationID, stationCfg] of Object.entries(hilbertCfg.Stations)) {
           if (!stationCfg.hidden) {
-            this.addStation(new Station(stationID, stationCfg));
+            this.addStation(new Station(stationID, stationCfg, this.nconf));
           }
         }
         this.signalUpdate();

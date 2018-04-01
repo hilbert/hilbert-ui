@@ -24,8 +24,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var EventEmitter = require('events').EventEmitter;
 
 var Station = function () {
-  function Station(id, config) {
+  function Station(id, config, nconf) {
     _classCallCheck(this, Station);
+
+    this.nconf = nconf;
 
     this.id = id;
     this.name = config.name || id;
@@ -41,6 +43,8 @@ var Station = function () {
     this.switching_app = '';
     this.outputBuffer = new _terminalOutputBuffer2.default();
     this.events = new EventEmitter();
+    this.transitionTimeout = null;
+    this.onTransitionTimeout = this.onTransitionTimeout.bind(this);
   }
 
   _createClass(Station, [{
@@ -96,15 +100,7 @@ var Station = function () {
         return true;
       }
 
-      if (this.state === Station.ERROR) {
-        if (stationStatus.state === _nagios2.default.HostState.DOWN) {
-          this.setOffState();
-          return true;
-        } else if (stationStatus.state === _nagios2.default.HostState.UP) {
-          this.setOnState();
-          return true;
-        }
-      } else if (this.state === Station.UNKNOWN) {
+      if (this.state === Station.ERROR || this.state === Station.UNKNOWN) {
         if (stationStatus.state === _nagios2.default.HostState.DOWN) {
           this.setOffState();
           return true;
@@ -169,6 +165,7 @@ var Station = function () {
       if (this.state === Station.OFF) {
         this.state = Station.STARTING_STATION;
         this.setStatus('Waiting to start...');
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -186,6 +183,7 @@ var Station = function () {
       if (this.state === Station.OFF || this.state === Station.STARTING_STATION) {
         this.state = Station.STARTING_STATION;
         this.setStatus('Starting...');
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -203,6 +201,7 @@ var Station = function () {
       if (this.state === Station.STARTING_STATION) {
         this.state = Station.STARTING_APP;
         this.setStatus('Waiting for app...');
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -220,6 +219,7 @@ var Station = function () {
       if (this.state === Station.ON) {
         this.state = Station.STOPPING;
         this.setStatus('Waiting to stop...');
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -237,6 +237,7 @@ var Station = function () {
       if (this.state === Station.OFF || this.state === Station.STOPPING) {
         this.state = Station.STOPPING;
         this.setStatus('Stopping...');
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -256,6 +257,7 @@ var Station = function () {
         this.state = Station.SWITCHING_APP;
         this.setStatus('Waiting to change app...');
         this.switching_app = appID;
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -275,6 +277,7 @@ var Station = function () {
         this.state = Station.SWITCHING_APP;
         this.setStatus('Opening ' + appID + '...');
         this.switching_app = appID;
+        this.startTransitionTimeout();
         return true;
       }
       return false;
@@ -285,6 +288,7 @@ var Station = function () {
       this.state = Station.ON;
       this.setStatus('');
       this.switching_app = '';
+      this.clearTransitionTimeout();
     }
   }, {
     key: 'setOffState',
@@ -294,6 +298,7 @@ var Station = function () {
       this.state = Station.OFF;
       this.setStatus(reason, reason !== '');
       this.switching_app = '';
+      this.clearTransitionTimeout();
     }
 
     /**
@@ -307,6 +312,7 @@ var Station = function () {
     value: function setErrorState(reason) {
       this.state = Station.ERROR;
       this.setStatus(reason);
+      this.clearTransitionTimeout();
     }
 
     /**
@@ -329,6 +335,50 @@ var Station = function () {
       }
 
       this.status = [text, timestamp].join(' ');
+    }
+
+    /**
+     * Start checking for a timeout while waiting for an operation to complete
+     */
+
+  }, {
+    key: 'startTransitionTimeout',
+    value: function startTransitionTimeout() {
+      if (this.transitionTimeout !== null) {
+        this.clearTransitionTimeout();
+      }
+
+      this.transitionTimeout = setTimeout(this.onTransitionTimeout, this.nconf.get('operation_timeout') * 1000);
+    }
+
+    /**
+     * Clear checking for a timeout waiting for an operation to complete
+     */
+
+  }, {
+    key: 'clearTransitionTimeout',
+    value: function clearTransitionTimeout() {
+      clearTimeout(this.transitionTimeout);
+      this.transitionTimeout = null;
+    }
+
+    /**
+     * Event handler for timeouts waiting for an operation to complete
+     */
+
+  }, {
+    key: 'onTransitionTimeout',
+    value: function onTransitionTimeout() {
+      this.transitionTimeout = null;
+
+      var messages = {};
+      messages[Station.STARTING_STATION] = 'Time out waiting for station to start';
+      messages[Station.STARTING_APP] = 'Time out waiting for app to start';
+      messages[Station.SWITCHING_APP] = 'Time out waiting for app to change';
+      messages[Station.STOPPING] = 'Time out waiting for station to stop';
+      this.events.emit('stateChange', this, 'error', messages[this.state] || 'Operation timed out');
+
+      this.state = Station.UNKNOWN;
     }
   }]);
 

@@ -197,7 +197,7 @@ var StationManager = function () {
             var stationCfg = _step3$value[1];
 
             if (!stationCfg.hidden) {
-              _this2.addStation(new _station2.default(stationID, stationCfg));
+              _this2.addStation(new _station2.default(stationID, stationCfg, _this2.nconf));
             }
           }
         } catch (err) {

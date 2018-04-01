@@ -88,6 +88,7 @@ The ui configuration file is `server/config.json`. It supports the following opt
 - `log_level`: (default: 'info') Log level. Set to one of `error`, `warn`, `info`, `verbose`, `debug` or `silly`.
 - `mkls_poll_delay`: (default: 1000) Number of milliseconds to wait between polls to MKLivestatus.
 - `mkls_cmd`: (default: 'nc localhost 6557') Command line used to connect to MKLivestatus.
+- `operation_timeout`: (default: 600) Number of seconds to wait for station operations (stop, start, change app) to finish before timing out.
 - `db_path`: (default: '') Path to the sqlite database file for persistant storage of features such as presets. 
 
 ## Directory reference
