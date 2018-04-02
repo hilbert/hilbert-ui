@@ -419,6 +419,7 @@ var StationManager = function () {
         var station = _this4.getStationByID(eligibleStation);
         station.setStartingState();
         _this4.signalUpdate();
+        _this4.mkLivestatus.invalidateAppState(station.id);
         return _this4.hilbertCLI.startStation(station.id, station.outputBuffer).then(function () {
           _this4.logger.verbose('Station manager: Waiting for station ' + eligibleStation + ' to start');
         }).catch(function () {

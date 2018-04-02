@@ -1,4 +1,5 @@
 import { exec } from 'child_process';
+import Nagios from './nagios';
 import MKLivestatusQuery from './mk-livestatus-query';
 
 const Promise = require('bluebird');
@@ -14,6 +15,19 @@ export default class MKLivestatusConnector {
   constructor(nconf, logger) {
     this.nconf = nconf;
     this.logger = logger;
+    this.minTime = MKLivestatusConnector.timestamp();
+    this.stationMinTime = {};
+  }
+
+  /**
+   * Mark the current app_state / app_id reported by CheckMK stale until the next check.
+   *
+   * The connector will store a timestamp associated with the station and will only use the reported
+   * app_state and app_id if CheckMK checked them at a latter time.
+   * @param stationID
+   */
+  invalidateAppState(stationID) {
+    this.stationMinTime[stationID] = MKLivestatusConnector.timestamp();
   }
 
   /**
@@ -43,9 +57,16 @@ export default class MKLivestatusConnector {
         for (const station of stations) {
           if ('id' in station && state.has(station.id)) {
             const stationState = state.get(station.id);
-            stationState.app_state = station.app_state;
-            stationState.app_state_type = station.app_state_type;
-            stationState.app_id = station.app_id;
+            if (stationState.state === Nagios.HostState.DOWN) {
+              // If the station is down let's ignore the app state, which is definitely stale.
+              stationState.app_state = Nagios.ServiceState.UNKNOWN;
+              stationState.app_state_type = Nagios.StateType.HARD;
+              stationState.app_id = '';
+            } else {
+              stationState.app_state = station.app_state;
+              stationState.app_state_type = station.app_state_type;
+              stationState.app_id = station.app_id;
+            }
           }
         }
 
@@ -88,20 +109,37 @@ export default class MKLivestatusConnector {
     this.logger.debug('MKLivestatus: Querying app state');
     return this.query()
       .get('services')
-      .columns(['host_name', 'state', 'state_type', 'plugin_output'])
-      .asColumns(['id', 'app_state', 'app_state_type', 'app_id'])
+      .columns(['host_name', 'last_check', 'state', 'state_type', 'plugin_output'])
+      .asColumns(['id', 'last_check', 'app_state', 'app_state_type', 'app_id'])
       .filter('description = dockapp_top1')
       .execute()
       .then((stations) => {
         for (const station of stations) {
-          // todo: replace for better regexp / parsing
-          const matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-          if (matches !== null && ('length' in matches) && matches.length > 1) {
-            station.app_id = matches[1];
-          } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+          // Check the timestamp of the last check to see if this data is current
+          if (station.last_check <= this.minTime ||
+              (this.stationMinTime[station.id] !== undefined &&
+               station.last_check <= this.stationMinTime[station.id])
+          ) {
+            // The timestamp of the last check is previous to the global minTime
+            // (creation of the MKLivestatusConnector) or the stations' minTime
+            // (time of start) so the status is stale and has to be ignored.
             station.app_id = '';
+            station.app_state = Nagios.ServiceState.UNKNOWN;
+            station.app_state_type = Nagios.StateType.SOFT;
           } else {
-            throw new Error(`Error parsing app_id of station ${station.id}: ${station.app_id}`);
+            // Current data
+            const matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
+            if (matches !== null && ('length' in matches) && matches.length > 1) {
+              station.app_id = matches[1];
+            } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+              // Not really a critical error
+              // There's just no app running. It happens. No need to call the Avengers.
+              station.app_id = '';
+              station.app_state = Nagios.ServiceState.OK;
+              station.app_state_type = Nagios.StateType.SOFT;
+            } else {
+              throw new Error(`Error parsing app_id of station ${station.id}: ${station.app_id}`);
+            }
           }
         }
         return stations;
@@ -148,6 +186,10 @@ export default class MKLivestatusConnector {
 
       process.stdin.end(`${queryString}\n\n`);
     });
+  }
+
+  static timestamp() {
+    return Math.floor(Date.now() / 1000);
   }
 }
 

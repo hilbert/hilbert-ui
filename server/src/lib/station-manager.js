@@ -246,6 +246,7 @@ export default class StationManager {
         const station = this.getStationByID(eligibleStation);
         station.setStartingState();
         this.signalUpdate();
+        this.mkLivestatus.invalidateAppState(station.id);
         return this.hilbertCLI.startStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Waiting for station ${eligibleStation} to start`);
         })

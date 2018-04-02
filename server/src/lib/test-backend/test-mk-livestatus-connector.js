@@ -1,3 +1,5 @@
+import MKLivestatusConnector from "../mk-livestatus-connector";
+
 /**
  * Testing stub for MKLivestatusConnector
  */
@@ -20,5 +22,9 @@ export default class TestMKLivestatusConnector {
     return new Promise((resolve) => {
       resolve(this.testBackend.getStationState());
     });
+  }
+
+  invalidateAppState(stationID) {
+    // Nothing to do in this test connector
   }
 }

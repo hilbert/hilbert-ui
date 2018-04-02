@@ -11,6 +11,10 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _child_process = require('child_process');
 
+var _nagios = require('./nagios');
+
+var _nagios2 = _interopRequireDefault(_nagios);
+
 var _mkLivestatusQuery = require('./mk-livestatus-query');
 
 var _mkLivestatusQuery2 = _interopRequireDefault(_mkLivestatusQuery);
@@ -34,20 +38,36 @@ var MKLivestatusConnector = function () {
 
     this.nconf = nconf;
     this.logger = logger;
+    this.minTime = MKLivestatusConnector.timestamp();
+    this.stationMinTime = {};
   }
 
   /**
-   * Returns the state of the stations
-   * Returns an array of objects with shape
-   * {id: 'station name', state: 0, state_type: 1,
-   * app_state: 0, app_state_type: 1, app_id: 'fg app name'}
+   * Mark the current app_state / app_id reported by CheckMK stale until the next check.
    *
-   * @returns {Promise}
-   * @resolve {Array}
+   * The connector will store a timestamp associated with the station and will only use the reported
+   * app_state and app_id if CheckMK checked them at a latter time.
+   * @param stationID
    */
 
 
   _createClass(MKLivestatusConnector, [{
+    key: 'invalidateAppState',
+    value: function invalidateAppState(stationID) {
+      this.stationMinTime[stationID] = MKLivestatusConnector.timestamp();
+    }
+
+    /**
+     * Returns the state of the stations
+     * Returns an array of objects with shape
+     * {id: 'station name', state: 0, state_type: 1,
+     * app_state: 0, app_state_type: 1, app_id: 'fg app name'}
+     *
+     * @returns {Promise}
+     * @resolve {Array}
+     */
+
+  }, {
     key: 'getState',
     value: function getState() {
       var _this = this;
@@ -96,9 +116,16 @@ var MKLivestatusConnector = function () {
 
             if ('id' in station && state.has(station.id)) {
               var stationState = state.get(station.id);
-              stationState.app_state = station.app_state;
-              stationState.app_state_type = station.app_state_type;
-              stationState.app_id = station.app_id;
+              if (stationState.state === _nagios2.default.HostState.DOWN) {
+                // If the station is down let's ignore the app state, which is definitely stale.
+                stationState.app_state = _nagios2.default.ServiceState.UNKNOWN;
+                stationState.app_state_type = _nagios2.default.StateType.HARD;
+                stationState.app_id = '';
+              } else {
+                stationState.app_state = station.app_state;
+                stationState.app_state_type = station.app_state_type;
+                stationState.app_id = station.app_id;
+              }
             }
           }
         } catch (err) {
@@ -153,8 +180,10 @@ var MKLivestatusConnector = function () {
   }, {
     key: 'getForegroundApps',
     value: function getForegroundApps() {
+      var _this2 = this;
+
       this.logger.debug('MKLivestatus: Querying app state');
-      return this.query().get('services').columns(['host_name', 'state', 'state_type', 'plugin_output']).asColumns(['id', 'app_state', 'app_state_type', 'app_id']).filter('description = dockapp_top1').execute().then(function (stations) {
+      return this.query().get('services').columns(['host_name', 'last_check', 'state', 'state_type', 'plugin_output']).asColumns(['id', 'last_check', 'app_state', 'app_state_type', 'app_id']).filter('description = dockapp_top1').execute().then(function (stations) {
         var _iteratorNormalCompletion3 = true;
         var _didIteratorError3 = false;
         var _iteratorError3 = undefined;
@@ -163,14 +192,28 @@ var MKLivestatusConnector = function () {
           for (var _iterator3 = stations[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
             var station = _step3.value;
 
-            // todo: replace for better regexp / parsing
-            var matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-            if (matches !== null && 'length' in matches && matches.length > 1) {
-              station.app_id = matches[1];
-            } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+            // Check the timestamp of the last check to see if this data is current
+            if (station.last_check <= _this2.minTime || _this2.stationMinTime[station.id] !== undefined && station.last_check <= _this2.stationMinTime[station.id]) {
+              // The timestamp of the last check is previous to the global minTime
+              // (creation of the MKLivestatusConnector) or the stations' minTime
+              // (time of start) so the status is stale and has to be ignored.
               station.app_id = '';
+              station.app_state = _nagios2.default.ServiceState.UNKNOWN;
+              station.app_state_type = _nagios2.default.StateType.SOFT;
             } else {
-              throw new Error('Error parsing app_id of station ' + station.id + ': ' + station.app_id);
+              // Current data
+              var matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
+              if (matches !== null && 'length' in matches && matches.length > 1) {
+                station.app_id = matches[1];
+              } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+                // Not really a critical error
+                // There's just no app running. It happens. No need to call the Avengers.
+                station.app_id = '';
+                station.app_state = _nagios2.default.ServiceState.OK;
+                station.app_state_type = _nagios2.default.StateType.SOFT;
+              } else {
+                throw new Error('Error parsing app_id of station ' + station.id + ': ' + station.app_id);
+              }
             }
           }
         } catch (err) {
@@ -217,12 +260,12 @@ var MKLivestatusConnector = function () {
   }, {
     key: 'sendCommand',
     value: function sendCommand(queryString) {
-      var _this2 = this;
+      var _this3 = this;
 
       return new Promise(function (resolve) {
-        var MKLivestatusCommand = _this2.nconf.get('mkls_cmd');
-        _this2.logger.debug('MKLivestatus: executing query through \'' + MKLivestatusCommand + '\'');
-        _this2.logger.debug('sending query \'' + queryString + '\'');
+        var MKLivestatusCommand = _this3.nconf.get('mkls_cmd');
+        _this3.logger.debug('MKLivestatus: executing query through \'' + MKLivestatusCommand + '\'');
+        _this3.logger.debug('sending query \'' + queryString + '\'');
         var process = (0, _child_process.exec)(MKLivestatusCommand);
 
         var stdoutBuf = '';
@@ -230,16 +273,21 @@ var MKLivestatusConnector = function () {
         process.stdout.on('data', function (data) {
           stdoutBuf += data;
         }).on('end', function () {
-          _this2.logger.debug('MKLivestatus stdout: \'' + stdoutBuf + '\'');
+          _this3.logger.debug('MKLivestatus stdout: \'' + stdoutBuf + '\'');
           resolve(stdoutBuf);
         });
 
         process.stderr.on('data', function (data) {
-          _this2.logger.error('MKLivestatus stderr: ' + data);
+          _this3.logger.error('MKLivestatus stderr: ' + data);
         });
 
         process.stdin.end(queryString + '\n\n');
       });
+    }
+  }], [{
+    key: 'timestamp',
+    value: function timestamp() {
+      return Math.floor(Date.now() / 1000);
     }
   }]);
 
