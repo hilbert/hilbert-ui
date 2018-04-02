@@ -4,8 +4,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.14] 2018-04-02
+### Added
+- Adds a System menu to start and stop stations
+- Adds a Test menu to simulate errors in test mode
+- Adds notifications to the client
+- Stations now temporarily lock after certain errors
+- Station operations now time out after a configurable amount of time
+- Adds the 'operation_timeout' and 'error_lock_time' config keys.
+### Changed
+- The server now properly handles a number of error conditions, specially during operations
+- The client "Event log" is now called "Latest notifications"
+
+## [v0.13.1] 2018-03-04
+### Added
+- Adds schema validation to the HTTP API
+
+## [v0.13] 2018-02-20
+### Added
+- Added support for the new Hilbert CLI configuration format
+- Added /applications and /station_profiles entry points to the API
+- Shows application and station names instead of IDs in the the client
+- Uses station profiles instead of type for filtering in the client
+- Added API documentation in Swagger / OpenAPI format
+### Changed
+- Call Hilbert CLI directly instead of through wrapper scripts
+
+
+## [v0.12.1] 2018-01-30
+### Fixed
+- Presets are deselected after deleting them
+
+## [v0.12] 2018-01-30
+### Added
+- Added a header bar to the UI
+### Changed
+- Presets were changed to always map all stations instead of subsets
+
+## [v0.11.1] 2018-01-28
+### Fixed
+- Removes internal properties from the station data sent through the HTTP API
+
+## [v0.11] 2018-01-28
+### Added
+- Added support for Presets (named station->app mappings)
+- Added new API for modules that add functionality to the server
+
 ## [v0.10] 2016-12-06
 ### Added
+- CLI program (hilbert-http-api) that can list, start and stop stations.
 - Added tests for the HTTP API layer
 - Added interface to the Test Backend for defining test data programmatically
 - Added LICENSE and NOTICE
