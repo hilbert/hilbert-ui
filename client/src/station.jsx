@@ -5,6 +5,19 @@ export default class Station extends React.Component {
     super(props);
     this.handleClick = this.handleClick.bind(this);
     this.handleOpenTerminalLog = this.handleOpenTerminalLog.bind(this);
+    this.handleInfoButton = this.handleInfoButton.bind(this);
+    this.onElementRef = this.onElementRef.bind(this);
+    this.elementRef = null;
+  }
+
+  componentDidMount() {
+    $(this.elementRef).find('.station-info-button').popover({
+      placement: 'left',
+    });
+  }
+
+  onElementRef(ref) {
+    this.elementRef = ref;
   }
 
   handleClick() {
@@ -13,6 +26,11 @@ export default class Station extends React.Component {
 
   handleOpenTerminalLog(ev) {
     this.props.onOpenTerminalLog(this.props.station.id);
+    ev.preventDefault();
+    ev.stopPropagation();
+  }
+
+  handleInfoButton(ev) {
     ev.preventDefault();
     ev.stopPropagation();
   }
@@ -53,6 +71,7 @@ export default class Station extends React.Component {
         id={this.props.station.id}
         className={stationClasses.join(' ')}
         onClick={this.handleClick}
+        ref={this.onElementRef}
       >
         <div className="station-state-light"></div>
         <div className="station-icon">
@@ -63,6 +82,9 @@ export default class Station extends React.Component {
         <div className="station-app" title={appDesc}>{appName}</div>
         <div className="station-status">{this.props.station.status}</div>
         { lock }
+        <button className="station-info-button" onClick={this.handleInfoButton} data-toggle="popover" data-trigger="focus" title={this.props.station.id} data-content={this.props.station.description}>
+          <i className="fa fa-info-circle" />
+        </button>
         <a className="station-output-button" onClick={(ev) => { this.handleOpenTerminalLog(ev); }}>
           <i className="fa fa-desktop"></i>
         </a>
@@ -75,6 +97,7 @@ Station.propTypes = {
   station: React.PropTypes.shape({
     id: React.PropTypes.string,
     name: React.PropTypes.string,
+    description: React.PropTypes.string,
     state: React.PropTypes.string,
     profile: React.PropTypes.string,
     status: React.PropTypes.string,

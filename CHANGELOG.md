@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.16.0] 2018-04-03
+### Added
+- Adds "info" button to stations which shows station ID and description
+
 ## [v0.15.1] 2018-04-02
 ### Fixed
 - Fixes bug that prevented receiving state from CheckMK

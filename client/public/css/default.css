@@ -212,6 +212,25 @@ body {
     width: 28px;
     height: 100%;
     background-color: #afafaf; }
+  .station .station-info-button {
+    position: absolute;
+    top: 5px;
+    right: 40px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 24px;
+    color: #91a8ba;
+    background: none;
+    border: none;
+    padding: 0; }
+    .station .station-info-button:hover {
+      color: #5D5D5D; }
+    .station .station-info-button:focus {
+      color: #5D5D5D;
+      outline: none;
+      pointer-events: none; }
   .station .station-output-button {
     position: absolute;
     top: 5px;
