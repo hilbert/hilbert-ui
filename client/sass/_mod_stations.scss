@@ -50,6 +50,27 @@ $station-light-width: 28px;
     color: $color-blue-text;
     clear: both;
     min-height: $station-line-height;
+
+    button {
+      padding: 0;
+      background: none;
+      border: none;
+      pointer-events: none; // Active in "on" state only
+
+      &:hover {
+        background: none;
+        color: $color-black;
+      }
+
+      &:focus {
+        outline: none;
+        color: $color-black;
+      }
+
+      .caret {
+        display: none; // Visible in "on" state only
+      }
+    }
   }
 
   .station-status {
@@ -85,7 +106,7 @@ $station-light-width: 28px;
   .station-info-button {
     position: absolute;
     top: 5px;
-    right: 40px;
+    right: 5px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -110,7 +131,7 @@ $station-light-width: 28px;
   .station-output-button {
     position: absolute;
     top: 5px;
-    right: 5px;
+    right: 40px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -154,12 +175,24 @@ $station-light-width: 28px;
   &:hover {
     background-color: rgba(236, 236, 236, 0.95);
   }
-  .station-app {
-    color: $color-blue-text-grayed;
-  }
 
   .station-icon {
     opacity: 0.5;
+  }
+
+  .station-app {
+    color: $color-blue-text-grayed;
+  }
+}
+
+.station-state-on {
+  .station-app {
+    button {
+      pointer-events: all;
+      .caret {
+        display: inline-block;
+      }
+    }
   }
 }
 

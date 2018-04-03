@@ -6,6 +6,7 @@ export default class Station extends React.Component {
     this.handleClick = this.handleClick.bind(this);
     this.handleOpenTerminalLog = this.handleOpenTerminalLog.bind(this);
     this.handleInfoButton = this.handleInfoButton.bind(this);
+    this.handleAppMenuClick = this.handleAppMenuClick.bind(this)
     this.onElementRef = this.onElementRef.bind(this);
     this.elementRef = null;
   }
@@ -18,6 +19,18 @@ export default class Station extends React.Component {
 
   onElementRef(ref) {
     this.elementRef = ref;
+  }
+
+  handleAppMenuClick(ev) {
+    ev.stopPropagation();
+    ev.preventDefault();
+
+    const selectedAppID = $(ev.target).attr('data-value');
+    if (selectedAppID !== undefined) {
+      if (this.props.onAppChange) {
+        this.props.onAppChange(this.props.station, selectedAppID);
+      }
+    }
   }
 
   handleClick() {
@@ -66,6 +79,11 @@ export default class Station extends React.Component {
       profileDesc = this.props.stationProfiles[this.props.station.profile].description;
     }
 
+    const appOptions = [];
+    for (const appID of this.props.station.compatible_apps) {
+      appOptions.push(<li key={appID}><a href="#" data-value={appID}>{this.props.applications[appID].name}</a></li>);
+    }
+
     return (
       <div
         id={this.props.station.id}
@@ -79,7 +97,12 @@ export default class Station extends React.Component {
         </div>
         <div className="station-name">{this.props.station.name}</div>
         <div className="station-profile" title={profileDesc}>{profileName}</div>
-        <div className="station-app" title={appDesc}>{appName}</div>
+        <div className="station-app dropdown">
+          <button type="button" data-toggle="dropdown" onClick={this.handleAppMenuClick}>
+            {appName} <span className="caret" />
+          </button>
+          <ul className="dropdown-menu" onClick={this.handleAppMenuClick}>{ appOptions }</ul>
+        </div>
         <div className="station-status">{this.props.station.status}</div>
         { lock }
         <button className="station-info-button" onClick={this.handleInfoButton} data-toggle="popover" data-trigger="focus" title={this.props.station.id} data-content={this.props.station.description}>
@@ -104,6 +127,7 @@ Station.propTypes = {
     locked: React.PropTypes.bool,
     locked_seconds: React.PropTypes.number,
     app: React.PropTypes.string,
+    compatible_apps: React.PropTypes.arrayOf(React.PropTypes.string),
     icon: React.PropTypes.string,
   }).isRequired,
   selected: React.PropTypes.bool,
@@ -123,4 +147,5 @@ Station.propTypes = {
   ),
   onClickStation: React.PropTypes.func,
   onOpenTerminalLog: React.PropTypes.func,
+  onAppChange: React.PropTypes.func,
 };

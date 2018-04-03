@@ -190,6 +190,19 @@ body {
     color: #7E8F9C;
     clear: both;
     min-height: 20px; }
+    .station .station-app button {
+      padding: 0;
+      background: none;
+      border: none;
+      pointer-events: none; }
+      .station .station-app button:hover {
+        background: none;
+        color: #5D5D5D; }
+      .station .station-app button:focus {
+        outline: none;
+        color: #5D5D5D; }
+      .station .station-app button .caret {
+        display: none; }
   .station .station-status {
     margin-top: 4px;
     margin-bottom: -4px; }
@@ -215,7 +228,7 @@ body {
   .station .station-info-button {
     position: absolute;
     top: 5px;
-    right: 40px;
+    right: 5px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -234,7 +247,7 @@ body {
   .station .station-output-button {
     position: absolute;
     top: 5px;
-    right: 5px;
+    right: 40px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -266,10 +279,15 @@ body {
   background-color: rgba(236, 236, 236, 0.8); }
   .station-state-off:hover {
     background-color: rgba(236, 236, 236, 0.95); }
-  .station-state-off .station-app {
-    color: #ADB8BD; }
   .station-state-off .station-icon {
     opacity: 0.5; }
+  .station-state-off .station-app {
+    color: #ADB8BD; }
+
+.station-state-on .station-app button {
+  pointer-events: all; }
+  .station-state-on .station-app button .caret {
+    display: inline-block; }
 
 .station-state-on .station-state-light {
   background-color: #9EFD93; }

@@ -30,6 +30,7 @@ export default class Dashboard extends React.Component {
     this.showGlobalLog = this.showGlobalLog.bind(this);
     this.showNotificationLog = this.showNotificationLog.bind(this);
     this.changeAppSelectedDialog = this.changeAppSelectedDialog.bind(this);
+    this.stationAppChanged = this.stationAppChanged.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -306,6 +307,22 @@ export default class Dashboard extends React.Component {
     });
   }
 
+  stationAppChanged(station, appID) {
+    if (station.app_id === appID) {
+      bootbox.alert(`${this.props.applications[appID].name} is already running in this station.`);
+      return;
+    }
+
+    bootbox.confirm(`Start <strong>${this.props.applications[appID].name}</strong> in station <strong>${station.name}</strong>?<br /><small>This will close the app currently running.</small>`,
+      (result) => {
+        if (result) {
+          this.props.api.changeApp([station.id], appID).catch(
+            err => console.error(err)
+          );
+        }
+      });
+  }
+
   showTerminalLog(stationID) {
     if (this.consoleViewer !== null) {
       this.consoleViewer.openModal();
@@ -504,6 +521,7 @@ export default class Dashboard extends React.Component {
         stationProfiles={this.props.stationProfiles}
         onClickStation={this.selectToggle}
         onOpenTerminalLog={this.showTerminalLog}
+        onAppChange={this.stationAppChanged}
       />
     ));
 
