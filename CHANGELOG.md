@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.15.1] 2018-04-02
+### Fixed
+- Fixes bug that prevented receiving state from CheckMK
+
 ## [v0.15] 2018-04-02
 ### Added
 - Ignore stale app data from CheckMK

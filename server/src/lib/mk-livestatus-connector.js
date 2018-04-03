@@ -46,7 +46,7 @@ export default class MKLivestatusConnector {
       .then((stations) => {
         this.logger.debug('MKLivestatus: host state response received. Updating stations.');
         for (const station of stations) {
-          if (!('id' in station)) {
+          if ('id' in station) {
             state.set(station.id, station);
           }
         }

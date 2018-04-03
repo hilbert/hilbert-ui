@@ -84,7 +84,7 @@ var MKLivestatusConnector = function () {
           for (var _iterator = stations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
             var station = _step.value;
 
-            if (!('id' in station)) {
+            if ('id' in station) {
               state.set(station.id, station);
             }
           }
