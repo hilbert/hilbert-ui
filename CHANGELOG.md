@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.17.0]
+### Added
+- Adds a menu option for changing the app of the selected stations
+
 ## [v0.16.0] 2018-04-03
 ### Added
 - Adds "info" button to stations which shows station ID and description

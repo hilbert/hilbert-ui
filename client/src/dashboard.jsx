@@ -29,6 +29,7 @@ export default class Dashboard extends React.Component {
     this.showTerminalLog = this.showTerminalLog.bind(this);
     this.showGlobalLog = this.showGlobalLog.bind(this);
     this.showNotificationLog = this.showNotificationLog.bind(this);
+    this.changeAppSelectedDialog = this.changeAppSelectedDialog.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -135,6 +136,11 @@ export default class Dashboard extends React.Component {
         callback: this.stopSelected.bind(this),
         title: 'stop the selected stations',
         confirm: true,
+      },
+      'stations-selected-changeapp-dialog': {
+        callback: this.changeAppSelectedDialog.bind(this),
+        title: 'change the application',
+        confirm: false,
       },
       'stations-visible-select': {
         callback: this.selectAllVisible.bind(this),
@@ -247,6 +253,57 @@ export default class Dashboard extends React.Component {
       err => console.error(err)
     );
     this.deselectAll();
+  }
+
+  changeAppSelectedDialog() {
+    let allSelectedOn = true;
+    for (const selectedID of this.state.selection) {
+      if (this.getStationState(selectedID).state !== 'on') {
+        allSelectedOn = false;
+        break;
+      }
+    }
+
+    if (!allSelectedOn) {
+      bootbox.alert('All selected stations must be running to change the application.')
+      return;
+    }
+
+    const applications = Object.values(this.props.applications).filter((app) => {
+      for (const station of this.state.stations) {
+        if (this.state.selection.has(station.id)) {
+          if (!station.compatible_apps.includes(app.id)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }).map(app => ({ text: app.name, value: app.id }));
+
+    if (applications.length === 0) {
+      bootbox.alert('No applications are compatible with all selected stations.');
+      return;
+    }
+
+    const selection = Array.from(this.state.selection);
+    let amount = '1 selected station';
+    if (selection.length > 1) {
+      amount = `${selection.length} selected stations`;
+    }
+
+    bootbox.prompt({
+      title: `Change the application running in ${amount}.`,
+      inputType: 'select',
+      inputOptions: [{ text: 'Select an application...', value: '' }].concat(applications),
+      callback: (result) => {
+        if (result) {
+          this.props.api.changeApp(selection, result).catch(
+            err => console.error(err)
+          );
+          this.deselectAll();
+        }
+      },
+    });
   }
 
   showTerminalLog(stationID) {
@@ -522,40 +579,6 @@ export default class Dashboard extends React.Component {
 
     const noSelectionDisable = (selectedCount === 0 ? ' disabled' : '');
 
-    let allSelectedOn = true;
-    for (const selectedID of this.state.selection) {
-      if (this.getStationState(selectedID).state !== 'on') {
-        allSelectedOn = false;
-        break;
-      }
-    }
-
-    const canChangeApp = (allSelectedOn && (selectedCount > 0));
-
-    const applications = Object.values(this.props.applications).filter((app) => {
-      for (const station of this.state.stations) {
-        if (this.state.selection.has(station.id)) {
-          if (!station.compatible_apps.includes(app.id)) {
-            return false;
-          }
-        }
-      }
-      return true;
-    });
-
-    actions.push(
-      <div key="appSelect" className="action-pane">
-        <div className="action-pane-separator" />
-        <AppSelect
-          applications={canChangeApp ? applications : []}
-          disabled={!canChangeApp}
-          allowBlank
-          onChange={this.attachConfirmation('Are you sure you want to change the application?',
-            this.changeAppSelected)}
-        />
-      </div>
-    );
-
     return (
       <div className={messageBar !== '' ? 'with-message_bar' : ''}>
         {messageBar}
@@ -590,6 +613,12 @@ export default class Dashboard extends React.Component {
                 <li className={noSelectionDisable} >
                   <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-stop') : ''}>
                     Stop selected stations
+                  </a>
+                </li>
+                <li role="separator" className="divider"></li>
+                <li className={noSelectionDisable}>
+                  <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-changeapp-dialog') : ''}>
+                    Change the app of selected stations
                   </a>
                 </li>
               </ul>
