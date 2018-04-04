@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [v0.17.0]
+## [v0.17.0] 2018-04-03
 ### Added
 - Adds a new layout. It's so different it's unfair to put it in a "Changed" section.
-- Adds a dropdown menu for changing app in each station
+- Adds a new menu for reordering stations by various fields
 - Adds a menu option for changing the app of the selected stations
+- Adds a dropdown menu for changing app in each station
 
 ## [v0.16.0] 2018-04-03
 ### Added

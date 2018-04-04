@@ -10,6 +10,7 @@ import Header from './header.jsx';
 import UIAPI from './uiAPI';
 import TestMenu from './testMenu';
 import NotificationManager from './notificationManager';
+import ViewMenu from "./viewMenu";
 
 export default class Dashboard extends React.Component {
 
@@ -20,6 +21,7 @@ export default class Dashboard extends React.Component {
       selection: new Set(),
       visibleProfile: '',
       visibleState: '',
+      sortCriteria: 'default',
       log: [],
       serverConnectionError: false,
       presets: [],
@@ -31,6 +33,7 @@ export default class Dashboard extends React.Component {
     this.showNotificationLog = this.showNotificationLog.bind(this);
     this.changeAppSelectedDialog = this.changeAppSelectedDialog.bind(this);
     this.stationAppChanged = this.stationAppChanged.bind(this);
+    this.sortCriteriaChanged = this.sortCriteriaChanged.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -499,6 +502,20 @@ export default class Dashboard extends React.Component {
       .catch(err => console.error(err));
   }
 
+  getSortFieldAccessor(id) {
+    const criteria = {
+      name: s => s.name,
+      app: (s => (this.props.applications[s.app] && this.props.applications[s.app].name) || ''),
+      profile: (s => (this.props.stationProfiles[s.profile] && this.props.stationProfiles[s.profile].name) || ''),
+    };
+
+    return criteria[id];
+  }
+
+  sortCriteriaChanged(newCriteria) {
+    this.setState({ sortCriteria: newCriteria });
+  }
+
   render() {
     const stations = [];
     const filters = [];
@@ -513,7 +530,22 @@ export default class Dashboard extends React.Component {
     }
 
     let stationCount = 0;
-    this.getVisibleStations().forEach(station => {
+
+    const visibleStations = this.getVisibleStations();
+    if (this.state.sortCriteria !== 'default') {
+      const sortFieldAccesor = this.getSortFieldAccessor(this.state.sortCriteria);
+      visibleStations.sort((a, b) => {
+        const fa = sortFieldAccesor(a);
+        const fb = sortFieldAccesor(b);
+        if (fa > fb) {
+          return 1;
+        } else if (fa < fb) {
+          return -1;
+        }
+        return 0;
+      });
+    }
+    for (const station of visibleStations) {
       stations.push(
         <div className="col-sm-6 col-lg-4" key={station.id}>
           <Station
@@ -536,7 +568,7 @@ export default class Dashboard extends React.Component {
       if ((stationCount % 2) === 0) {
         stations.push(<div key={`sep-sm-${stationCount}`} className="clearfix visible-sm-block visible-md-block" />);
       }
-    });
+    }
 
     const counts = {};
     this.state.stations.forEach((station) => {
@@ -635,6 +667,7 @@ export default class Dashboard extends React.Component {
                 </li>
               </ul>
             </li>
+            <ViewMenu sortCriteria={this.state.sortCriteria} onSortCriteria={this.sortCriteriaChanged} />
             <TestMenu api={this.props.api} selection={this.state.selection} />
           </ul>
           <PresetsBlock
