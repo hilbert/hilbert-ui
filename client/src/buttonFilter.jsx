@@ -4,7 +4,7 @@ const ButtonFilter = (props) => {
   const options = [];
 
   for (const option of props.options) {
-    const classes = ['btn', 'btn-default', `button-filter-option-${option.id}`];
+    const classes = ['btn', 'btn-default', 'btn-sm', `button-filter-option-${option.id}`];
     if (props.value === option.id) {
       classes.push('active');
     }
@@ -30,7 +30,7 @@ const ButtonFilter = (props) => {
     );
   }
 
-  const defaultClasses = ['btn', 'btn-default'];
+  const defaultClasses = ['btn', 'btn-default', 'btn-sm'];
   if (props.value === '') {
     defaultClasses.push('active');
   }

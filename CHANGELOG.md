@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [v0.17.0]
 ### Added
+- Adds a new layout. It's so different it's unfair to put it in a "Changed" section.
 - Adds a dropdown menu for changing app in each station
 - Adds a menu option for changing the app of the selected stations
 

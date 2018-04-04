@@ -1,5 +1,5 @@
 #dashboardContainer {
-  padding-top: 40px;
+  padding-top: 60px;
 }
 
 .navbar {
@@ -7,6 +7,27 @@
 
   .button-filter {
     margin: 15px 0 15px -5px;
+  }
+
+  .navbar-btn {
+    width: 36px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    font-size: 20px;
+    color: $color-blue-shadow;
+    border: none;
+    background: none;
+    padding: 0;
+
+    &:focus {
+      outline: none;
+      color: $color-black;
+    }
+
+    &:hover {
+      color: $color-black;
+    }
   }
 }
 

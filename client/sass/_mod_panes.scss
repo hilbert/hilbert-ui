@@ -2,17 +2,59 @@ body {
   background-color: $color-blue;
 }
 
-.pane-stations,
-.pane-actions {
-
-  padding: 15px;
-}
-
 .pane-stations {
-
+  padding: 15px;
+  padding-top: 0;
+  margin-top: -10px;
 }
 
-.pane-actions {
-  position: fixed;
-  right: 0;
+.filter-pane {
+  display: inline-block;
+  vertical-align: bottom;
+  margin-right: 40px;
+  margin-bottom: 10px;
+
+  .btn .badge {
+    color: $color-black;
+    font-size: 13px;
+    margin: -1px -2px -1px 4px;
+    min-width: 3em;
+  }
+
+  .button-filter-option-on .badge {
+    background-color: $color-status-on;
+  }
+
+  .button-filter-option-off .badge {
+    background-color: $color-status-off-lighter;
+  }
+
+  .button-filter-option-busy .badge {
+    background-color: $color-status-busy;
+  }
+
+  .button-filter-option-error .badge {
+    background-color: $color-status-error-lighter;
+  }
+}
+
+.filter-pane-state {
+  margin-top: 10px;
+  float: right;
+  margin-right: 0;
+}
+
+#dashboard {
+  & > .row {
+    margin-left: -14px;
+    margin-right: 0;
+    & > div {
+      padding-left: 14px;
+      padding-right: 0;
+
+      .station {
+        margin: 14px 0 0;
+      }
+    }
+  }
 }

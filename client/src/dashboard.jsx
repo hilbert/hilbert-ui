@@ -501,7 +501,7 @@ export default class Dashboard extends React.Component {
 
   render() {
     const stations = [];
-    const actions = [];
+    const filters = [];
     let messageBar = '';
 
     if (this.state.serverConnectionError) {
@@ -512,18 +512,31 @@ export default class Dashboard extends React.Component {
       </div>);
     }
 
-    this.getVisibleStations().forEach(station => stations.push(
-      <Station
-        station={station}
-        key={station.id}
-        selected={this.state.selection.has(station.id)}
-        applications={this.props.applications}
-        stationProfiles={this.props.stationProfiles}
-        onClickStation={this.selectToggle}
-        onOpenTerminalLog={this.showTerminalLog}
-        onAppChange={this.stationAppChanged}
-      />
-    ));
+    let stationCount = 0;
+    this.getVisibleStations().forEach(station => {
+      stations.push(
+        <div className="col-sm-6 col-lg-4" key={station.id}>
+          <Station
+            station={station}
+            selected={this.state.selection.has(station.id)}
+            applications={this.props.applications}
+            stationProfiles={this.props.stationProfiles}
+            onClickStation={this.selectToggle}
+            onOpenTerminalLog={this.showTerminalLog}
+            onAppChange={this.stationAppChanged}
+          />
+        </div>
+      );
+
+      stationCount += 1;
+      // Responsive column resets
+      if ((stationCount % 3) === 0) {
+        stations.push(<div key={`sep-lg-${stationCount}`} className="clearfix visible-lg-block" />);
+      }
+      if ((stationCount % 2) === 0) {
+        stations.push(<div key={`sep-sm-${stationCount}`} className="clearfix visible-sm-block visible-md-block" />);
+      }
+    });
 
     const counts = {};
     this.state.stations.forEach((station) => {
@@ -536,15 +549,33 @@ export default class Dashboard extends React.Component {
     const selectedCount = this.state.selection.size;
     const allSelected = (selectedCount === this.state.stations.length);
     const selectAllClasses =
-      `btn btn-default ${allSelected ? ' disabled' : ''}`;
+      `btn btn-default btn-sm ${allSelected ? ' disabled' : ''}`;
 
     const deselectAllClasses =
-      `btn btn-default ${selectedCount === 0 ? ' disabled' : ''}`;
+      `btn btn-default btn-sm ${selectedCount === 0 ? ' disabled' : ''}`;
 
     const stationWord = selectedCount === 1 ? 'station' : 'stations';
 
-    actions.push(
-      <div key="stationStateFilter" className="action-pane">
+    filters.push(
+      <div key="selectedCount" className="filter-pane">
+        <div className="selectActions">
+          <a
+            className={selectAllClasses}
+            onClick={this.getCommand('stations-visible-select')}
+          >Select all</a>&nbsp;
+          <a
+            className={deselectAllClasses}
+            onClick={this.getCommand('stations-all-deselect')}
+          >Deselect</a>&nbsp;
+          <span className="selectActions-selected">
+            {this.state.selection.size} {stationWord} selected
+          </span>
+        </div>
+      </div>
+    );
+
+    filters.push(
+      <div key="stationStateFilter" className="filter-pane filter-pane-state">
         <ButtonFilter
           options={Dashboard.StateOptions}
           counts={counts}
@@ -555,43 +586,6 @@ export default class Dashboard extends React.Component {
             this.setState({ visibleState: option });
           }}
         />
-      </div>
-    );
-
-    const sortedProfiles = Object.values(this.props.stationProfiles).sort((a, b) => {
-      if (a < b) return 1;
-      else if (a > b) return -1;
-      return 0;
-    });
-
-    actions.push(
-      <div key="stationTypeFilter" className="action-pane">
-        <ButtonFilter
-          options={sortedProfiles}
-          allText="All"
-          value={this.state.visibleProfile}
-          onChange={(option) => {
-            this.deselectAll();
-            this.setState({ visibleProfile: option });
-          }}
-        />
-      </div>
-    );
-
-    actions.push(
-      <div key="selectedCount" className="action-pane">
-        <div className="action-pane-separator" />
-        <b>{this.state.selection.size} {stationWord} selected</b>
-        <div className="selectActions">
-          <a
-            className={deselectAllClasses}
-            onClick={this.getCommand('stations-all-deselect')}
-          >Deselect</a>&nbsp;
-          <a
-            className={selectAllClasses}
-            onClick={this.getCommand('stations-visible-select')}
-          >Select all</a>
-        </div>
       </div>
     );
 
@@ -655,16 +649,16 @@ export default class Dashboard extends React.Component {
         </Header>
         <div className="container-fluid">
           <div className="row">
-            <div className="col-sm-6 pane-stations">
+            <div className="col-sm-12">
+              {filters}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-12 pane-stations">
               <div id="dashboard">
-                <div id="stationList" className="panel-group">
+                <div className="row">
                   {stations}
                 </div>
-              </div>
-            </div>
-            <div className="col-sm-6 pane-actions">
-              <div id="dashboardActions">
-                {actions}
               </div>
             </div>
           </div>
