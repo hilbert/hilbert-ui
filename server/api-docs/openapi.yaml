@@ -288,6 +288,9 @@ paths:
           schema:
             type: object
             properties:
+              lastCheck:
+                type: string
+                description: Timestamp of the last MK Livestatus (succesful) check
               lastState:
                 type: array
                 items:

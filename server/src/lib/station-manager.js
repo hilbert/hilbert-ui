@@ -36,6 +36,7 @@ export default class StationManager {
 
     this.globalHilbertCLIOutputBuffer = new TerminalOutputBuffer();
     this.lastMKLivestatusDump = [];
+    this.lastMKLivestatusDumpTime = '';
 
     this.clearStations();
     this.clearStationProfiles();
@@ -413,6 +414,7 @@ export default class StationManager {
         }
       }
       this.lastMKLivestatusDump = lastState;
+      this.lastMKLivestatusDumpTime = new Date().toISOString();
 
       if (changes) {
         this.signalUpdate();

@@ -203,16 +203,14 @@ var MKLivestatusConnector = function () {
             } else {
               // Current data
               var matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-              if (matches !== null && 'length' in matches && matches.length > 1) {
+              if (station.app_state === _nagios2.default.ServiceState.OK && matches !== null && 'length' in matches && matches.length > 1) {
                 station.app_id = matches[1];
-              } else if (station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+              } else if (station.app_state === _nagios2.default.ServiceState.CRITICAL && station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
                 // Not really a critical error
                 // There's just no app running. It happens. No need to call the Avengers.
                 station.app_id = '';
                 station.app_state = _nagios2.default.ServiceState.OK;
                 station.app_state_type = _nagios2.default.StateType.SOFT;
-              } else {
-                throw new Error('Error parsing app_id of station ' + station.id + ': ' + station.app_id);
               }
             }
           }

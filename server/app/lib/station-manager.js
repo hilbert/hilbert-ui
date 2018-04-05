@@ -67,6 +67,7 @@ var StationManager = function () {
 
     this.globalHilbertCLIOutputBuffer = new _terminalOutputBuffer2.default();
     this.lastMKLivestatusDump = [];
+    this.lastMKLivestatusDumpTime = '';
 
     this.clearStations();
     this.clearStationProfiles();
@@ -652,6 +653,7 @@ var StationManager = function () {
         }
 
         _this7.lastMKLivestatusDump = lastState;
+        _this7.lastMKLivestatusDumpTime = new Date().toISOString();
 
         if (changes) {
           _this7.signalUpdate();

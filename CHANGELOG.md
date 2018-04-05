@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.18.0] 2018-04-05
+### Added
+- Shows timestamp of last CheckMK status read in the /server/mklivestatus api
+### Fixed
+- More resilient parsing of app state in Check MK
+
 ## [v0.17.0] 2018-04-03
 ### Added
 - Adds a new layout. It's so different it's unfair to put it in a "Changed" section.

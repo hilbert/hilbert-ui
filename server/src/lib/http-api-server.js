@@ -277,6 +277,7 @@ export default class HttpAPIServer {
   getServerMKLivestatus(req, res) {
     this.logger.debug('HTTP request received: Get last MKLivestatus state');
     res.json({
+      lastCheck: this.stationManager.lastMKLivestatusDumpTime,
       lastState: this.stationManager.lastMKLivestatusDump,
     });
   }
