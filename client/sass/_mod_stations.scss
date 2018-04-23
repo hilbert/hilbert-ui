@@ -189,6 +189,8 @@ $station-light-width: 28px;
   .station-app {
     button {
       pointer-events: all;
+      text-align: left;
+      min-width: 30px;
       .caret {
         display: inline-block;
       }

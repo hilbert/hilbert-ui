@@ -330,7 +330,9 @@ body {
     color: #ADB8BD; }
 
 .station-state-on .station-app button {
-  pointer-events: all; }
+  pointer-events: all;
+  text-align: left;
+  min-width: 30px; }
   .station-state-on .station-app button .caret {
     display: inline-block; }
 
