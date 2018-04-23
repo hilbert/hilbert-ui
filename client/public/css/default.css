@@ -287,8 +287,7 @@ body {
       color: #5D5D5D; }
     .station .station-info-button:focus {
       color: #5D5D5D;
-      outline: none;
-      pointer-events: none; }
+      outline: none; }
   .station .station-output-button {
     position: absolute;
     top: 5px;

@@ -9,12 +9,12 @@ export default class Station extends React.Component {
     this.handleAppMenuClick = this.handleAppMenuClick.bind(this)
     this.onElementRef = this.onElementRef.bind(this);
     this.elementRef = null;
+    this.infoButton = null;
   }
 
   componentDidMount() {
-    $(this.elementRef).find('.station-info-button').popover({
-      placement: 'left',
-    });
+    this.infoButton = $(this.elementRef).find('.station-info-button');
+    this.infoButton.popover({ placement: 'left' });
   }
 
   onElementRef(ref) {
