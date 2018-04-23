@@ -134,16 +134,21 @@ export default class StationManager {
     this.logger.verbose(`Station manager: Adding station ${aStation.id}`);
     this.stationList.push(aStation);
     this.stationIndex.set(aStation.id, aStation);
-    aStation.events.on('stateChange', (station, type, message) => {
-      this.notify(type, station, message);
+    aStation.events.on('stateChange', (station, type, message, details) => {
+      this.notify(type, station, message, details);
+
+      let extraText = '';
+      if (details !== undefined) {
+        extraText = ` (${details})`;
+      }
       if (type === 'info') {
-        this.logger.info(`Station manager: ${station.id}: ${message}`);
+        this.logger.info(`Station manager: ${station.id}: ${message}${extraText}`);
       } else if (type === 'warning') {
-        this.logger.warn(`Station manager: ${station.id}: ${message}`);
+        this.logger.warn(`Station manager: ${station.id}: ${message}${extraText}`);
       } else if (type === 'error') {
-        this.logger.error(`Station manager: ${station.id}: ${message}`);
+        this.logger.error(`Station manager: ${station.id}: ${message}${extraText}`);
       } else {
-        this.logger.verbose(`Station manager: ${station.id}: ${message}`);
+        this.logger.verbose(`Station manager: ${station.id}: ${message}${extraText}`);
       }
     });
   }
@@ -372,13 +377,15 @@ export default class StationManager {
    * @param {string} type - Notification type: info | warning | error
    * @param {Station|null} station - station associated with the event logged
    * @param {string} message - Text of the notification
+   * @param {string} details - Extra details
    */
-  notify(type, station, message) {
+  notify(type, station, message, details = '') {
     const newNotification = {
       id: this.lastNotificationID,
       time: new Date().toISOString(),
       type,
       message,
+      details,
     };
 
     if (station !== null) {

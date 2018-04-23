@@ -59,12 +59,12 @@ export default class LogViewer extends React.Component {
     const entries = [];
     for (const logEntry of this.props.log) {
       const rowClass = rowClasses[logEntry.type] !== undefined ? rowClasses[logEntry.type] : '';
-
       entries.push(
         <tr key={logEntry.id} className={rowClass}>
           <td>{LogViewer.formatTime(logEntry.time)}</td>
           <td>{logEntry.station_name}</td>
           <td>{logEntry.message}</td>
+          <td>{logEntry.details}</td>
         </tr>
       );
     }
@@ -86,6 +86,7 @@ export default class LogViewer extends React.Component {
                     <th>Time</th>
                     <th>Station</th>
                     <th>Message</th>
+                    <th>Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -110,6 +111,7 @@ LogViewer.propTypes = {
       station_id: React.PropTypes.string,
       station_name: React.PropTypes.string,
       message: React.PropTypes.string,
+      details: React.PropTypes.string
     })
   ),
 };

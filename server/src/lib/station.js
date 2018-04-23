@@ -63,6 +63,7 @@ export default class Station {
    */
   updateFromMKLivestatus(stationStatus) {
     let changes = false;
+    const oldApp = this.app;
     if (this.app !== stationStatus.app_id) {
       this.app = stationStatus.app_id;
       changes = true;
@@ -128,7 +129,8 @@ export default class Station {
         return true;
       }
       if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
-        this.events.emit('stateChange', this, 'info', 'App changed');
+
+        this.events.emit('stateChange', this, 'info', 'App changed', `${oldApp} to ${this.switching_app}`);
         this.setOnState();
         return true;
       }

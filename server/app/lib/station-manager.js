@@ -259,16 +259,21 @@ var StationManager = function () {
       this.logger.verbose('Station manager: Adding station ' + aStation.id);
       this.stationList.push(aStation);
       this.stationIndex.set(aStation.id, aStation);
-      aStation.events.on('stateChange', function (station, type, message) {
-        _this3.notify(type, station, message);
+      aStation.events.on('stateChange', function (station, type, message, details) {
+        _this3.notify(type, station, message, details);
+
+        var extraText = '';
+        if (details !== undefined) {
+          extraText = ' (' + details + ')';
+        }
         if (type === 'info') {
-          _this3.logger.info('Station manager: ' + station.id + ': ' + message);
+          _this3.logger.info('Station manager: ' + station.id + ': ' + message + extraText);
         } else if (type === 'warning') {
-          _this3.logger.warn('Station manager: ' + station.id + ': ' + message);
+          _this3.logger.warn('Station manager: ' + station.id + ': ' + message + extraText);
         } else if (type === 'error') {
-          _this3.logger.error('Station manager: ' + station.id + ': ' + message);
+          _this3.logger.error('Station manager: ' + station.id + ': ' + message + extraText);
         } else {
-          _this3.logger.verbose('Station manager: ' + station.id + ': ' + message);
+          _this3.logger.verbose('Station manager: ' + station.id + ': ' + message + extraText);
         }
       });
     }
@@ -581,16 +586,20 @@ var StationManager = function () {
      * @param {string} type - Notification type: info | warning | error
      * @param {Station|null} station - station associated with the event logged
      * @param {string} message - Text of the notification
+     * @param {string} details - Extra details
      */
 
   }, {
     key: 'notify',
     value: function notify(type, station, message) {
+      var details = arguments.length <= 3 || arguments[3] === undefined ? '' : arguments[3];
+
       var newNotification = {
         id: this.lastNotificationID,
         time: new Date().toISOString(),
         type: type,
-        message: message
+        message: message,
+        details: details
       };
 
       if (station !== null) {

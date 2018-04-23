@@ -89,6 +89,7 @@ var Station = function () {
     key: 'updateFromMKLivestatus',
     value: function updateFromMKLivestatus(stationStatus) {
       var changes = false;
+      var oldApp = this.app;
       if (this.app !== stationStatus.app_id) {
         this.app = stationStatus.app_id;
         changes = true;
@@ -154,7 +155,8 @@ var Station = function () {
           return true;
         }
         if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
-          this.events.emit('stateChange', this, 'info', 'App changed');
+
+          this.events.emit('stateChange', this, 'info', 'App changed', oldApp + ' to ' + this.switching_app);
           this.setOnState();
           return true;
         }
