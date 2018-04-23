@@ -217,7 +217,10 @@ body {
     font-weight: 700;
     font-size: 14px;
     color: #6E7E8A;
-    float: left; }
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 78%; }
   .station .station-profile {
     position: absolute;
     bottom: 6px;
@@ -239,7 +242,10 @@ body {
       padding: 0;
       background: none;
       border: none;
-      pointer-events: none; }
+      pointer-events: none;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 78%; }
       .station .station-app button:hover {
         background: none;
         color: #5D5D5D; }
@@ -250,7 +256,10 @@ body {
         display: none; }
   .station .station-status {
     margin-top: 4px;
-    margin-bottom: -4px; }
+    margin-bottom: -4px;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 78%; }
   .station .station-icon {
     width: 65px;
     height: 65px;

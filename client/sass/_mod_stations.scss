@@ -30,6 +30,9 @@ $station-light-width: 28px;
     font-size: 14px;
     color: $color-blue-text-dark;
     float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 78%;
   }
 
   .station-profile {
@@ -56,6 +59,9 @@ $station-light-width: 28px;
       background: none;
       border: none;
       pointer-events: none; // Active in "on" state only
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 78%;
 
       &:hover {
         background: none;
@@ -76,7 +82,9 @@ $station-light-width: 28px;
   .station-status {
     margin-top: 4px;
     margin-bottom: -4px;
-
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 78%;
   }
 
   .station-icon {
