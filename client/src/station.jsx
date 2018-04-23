@@ -105,9 +105,9 @@ export default class Station extends React.Component {
         </div>
         <div className="station-status">{this.props.station.status}</div>
         { lock }
-        <button className="station-info-button" onClick={this.handleInfoButton} data-toggle="popover" data-trigger="focus" title={this.props.station.id} data-content={this.props.station.description}>
+        <a className="station-info-button" onClick={this.handleInfoButton} data-toggle="popover" tabIndex="1" data-trigger="focus" title={this.props.station.id} data-content={this.props.station.description}>
           <i className="fa fa-info-circle" />
-        </button>
+        </a>
         <a className="station-output-button" onClick={(ev) => { this.handleOpenTerminalLog(ev); }}>
           <i className="fa fa-desktop"></i>
         </a>
