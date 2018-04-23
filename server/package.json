@@ -34,6 +34,6 @@
     "tmp": "0.0.33"
   },
   "scripts": {
-    "test": "mocha --require babel-polyfill app/test"
+    "test": "mocha --timeout 5000 --require babel-polyfill app/test"
   }
 }
