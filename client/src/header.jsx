@@ -27,26 +27,25 @@ export default class Header extends React.Component {
     return (
       <nav className="navbar navbar-default navbar-fixed-top">
         <div className="container-fluid">
-          <div className="navbar-header">
-            <button
-              type="button"
-              className="navbar-toggle collapsed"
-              data-toggle="collapse"
-              data-target="#bs-example-navbar-collapse-1"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Toggle navigation</span>
-              <span className="icon-bar" />
-              <span className="icon-bar" />
-              <span className="icon-bar" />
-            </button>
+          <div className="navbar-header pull-left">
             <div className="navbar-brand" href="#">Hilbert</div>
           </div>
-          {this.props.children}
-          <div className="navbar-collapse collapse navbar-right">
+          <button
+            type="button"
+            className="navbar-toggle collapsed navbar-btn"
+            data-toggle="collapse"
+            data-target="#navbar-menus"
+            aria-expanded="false"
+          >
+            <span className="sr-only">Toggle navigation</span>
+            <span className="icon-bar" />
+            <span className="icon-bar" />
+            <span className="icon-bar" />
+          </button>
+          <div className="nav navbar-nav navbar-btn pull-right">
             <button
               type="button"
-              className="btn btn-default navbar-btn"
+              className="btn btn-default navbar-action-btn"
               onClick={this.handleGlobalLogClicked}
             >
               <i className="fa fa-desktop" />
@@ -54,11 +53,14 @@ export default class Header extends React.Component {
             &nbsp;
             <button
               type="button"
-              className="btn btn-default navbar-btn"
+              className="btn btn-default navbar-action-btn"
               onClick={this.handleNotificationsClicked}
             >
               <i className="fa fa-bell-o" />
             </button>
+          </div>
+          <div className="collapse navbar-collapse pull-left" id="navbar-menus">
+            {this.props.children}
           </div>
         </div>
       </nav>

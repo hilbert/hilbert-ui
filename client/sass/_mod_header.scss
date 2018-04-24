@@ -5,11 +5,16 @@
 .navbar {
   box-shadow: 0 6px 12px 0px rgba(0,0,0,0.2);
 
+  .navbar-toggle {
+    margin-right: 0;
+    margin-left: 15px;
+  }
+
   .button-filter {
     margin: 15px 0 15px -5px;
   }
 
-  .navbar-btn {
+  .navbar-action-btn {
     width: 36px;
     height: 34px;
     line-height: 34px;
@@ -28,6 +33,12 @@
     &:hover {
       color: $color-black;
     }
+  }
+}
+
+#navbar-menus {
+  @include responsive($xs) {
+    width: 100%;
   }
 }
 

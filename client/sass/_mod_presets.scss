@@ -1,5 +1,9 @@
 .presets-block {
   border-left: 1px solid rgba(0, 0, 0, 0.27);
+
+  @include responsive($xs) {
+    display: none;
+  }
 }
 
 .navbar-form .input-group>.presets-list {

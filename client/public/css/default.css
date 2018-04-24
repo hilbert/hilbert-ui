@@ -97,7 +97,8 @@ body {
   display: inline-block;
   vertical-align: bottom;
   margin-right: 40px;
-  margin-bottom: 10px; }
+  margin-bottom: 10px;
+  float: left; }
   .filter-pane .btn .badge {
     color: #5D5D5D;
     font-size: 13px;
@@ -116,6 +117,18 @@ body {
   margin-top: 10px;
   float: right;
   margin-right: 0; }
+  @media screen and (max-width: 767px) {
+    .filter-pane-state {
+      float: left; }
+      .filter-pane-state .btn-group a {
+        font-size: 0;
+        line-height: 30px;
+        padding: 5px; }
+        .filter-pane-state .btn-group a .badge {
+          font-size: 16px;
+          margin: 0; }
+      .filter-pane-state .btn-group-all a {
+        font-size: 16px; } }
 
 #dashboard > .row {
   margin-left: -14px;
@@ -125,15 +138,25 @@ body {
     padding-right: 0; }
     #dashboard > .row > div .station {
       margin: 14px 0 0; }
+      @media screen and (max-width: 767px) {
+        #dashboard > .row > div .station {
+          margin: 0 0 14px; } }
+
+@media screen and (max-width: 767px) {
+  #dashboard {
+    margin-top: 14px; } }
 
 #dashboardContainer {
   padding-top: 60px; }
 
 .navbar {
   box-shadow: 0 6px 12px 0px rgba(0, 0, 0, 0.2); }
+  .navbar .navbar-toggle {
+    margin-right: 0;
+    margin-left: 15px; }
   .navbar .button-filter {
     margin: 15px 0 15px -5px; }
-  .navbar .navbar-btn {
+  .navbar .navbar-action-btn {
     width: 36px;
     height: 34px;
     line-height: 34px;
@@ -143,11 +166,15 @@ body {
     border: none;
     background: none;
     padding: 0; }
-    .navbar .navbar-btn:focus {
+    .navbar .navbar-action-btn:focus {
       outline: none;
       color: #5D5D5D; }
-    .navbar .navbar-btn:hover {
+    .navbar .navbar-action-btn:hover {
       color: #5D5D5D; }
+
+@media screen and (max-width: 767px) {
+  #navbar-menus {
+    width: 100%; } }
 
 .dropdown-menu {
   box-shadow: 0 6px 12px 0px rgba(0, 0, 0, 0.2); }
@@ -369,6 +396,10 @@ body {
   margin-bottom: 7px !important; }
   .station-selected:hover {
     background-color: rgba(217, 237, 255, 0.95); }
+  @media screen and (max-width: 767px) {
+    .station-selected {
+      margin-top: -7px !important;
+      margin-bottom: 21px !important; } }
 
 .station-locked .station-icon,
 .station-locked .station-app,
@@ -429,6 +460,9 @@ body {
 
 .presets-block {
   border-left: 1px solid rgba(0, 0, 0, 0.27); }
+  @media screen and (max-width: 767px) {
+    .presets-block {
+      display: none; } }
 
 .navbar-form .input-group > .presets-list {
   width: 150px; }

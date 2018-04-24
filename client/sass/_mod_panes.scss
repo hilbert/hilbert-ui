@@ -13,6 +13,7 @@ body {
   vertical-align: bottom;
   margin-right: 40px;
   margin-bottom: 10px;
+  float: left;
 
   .btn .badge {
     color: $color-black;
@@ -42,6 +43,26 @@ body {
   margin-top: 10px;
   float: right;
   margin-right: 0;
+
+  @include responsive($xs) {
+    float: left;
+    .btn-group {
+      a {
+        font-size: 0;
+        line-height: 30px;
+        padding: 5px;
+        .badge {
+          font-size: 16px;
+          margin: 0;
+        }
+      }
+    }
+    .btn-group-all {
+      a {
+        font-size: 16px;
+      }
+    }
+  }
 }
 
 #dashboard {
@@ -54,7 +75,15 @@ body {
 
       .station {
         margin: 14px 0 0;
+
+        @include responsive($xs) {
+          margin: 0 0 14px;
+        }
       }
     }
+  }
+
+  @include responsive($xs) {
+    margin-top: 14px;
   }
 }

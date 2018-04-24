@@ -239,6 +239,11 @@ $station-light-width: 28px;
   &:hover {
     background-color: rgba(217, 237, 255, 0.95);
   }
+
+  @include responsive($xs) {
+    margin-top: -7px !important;
+    margin-bottom: 21px !important;
+  }
 }
 
 .station-locked {

@@ -37,7 +37,7 @@ const ButtonFilter = (props) => {
 
   return (
     <div className="btn-toolbar button-filter">
-      <div className="btn-group">
+      <div className="btn-group btn-group-all">
         <a
           href="#"
           className={defaultClasses.join(' ')}
