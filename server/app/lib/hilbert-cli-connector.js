@@ -173,6 +173,7 @@ var HilbertCLIConnector = function () {
         // (Argentine english???) and this caused a fallback to ascii for ruamel
         // reading the config file.
         execOptions.env.LC_CTYPE = 'UTF-8';
+        execOptions.maxBuffer = 500 * 1024;
 
         var childProcess = exec(command, execOptions);
         childProcess.stdout.on('data', function (data) {
