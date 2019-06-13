@@ -23,15 +23,17 @@ The parts of the ui are:
 
 0. Install [nginx](https://nginx.org/), if not already present in the system
 
+0. Install node.js and yarn
+
 0. Install the server's dependencies
 
         cd server
-        npm install --production
+        yarn install --prod
 
 0. Install the web front end's dependencies
 
         cd client
-        npm install --production
+        yarn install --prod
 
 0. Configure nginx to serve the static files and proxy the web service
  
@@ -110,22 +112,7 @@ The ui configuration file is `server/config.json`. It supports the following opt
     - **data/**: Auxiliary data files
     - **config.json**: Back end configuration file
 
-## Building
-
-### UI Server
-
-The server sources are compiled from ECMAScript 2015 to regular JS using Babel.
-
-0. Install the dependencies
-
-        cd server
-        npm install
-
-0. Compile
-
-        gulp --gulpfile server/gulpfile.js compile
-
-### UI client
+## Building the UI client
 
 The client sources are compiled from JSX / ECMAScript 2015 to regular JS using Babel. 
 Dependencies (like React) are also compiled and packed to a vendors.js file. 
@@ -133,15 +120,15 @@ Dependencies (like React) are also compiled and packed to a vendors.js file.
 0. Install the dependencies
 
         cd client
-        npm install 
+        yarn
 
-0. Compile JS sources
+0. Compile JS sources (from the `client` directory)
 
-        gulp --gulpfile client/gulpfile.js scripts:dev
+        gulp scripts
 
-0. Compile SASS stylesheets
+0. Compile SASS stylesheets (from the `client` directory)
 
-        gulp --gulpfile client/gulpfile.js sass
+        gulp styles
 
 ## Deployment with Docker
 

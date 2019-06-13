@@ -1,87 +1,62 @@
-'use strict';
-
-var http_public = './public';
-
-var gulp = require('gulp');
 var browserify = require('browserify');
+var gulp = require('gulp');
 var source = require('vinyl-source-stream');
-var gutil = require('gulp-util');
-var babelify = require('babelify');
+var buffer = require('vinyl-buffer');
+var babel = require('gulp-babel');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
+var uglify = require('gulp-uglify');
+var rename = require('gulp-rename');
 
-var dependencies = [
-  'react',
-  'react-dom',
-];
+var paths = {
+  styles: {
+    src: './sass/**/*.scss',
+    dest: './public/css',
+  },
+  scripts: {
+    src: './src/*.jsx',
+    dest: './public/js',
+  },
+};
 
-// How many times the scripts task is fired
-var scriptsCount = 0;
-
-function bundleApp(isProduction) {
-  scriptsCount++;
-  // Browserify will bundle all our js files together in to one and will let
-  // us use modules in the front end.
-  var appBundler = browserify({
-    extensions: [ '.js', '.jsx' ],
+function scripts() {
+  return browserify({
+    extensions: ['.js', '.jsx'],
     entries: './src/main.jsx',
-    debug: true
-  });
-
-  // If it's not for production, a separate vendors.js file will be created
-  // the first time gulp is run so that we don't have to rebundle things like
-  // react everytime there's a change in the js file
-  if (!isProduction && scriptsCount === 1){
-    // create vendors.js for dev environment.
-    browserify({
-      require: dependencies,
-      debug: true
+  })
+    .transform('babelify', { presets: ['@babel/env', '@babel/react'] })
+    .on('error', function(msg) {
+      console.error(msg);
     })
-        .bundle()
-        .on('error', gutil.log)
-        .pipe(source('vendors.js'))
-        .pipe(gulp.dest(http_public + '/js/'));
-  }
-  if (!isProduction){
-    // make the dependencies external so they dont get bundled by the
-    // app bundler. Dependencies are already bundled in vendor.js for
-    // development environments.
-    dependencies.forEach(function(dep){
-      appBundler.external(dep);
-    });
-  }
-
-  appBundler
-  // transform ES6 and JSX to ES5 with babelify
-      .transform("babelify", {presets: ["es2015", "react"]})
-      .bundle()
-      .on('error',gutil.log)
-      .pipe(source('bundle.js'))
-      .pipe(gulp.dest(http_public + '/js/'));
+    .bundle()
+    .pipe(source('bundle.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init())
+    .pipe(gulp.dest(paths.scripts.dest))
+    .pipe(uglify())
+    .pipe(rename('bundle.min.js'))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(paths.scripts.dest));
 }
 
-gulp.task('scripts:dev', function () {
-  bundleApp(false);
-});
+function styles() {
+  return gulp.src(paths.styles.src, { sourcemaps: true })
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(paths.styles.dest));
+}
 
-gulp.task('scripts:prod', function (){
-  bundleApp(true);
-});
+function watch() {
+  gulp.watch(paths.styles.src, styles);
+  gulp.watch(paths.scripts.src, scripts);
+}
 
-gulp.task('scripts:watch', function () {
-  gulp.watch(['./src/*.jsx'], ['scripts:dev']);
-});
+var build = gulp.parallel(styles, scripts);
 
-gulp.task('sass', function () {
-  gulp.src('./sass/**/*.scss')
-      .pipe(sourcemaps.init())
-      .pipe(sass().on('error', sass.logError))
-      .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(http_public + '/css'));
-});
+exports.styles = styles;
+exports.scripts = scripts;
+exports.watch = watch;
 
-gulp.task('sass:watch', function () {
-  gulp.watch('./sass/**/*.scss', ['sass']);
-});
-
-gulp.task('default', ['sass', 'scripts:dev']);
+exports.build = build;
+exports.default = build;
