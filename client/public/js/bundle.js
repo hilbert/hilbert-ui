@@ -38041,7 +38041,7 @@ function (_React$Component) {
   }, {
     key: "stopAll",
     value: function stopAll() {
-      this.props.api.stopStations(this.allStationIDs())["catch"](function (err) {
+      this.props.api.stopStations(Array.from(this.allStationIDs()))["catch"](function (err) {
         return console.error(err);
       });
     }
@@ -38056,7 +38056,7 @@ function (_React$Component) {
   }, {
     key: "startAll",
     value: function startAll() {
-      this.props.api.startStations(this.allStationIDs())["catch"](function (err) {
+      this.props.api.startStations(Array.from(this.allStationIDs()))["catch"](function (err) {
         return console.error(err);
       });
     }
@@ -39804,17 +39804,17 @@ function (_React$Component) {
   }, {
     key: "makeStationsUnreachable",
     value: function makeStationsUnreachable() {
-      this.props.api.testMakeStationsUnreachable(this.props.selection);
+      this.props.api.testMakeStationsUnreachable(Array.from(this.props.selection));
     }
   }, {
     key: "makeStationsReachable",
     value: function makeStationsReachable() {
-      this.props.api.testMakeStationsReachable(this.props.selection);
+      this.props.api.testMakeStationsReachable(Array.from(this.props.selection));
     }
   }, {
     key: "stopStationsUnexpectedly",
     value: function stopStationsUnexpectedly() {
-      this.props.api.testStopStationsUnexpectedly(this.props.selection);
+      this.props.api.testStopStationsUnexpectedly(Array.from(this.props.selection));
     }
   }, {
     key: "render",

@@ -234,7 +234,7 @@ export default class Dashboard extends React.Component {
   }
 
   stopAll() {
-    this.props.api.stopStations(this.allStationIDs()).catch(
+    this.props.api.stopStations(Array.from(this.allStationIDs())).catch(
       err => console.error(err)
     );
   }
@@ -247,7 +247,7 @@ export default class Dashboard extends React.Component {
   }
 
   startAll() {
-    this.props.api.startStations(this.allStationIDs()).catch(
+    this.props.api.startStations(Array.from(this.allStationIDs())).catch(
       err => console.error(err)
     );
   }

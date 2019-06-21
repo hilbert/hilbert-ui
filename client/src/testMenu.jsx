@@ -55,15 +55,15 @@ export default class TestMenu extends React.Component {
   }
 
   makeStationsUnreachable() {
-    this.props.api.testMakeStationsUnreachable(this.props.selection);
+    this.props.api.testMakeStationsUnreachable(Array.from(this.props.selection));
   }
 
   makeStationsReachable() {
-    this.props.api.testMakeStationsReachable(this.props.selection);
+    this.props.api.testMakeStationsReachable(Array.from(this.props.selection));
   }
 
   stopStationsUnexpectedly() {
-    this.props.api.testStopStationsUnexpectedly(this.props.selection);
+    this.props.api.testStopStationsUnexpectedly(Array.from(this.props.selection));
   }
 
   render() {
