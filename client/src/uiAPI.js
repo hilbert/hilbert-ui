@@ -1,4 +1,4 @@
-const Promise = require('bluebird');
+import Promise from 'bluebird';
 
 /**
  * Hilbert UI API Connector
@@ -14,7 +14,7 @@ export default class UIAPI {
    * This call uses long polling, so it sends the last update ID and has a long timeout
    *
    * @param lastUpdateID
-   * @return {bluebird}
+   * @return {Promise}
    */
   getStations(lastUpdateID) {
     return this.send('get', '/stations', { lastUpdateID }, { timeout: 30000 });
@@ -24,7 +24,7 @@ export default class UIAPI {
    * Start a list of stations
    *
    * @param {Array} stationIDs
-   * @return {bluebird}
+   * @return {Promise}
    */
   startStations(stationIDs) {
     return this.send('post', '/stations/start', { ids: stationIDs });
@@ -34,7 +34,7 @@ export default class UIAPI {
    * Stop a list of stations
    *
    * @param {Array} stationIDs
-   * @return {bluebird}
+   * @return {Promise}
    */
   stopStations(stationIDs) {
     return this.send('post', '/stations/stop', { ids: stationIDs });
@@ -45,7 +45,7 @@ export default class UIAPI {
    *
    * @param {Array} stationIDs
    * @param {String} appID
-   * @return {bluebird}
+   * @return {Promise}
    */
   changeApp(stationIDs, appID) {
     return this.send('post', '/stations/change_app', {
@@ -119,7 +119,7 @@ export default class UIAPI {
    * Create a preset
    *
    * @param {Object} preset Preset data
-   * @return {bluebird}
+   * @return {Promise}
    */
   createPreset(preset) {
     return this.send('post', '/preset', preset);
@@ -129,7 +129,7 @@ export default class UIAPI {
    * Activates a preset
    *
    * @param {String} presetID
-   * @return {bluebird}
+   * @return {Promise}
    */
   activatePreset(presetID) {
     return this.send('post', `/preset/${presetID}/activate`);
@@ -139,7 +139,7 @@ export default class UIAPI {
    * Deletes a preset
    *
    * @param {String} presetID
-   * @return {bluebird}
+   * @return {Promise}
    */
   deletePreset(presetID) {
     return this.send('delete', `/preset/${presetID}`);
@@ -149,7 +149,7 @@ export default class UIAPI {
    * Updates a preset
    *
    * @param {Object} preset
-   * @return {bluebird}
+   * @return {Promise}
    */
   updatePreset(preset) {
     return this.send('put', `/preset/${preset.id}`, preset);
@@ -158,7 +158,7 @@ export default class UIAPI {
   /**
    * Gets the test backend flags
    *
-   * @return {bluebird}
+   * @return {Promise}
    */
   getTestFlags() {
     return this.send('get', '/test-backend/flags');
@@ -168,7 +168,7 @@ export default class UIAPI {
    * Sets the test backend flags
    *
    * @param {object} flags
-   * @return {bluebird}
+   * @return {Promise}
    */
   setTestFlags(flags) {
     return this.send('post', '/test-backend/flags', flags);
@@ -178,7 +178,7 @@ export default class UIAPI {
    * Makes stations unrechable in the test backend
    *
    * @param {array} stationIDs
-   * @return {bluebird}
+   * @return {Promise}
    */
   testMakeStationsUnreachable(stationIDs) {
     return this.send('post', '/test-backend/stations/unreachable', { ids: stationIDs });
@@ -188,7 +188,7 @@ export default class UIAPI {
    * Makes stations reachable in the test backend
    *
    * @param {array} stationIDs
-   * @return {bluebird}
+   * @return {Promise}
    */
   testMakeStationsReachable(stationIDs) {
     return this.send('post', '/test-backend/stations/reachable', { ids: stationIDs });
@@ -198,7 +198,7 @@ export default class UIAPI {
    * Stops stations unexpectedly in the test backend
    *
    * @param {array} stationIDs
-   * @return {bluebird}
+   * @return {Promise}
    */
   testStopStationsUnexpectedly(stationIDs) {
     return this.send('post', '/test-backend/stations/stop-unexpectedly', { ids: stationIDs });
@@ -217,7 +217,7 @@ export default class UIAPI {
    *  Optional data to send
    * @param options
    *  Extra options for the call
-   * @return {bluebird}
+   * @return {Promise}
    */
   send(method, entryPoint, data = null, options = {}) {
     return new Promise((resolve, reject) => {

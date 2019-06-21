@@ -1,7 +1,7 @@
 /* eslint-disable import/extensions,no-console,react/no-unused-prop-types */
+/* globals bootbox */
 import React from 'react';
 import Station from './station.jsx';
-import AppSelect from './appSelect.jsx';
 import ButtonFilter from './buttonFilter.jsx';
 import LogViewer from './logViewer.jsx';
 import ConsoleViewer from './consoleViewer.jsx';
@@ -10,9 +10,19 @@ import Header from './header.jsx';
 import UIAPI from './uiAPI';
 import TestMenu from './testMenu';
 import NotificationManager from './notificationManager';
-import ViewMenu from "./viewMenu";
+import ViewMenu from './viewMenu';
 
 export default class Dashboard extends React.Component {
+  static displayState(state) {
+    if (state === 'starting_station'
+      || state === 'starting_app'
+      || state === 'stopping'
+      || state === 'switching_app') {
+      return 'busy';
+    }
+
+    return state;
+  }
 
   constructor(props) {
     super(props);
@@ -25,6 +35,7 @@ export default class Dashboard extends React.Component {
       log: [],
       serverConnectionError: false,
       presets: [],
+      consoleViewerTitle: 'Terminal output',
     };
     this.selectToggle = this.selectToggle.bind(this);
     this.changeAppSelected = this.changeAppSelected.bind(this);
@@ -49,13 +60,12 @@ export default class Dashboard extends React.Component {
     this.fetchPresets();
   }
 
-  getStationState(stationID) {
-    for (const station of this.state.stations) {
-      if (station.id === stationID) {
-        return station;
-      }
-    }
-    return null;
+  getStation(stationID) {
+    const {
+      stations,
+    } = this.state;
+
+    return stations.find(item => item.id === stationID) || null;
   }
 
   getCommand(commandName) {
@@ -66,28 +76,25 @@ export default class Dashboard extends React.Component {
   }
 
   getVisibleStations() {
-    const answer = [];
+    const {
+      stations, visibleProfile, visibleState,
+    } = this.state;
 
-    for (const station of this.state.stations) {
-      if ((this.state.visibleProfile === '' || station.profile === this.state.visibleProfile) &&
-          (this.state.visibleState === '' ||
-           this.displayState(station.state) === this.state.visibleState)) {
-        answer.push(station);
-      }
-    }
-
-    return answer;
+    return stations.filter(station => (visibleProfile === '' || station.profile === visibleProfile)
+      && (visibleState === '' || Dashboard.displayState(station.state) === visibleState));
   }
 
-  displayState(state) {
-    if (state === 'starting_station' ||
-      state === 'starting_app' ||
-      state === 'stopping' ||
-      state === 'switching_app') {
-      return 'busy';
-    }
+  getSortFieldAccessor(id) {
+    const {
+      applications, stationProfiles,
+    } = this.props;
+    const criteria = {
+      name: s => s.name,
+      app: (s => (applications[s.app] && applications[s.app].name) || ''),
+      profile: (s => (stationProfiles[s.profile] && stationProfiles[s.profile].name) || ''),
+    };
 
-    return state;
+    return criteria[id];
   }
 
   attachConfirmation(text, callback) {
@@ -178,7 +185,7 @@ export default class Dashboard extends React.Component {
       },
     };
 
-    for (const name of Object.keys(this.commands)) {
+    Object.keys(this.commands).forEach((name) => {
       const command = this.commands[name];
       if (command.confirm) {
         this.commands[name].doCallback = this.attachConfirmation(
@@ -188,29 +195,16 @@ export default class Dashboard extends React.Component {
       } else {
         this.commands[name].doCallback = command.callback;
       }
-    }
-  }
-
-  allStationIDs() {
-    return this.stationIDs(this.state.stations);
-  }
-
-  stationIDs(stations) {
-    const ids = new Set();
-
-    for (const station of stations) {
-      ids.add(station.id);
-    }
-
-    return ids;
+    });
   }
 
   selectAll() {
-    this.setState({ selection: this.allStationIDs() });
+    const { stations } = this.state;
+    this.setState({ selection: new Set(stations.map(s => s.id)) });
   }
 
   selectAllVisible() {
-    this.setState({ selection: this.stationIDs(this.getVisibleStations()) });
+    this.setState({ selection: new Set(this.getVisibleStations().map(s => s.id)) });
   }
 
   deselectAll() {
@@ -218,90 +212,97 @@ export default class Dashboard extends React.Component {
   }
 
   selectToggle(id) {
-    if (this.state.selection.has(id)) {
-      this.state.selection.delete(id);
+    const { selection } = this.state;
+    if (selection.has(id)) {
+      selection.delete(id);
     } else {
-      this.state.selection.add(id);
+      selection.add(id);
     }
-    this.setState({ selection: this.state.selection });
+    this.setState({ selection });
   }
 
   stopSelected() {
-    this.props.api.stopStations(Array.from(this.state.selection)).catch(
+    const { api } = this.props;
+    const { selection } = this.state;
+    api.stopStations(Array.from(selection)).catch(
       err => console.error(err)
     );
     this.deselectAll();
   }
 
   stopAll() {
-    this.props.api.stopStations(Array.from(this.allStationIDs())).catch(
+    const { api } = this.props;
+    const { stations } = this.state;
+    api.stopStations(stations.map(s => s.id)).catch(
       err => console.error(err)
     );
   }
 
   startSelected() {
-    this.props.api.startStations(Array.from(this.state.selection)).catch(
+    const { api } = this.props;
+    const { selection } = this.state;
+    api.startStations(Array.from(selection)).catch(
       err => console.error(err)
     );
     this.deselectAll();
   }
 
   startAll() {
-    this.props.api.startStations(Array.from(this.allStationIDs())).catch(
+    const { api } = this.props;
+    const { stations } = this.state;
+    api.startStations(stations.map(s => s.id)).catch(
       err => console.error(err)
     );
   }
 
   changeAppSelected(app) {
-    this.props.api.changeApp(Array.from(this.state.selection), app).catch(
+    const { api } = this.props;
+    const { selection } = this.state;
+    api.changeApp(Array.from(selection), app).catch(
       err => console.error(err)
     );
     this.deselectAll();
   }
 
-  changeAppSelectedDialog() {
-    let allSelectedOn = true;
-    for (const selectedID of this.state.selection) {
-      if (this.getStationState(selectedID).state !== 'on') {
-        allSelectedOn = false;
-        break;
-      }
-    }
+  applicationsInCommon(selection) {
+    const { applications } = this.props;
+    const { stations } = this.state;
 
-    if (!allSelectedOn) {
-      bootbox.alert('All selected stations must be running to change the application.')
+    return Object.values(applications).filter(app => stations.every(
+      station => !selection.has(station.id) || station.compatible_apps.includes(app.id)
+    ));
+  }
+
+  changeAppSelectedDialog() {
+    const { api } = this.props;
+    const { selection } = this.state;
+
+    if (Array.from(selection).some(stationID => this.getStation(stationID).state !== 'on')) {
+      bootbox.alert('All selected stations must be running to change the application.');
       return;
     }
 
-    const applications = Object.values(this.props.applications).filter((app) => {
-      for (const station of this.state.stations) {
-        if (this.state.selection.has(station.id)) {
-          if (!station.compatible_apps.includes(app.id)) {
-            return false;
-          }
-        }
-      }
-      return true;
-    }).map(app => ({ text: app.name, value: app.id }));
-
-    if (applications.length === 0) {
+    const availableApps = this.applicationsInCommon(selection).map(app => ({
+      text: app.name,
+      value: app.id,
+    }));
+    if (availableApps.length === 0) {
       bootbox.alert('No applications are compatible with all selected stations.');
       return;
     }
 
-    const selection = Array.from(this.state.selection);
     let amount = '1 selected station';
-    if (selection.length > 1) {
-      amount = `${selection.length} selected stations`;
+    if (selection.size > 1) {
+      amount = `${selection.size} selected stations`;
     }
 
     bootbox.prompt({
       title: `Change the application running in ${amount}.`,
       inputType: 'select',
-      inputOptions: [{ text: 'Select an application...', value: '' }].concat(applications),
+      inputOptions: [{ text: 'Select an application...', value: '' }].concat(availableApps),
       callback: (result) => {
         if (result) {
-          this.props.api.changeApp(selection, result).catch(
+          api.changeApp(Array.from(selection), result).catch(
             err => console.error(err)
           );
           this.deselectAll();
@@ -311,15 +312,17 @@ export default class Dashboard extends React.Component {
   }
 
   stationAppChanged(station, appID) {
+    const { applications, api } = this.props;
+
     if (station.app_id === appID) {
-      bootbox.alert(`${this.props.applications[appID].name} is already running in this station.`);
+      bootbox.alert(`${applications[appID].name} is already running in this station.`);
       return;
     }
 
-    bootbox.confirm(`Start <strong>${this.props.applications[appID].name}</strong> in station <strong>${station.name}</strong>?<br /><small>This will close the app currently running.</small>`,
+    bootbox.confirm(`Start <strong>${applications[appID].name}</strong> in station <strong>${station.name}</strong>?<br /><small>This will close the app currently running.</small>`,
       (result) => {
         if (result) {
-          this.props.api.changeApp([station.id], appID).catch(
+          api.changeApp([station.id], appID).catch(
             err => console.error(err)
           );
         }
@@ -327,12 +330,14 @@ export default class Dashboard extends React.Component {
   }
 
   showTerminalLog(stationID) {
+    const { api } = this.props;
+
     if (this.consoleViewer !== null) {
       this.consoleViewer.openModal();
-      this.props.api.getStationOutput(stationID)
+      api.getStationOutput(stationID)
         .then((lines) => {
           this.setState({
-            title: stationID,
+            consoleViewerTitle: `${stationID} output`,
             lines,
           });
         })
@@ -341,12 +346,14 @@ export default class Dashboard extends React.Component {
   }
 
   showGlobalLog() {
+    const { api } = this.props;
+
     if (this.consoleViewer !== null) {
       this.consoleViewer.openModal();
-      this.props.api.getServerOutput()
+      api.getServerOutput()
         .then((lines) => {
           this.setState({
-            title: 'Global output',
+            consoleViewerTitle: 'Global output',
             lines,
           });
         })
@@ -355,9 +362,11 @@ export default class Dashboard extends React.Component {
   }
 
   showNotificationLog() {
+    const { api } = this.props;
+
     if (this.logViewer !== null) {
       this.logViewer.openModal();
-      this.props.api.getNotifications()
+      api.getNotifications()
         .then((notifications) => {
           this.setState({ log: notifications.reverse() });
         })
@@ -366,19 +375,21 @@ export default class Dashboard extends React.Component {
   }
 
   createPreset() {
+    const { api } = this.props;
+    const { stations, selection } = this.state;
     const preset = {
       name: '',
       stationApps: {},
     };
 
-    for (const station of this.state.stations) {
+    stations.forEach((station) => {
       preset.stationApps[station.id] = station.app;
-    }
+    });
 
     bootbox.prompt({
       size: 'small',
       title: 'Enter a name for the preset',
-      message: `The preset includes the ${this.state.selection.length} selected stations`,
+      message: `The preset includes the ${selection.size} selected stations`,
       buttons: {
         confirm: {
           label: 'Create',
@@ -392,7 +403,7 @@ export default class Dashboard extends React.Component {
       callback: (result) => {
         if (result !== null) {
           preset.name = result.substr(0, 50);
-          this.props.api.createPreset(preset)
+          api.createPreset(preset)
             .then(() => this.fetchPresets())
             .catch((err) => {
               console.error(err);
@@ -403,7 +414,9 @@ export default class Dashboard extends React.Component {
   }
 
   activatePreset(presetID) {
-    this.props.api.activatePreset(presetID)
+    const { api } = this.props;
+
+    api.activatePreset(presetID)
       .then(() => this.fetchPresets())
       .catch((err) => {
         console.error(err);
@@ -411,7 +424,9 @@ export default class Dashboard extends React.Component {
   }
 
   deletePreset(presetID) {
-    this.props.api.deletePreset(presetID)
+    const { api } = this.props;
+
+    api.deletePreset(presetID)
       .then(() => this.fetchPresets())
       .catch((err) => {
         console.error(err);
@@ -419,16 +434,19 @@ export default class Dashboard extends React.Component {
   }
 
   updatePreset(presetID) {
+    const { api } = this.props;
+    const { stations } = this.state;
+
     const preset = {
       id: presetID,
       stationApps: {},
     };
 
-    for (const station of this.state.stations) {
+    stations.forEach((station) => {
       preset.stationApps[station.id] = station.app;
-    }
+    });
 
-    this.props.api.updatePreset(preset)
+    api.updatePreset(preset)
       .then(() => this.fetchPresets())
       .catch((err) => {
         console.error(err);
@@ -447,6 +465,8 @@ export default class Dashboard extends React.Component {
    * increases with each error until a max poll time is reached.
    */
   pollLoop() {
+    const { serverConnectionError } = this.state;
+
     const minPollTime = 500;
     let retryPollTime = minPollTime;
     const retryIncreaseFactor = 2;
@@ -456,7 +476,7 @@ export default class Dashboard extends React.Component {
       this.pollServer().then(() => {
         setTimeout(loop, minPollTime);
         retryPollTime = minPollTime;
-        if (this.state.serverConnectionError) {
+        if (serverConnectionError) {
           this.setState({ serverConnectionError: false });
         }
         this.serverConnectionRetry = 0;
@@ -478,22 +498,26 @@ export default class Dashboard extends React.Component {
   }
 
   pollServer() {
-    return this.props.api.getStations(this.updateID)
+    const { api } = this.props;
+
+    return api.getStations(this.updateID)
       .then((data) => {
         if (data.stations !== undefined) {
           this.updateID = data.updateID;
           this.setState({ stations: data.stations });
         }
         if (data.notifications !== undefined) {
-          for (const notification of data.notifications) {
+          data.notifications.forEach((notification) => {
             this.notificationManager.push(notification);
-          }
+          });
         }
       });
   }
 
   fetchPresets() {
-    return this.props.api.getPresets()
+    const { api } = this.props;
+
+    return api.getPresets()
       .then((presets) => {
         if (presets !== undefined) {
           this.setState({ presets });
@@ -502,57 +526,56 @@ export default class Dashboard extends React.Component {
       .catch(err => console.error(err));
   }
 
-  getSortFieldAccessor(id) {
-    const criteria = {
-      name: s => s.name,
-      app: (s => (this.props.applications[s.app] && this.props.applications[s.app].name) || ''),
-      profile: (s => (this.props.stationProfiles[s.profile] && this.props.stationProfiles[s.profile].name) || ''),
-    };
-
-    return criteria[id];
-  }
-
   sortCriteriaChanged(newCriteria) {
     this.setState({ sortCriteria: newCriteria });
   }
 
   render() {
-    const stations = [];
+    const { api, applications, stationProfiles } = this.props;
+    const {
+      serverConnectionError, sortCriteria, stations, visibleState, selection, presets, log,
+      consoleViewerTitle, lines,
+    } = this.state;
+    const stationsMarkup = [];
     const filters = [];
     let messageBar = '';
 
-    if (this.state.serverConnectionError) {
-      messageBar = (<div className="message_bar">
-        <div className="message_bar-message">
-          <i className="fa fa-warning" />  No connection to server.
+    if (serverConnectionError) {
+      messageBar = (
+        <div className="message_bar">
+          <div className="message_bar-message">
+            <i className="fa fa-warning" />  No connection to server.
+          </div>
         </div>
-      </div>);
+      );
     }
 
     let stationCount = 0;
 
     const visibleStations = this.getVisibleStations();
-    if (this.state.sortCriteria !== 'default') {
-      const sortFieldAccesor = this.getSortFieldAccessor(this.state.sortCriteria);
+    if (sortCriteria !== 'default') {
+      const sortFieldAccesor = this.getSortFieldAccessor(sortCriteria);
       visibleStations.sort((a, b) => {
         const fa = sortFieldAccesor(a);
         const fb = sortFieldAccesor(b);
         if (fa > fb) {
           return 1;
-        } else if (fa < fb) {
+        }
+        if (fa < fb) {
           return -1;
         }
         return 0;
       });
     }
-    for (const station of visibleStations) {
-      stations.push(
+
+    visibleStations.forEach((station) => {
+      stationsMarkup.push(
         <div className="col-sm-6 col-lg-4" key={station.id}>
           <Station
             station={station}
-            selected={this.state.selection.has(station.id)}
-            applications={this.props.applications}
-            stationProfiles={this.props.stationProfiles}
+            selected={selection.has(station.id)}
+            applications={applications}
+            stationProfiles={stationProfiles}
             onClickStation={this.selectToggle}
             onOpenTerminalLog={this.showTerminalLog}
             onAppChange={this.stationAppChanged}
@@ -563,28 +586,26 @@ export default class Dashboard extends React.Component {
       stationCount += 1;
       // Responsive column resets
       if ((stationCount % 3) === 0) {
-        stations.push(<div key={`sep-lg-${stationCount}`} className="clearfix visible-lg-block" />);
+        stationsMarkup.push(<div key={`sep-lg-${stationCount}`} className="clearfix visible-lg-block" />);
       }
       if ((stationCount % 2) === 0) {
-        stations.push(<div key={`sep-sm-${stationCount}`} className="clearfix visible-sm-block visible-md-block" />);
+        stationsMarkup.push(<div key={`sep-sm-${stationCount}`} className="clearfix visible-sm-block visible-md-block" />);
       }
-    }
-
-    const counts = {};
-    this.state.stations.forEach((station) => {
-      if (!(this.displayState(station.state) in counts)) {
-        counts[this.displayState(station.state)] = 0;
-      }
-      counts[this.displayState(station.state)] += 1;
     });
 
-    const selectedCount = this.state.selection.size;
-    const allSelected = (selectedCount === this.state.stations.length);
-    const selectAllClasses =
-      `btn btn-default btn-sm ${allSelected ? ' disabled' : ''}`;
+    const counts = {};
+    stations.forEach((station) => {
+      if (!(Dashboard.displayState(station.state) in counts)) {
+        counts[Dashboard.displayState(station.state)] = 0;
+      }
+      counts[Dashboard.displayState(station.state)] += 1;
+    });
 
-    const deselectAllClasses =
-      `btn btn-default btn-sm ${selectedCount === 0 ? ' disabled' : ''}`;
+    const selectedCount = selection.size;
+    const allSelected = (selectedCount === stations.length);
+    const selectAllClasses = `btn btn-default btn-sm ${allSelected ? ' disabled' : ''}`;
+
+    const deselectAllClasses = `btn btn-default btn-sm ${selectedCount === 0 ? ' disabled' : ''}`;
 
     const stationWord = selectedCount === 1 ? 'station' : 'stations';
 
@@ -594,13 +615,17 @@ export default class Dashboard extends React.Component {
           <a
             className={selectAllClasses}
             onClick={this.getCommand('stations-visible-select')}
-          >Select all</a>&nbsp;
+          >
+            Select all
+          </a>&nbsp;
           <a
             className={deselectAllClasses}
             onClick={this.getCommand('stations-all-deselect')}
-          >Deselect</a>&nbsp;
+          >
+              Deselect
+          </a>&nbsp;
           <span className="selectActions-selected">
-            {this.state.selection.size} {stationWord} selected
+            {selection.size} {stationWord} selected
           </span>
         </div>
       </div>
@@ -612,7 +637,7 @@ export default class Dashboard extends React.Component {
           options={Dashboard.StateOptions}
           counts={counts}
           allText="All"
-          value={this.state.visibleState}
+          value={visibleState}
           onChange={(option) => {
             this.deselectAll();
             this.setState({ visibleState: option });
@@ -636,7 +661,9 @@ export default class Dashboard extends React.Component {
                 href="#"
                 className="dropdown-toggle"
                 data-toggle="dropdown"
-              >System <span className="caret" /></a>
+              >
+                  System <span className="caret" />
+              </a>
               <ul className="dropdown-menu">
                 <li>
                   <a href="#" onClick={this.getCommand('stations-all-start')}>
@@ -648,18 +675,18 @@ export default class Dashboard extends React.Component {
                     Stop all stations
                   </a>
                 </li>
-                <li role="separator" className="divider"></li>
+                <li role="separator" className="divider" />
                 <li className={noSelectionDisable}>
                   <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-start') : ''}>
                     Start selected stations
                   </a>
                 </li>
-                <li className={noSelectionDisable} >
+                <li className={noSelectionDisable}>
                   <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-stop') : ''}>
                     Stop selected stations
                   </a>
                 </li>
-                <li role="separator" className="divider"></li>
+                <li role="separator" className="divider" />
                 <li className={noSelectionDisable}>
                   <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-changeapp-dialog') : ''}>
                     Change the app of selected stations
@@ -667,11 +694,11 @@ export default class Dashboard extends React.Component {
                 </li>
               </ul>
             </li>
-            <ViewMenu sortCriteria={this.state.sortCriteria} onSortCriteria={this.sortCriteriaChanged} />
-            <TestMenu api={this.props.api} selection={this.state.selection} />
+            <ViewMenu sortCriteria={sortCriteria} onSortCriteria={this.sortCriteriaChanged} />
+            <TestMenu api={api} selection={selection} />
           </ul>
           <PresetsBlock
-            presets={this.state.presets}
+            presets={presets}
             stationsSelected={selectedCount > 0}
             onCreate={this.getCommand('preset-create')}
             onActivate={this.getCommand('preset-activate')}
@@ -690,14 +717,18 @@ export default class Dashboard extends React.Component {
             <div className="col-sm-12 pane-stations">
               <div id="dashboard">
                 <div className="row">
-                  {stations}
+                  {stationsMarkup}
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <LogViewer log={this.state.log} ref={(c) => { this.logViewer = c; }} />
-        <ConsoleViewer lines={this.state.lines} ref={(c) => { this.consoleViewer = c; }} />
+        <LogViewer log={log} ref={(c) => { this.logViewer = c; }} />
+        <ConsoleViewer
+          title={consoleViewerTitle}
+          lines={lines}
+          ref={(c) => { this.consoleViewer = c; }}
+        />
       </div>
     );
   }

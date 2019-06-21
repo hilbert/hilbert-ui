@@ -37298,215 +37298,54 @@ var _react = _interopRequireDefault(require("react"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
 /**
- * AppSelect component
- * Allows the user to select an application from a list
+ * A filter component made out of several buttons
+ *
+ * Only one button can be active at a time
  */
-var AppSelect =
-/*#__PURE__*/
-function (_React$Component) {
-  _inherits(AppSelect, _React$Component);
-
-  function AppSelect(props) {
-    var _this;
-
-    _classCallCheck(this, AppSelect);
-
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(AppSelect).call(this, props));
-    _this.appSelector = null;
-    _this.clickedChangeApp = _this.clickedChangeApp.bind(_assertThisInitialized(_this));
-    return _this;
-  }
-
-  _createClass(AppSelect, [{
-    key: "clickedChangeApp",
-    value: function clickedChangeApp() {
-      if (this.props.onChange) {
-        this.props.onChange(this.appSelector.value);
-      }
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this2 = this;
-
-      var options = [];
-
-      if (this.props.allowBlank) {
-        options.push(_react["default"].createElement("option", {
-          key: "null",
-          value: ""
-        }, "\xA0"));
-      }
-
-      var sortedApps = Object.values(this.props.applications).sort(function (a, b) {
-        if (a.name < b.name) return -1;else if (a.name > b.name) return 1;
-        return 0;
-      });
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = sortedApps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var application = _step.value;
-          options.push(_react["default"].createElement("option", {
-            key: application.id,
-            value: application.id
-          }, application.name));
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      var disabledClass = this.props.disabled ? ' disabled' : '';
-      return _react["default"].createElement("div", {
-        className: "appSelect".concat(disabledClass)
-      }, _react["default"].createElement("div", {
-        className: "form-inline"
-      }, _react["default"].createElement("div", {
-        className: "form-group form-group-minwidth"
-      }, _react["default"].createElement("select", {
-        className: "form-control".concat(disabledClass),
-        defaultValue: this.props.defaultValue ? this.props.defaultValue : '',
-        ref: function ref(sel) {
-          _this2.appSelector = sel;
-        }
-      }, options)), "\xA0", _react["default"].createElement("a", {
-        className: "btn btn-warning".concat(disabledClass),
-        onClick: this.clickedChangeApp
-      }, "Change application")));
-    }
-  }]);
-
-  return AppSelect;
-}(_react["default"].Component);
-
-exports["default"] = AppSelect;
-AppSelect.propTypes = {
-  applications: _react["default"].PropTypes.arrayOf(_react["default"].PropTypes.shape({
-    id: _react["default"].PropTypes.string,
-    name: _react["default"].PropTypes.string,
-    description: _react["default"].PropTypes.string
-  })),
-  defaultValue: _react["default"].PropTypes.string,
-  allowBlank: _react["default"].PropTypes.bool,
-  disabled: _react["default"].PropTypes.bool,
-  onChange: _react["default"].PropTypes.func
-};
-AppSelect.defaultProps = {
-  applications: [],
-  defaultValue: '',
-  allowBlank: false,
-  disabled: false,
-  onChange: function onChange() {}
-};
-
-},{"react":546}],549:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 var ButtonFilter = function ButtonFilter(props) {
-  var options = [];
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
+  var options = props.options,
+      value = props.value,
+      counts = props.counts,
+      allText = props.allText,
+      onChange = props.onChange;
+  var optionButtons = options.map(function (option) {
+    var classes = ['btn', 'btn-default', 'btn-sm', "button-filter-option-".concat(option.id)];
 
-  try {
-    var _loop = function _loop() {
-      var option = _step.value;
-      var classes = ['btn', 'btn-default', 'btn-sm', "button-filter-option-".concat(option.id)];
-
-      if (props.value === option.id) {
-        classes.push('active');
-      }
-
-      var counter = '';
-      var spacing = '';
-
-      if (props.counts !== null) {
-        var count = 0;
-
-        if (option.id in props.counts && props.counts[option.id] !== 0) {
-          count = props.counts[option.id];
-        }
-
-        var badgeClasses = "badge".concat(count === 0 ? ' zero' : ' non-zero');
-        counter = _react["default"].createElement("span", {
-          className: badgeClasses
-        }, count);
-        spacing = ' ';
-      }
-
-      options.push(_react["default"].createElement("a", {
-        href: "#",
-        className: classes.join(' '),
-        key: option.id,
-        onClick: function onClick() {
-          return props.onChange(option.id);
-        },
-        title: option.description || ''
-      }, option.name || option.id, spacing, counter));
-    };
-
-    for (var _iterator = props.options[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      _loop();
+    if (value === option.id) {
+      classes.push('active');
     }
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-        _iterator["return"]();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
-  }
 
+    var counter = '';
+    var spacing = '';
+
+    if (counts !== null) {
+      var count = 0;
+
+      if (option.id in counts && counts[option.id] !== 0) {
+        count = counts[option.id];
+      }
+
+      var badgeClasses = "badge".concat(count === 0 ? ' zero' : ' non-zero');
+      counter = _react["default"].createElement("span", {
+        className: badgeClasses
+      }, count);
+      spacing = ' ';
+    }
+
+    return _react["default"].createElement("a", {
+      href: "#",
+      className: classes.join(' '),
+      key: option.id,
+      onClick: function onClick() {
+        return onChange(option.id);
+      },
+      title: option.description || ''
+    }, option.name || option.id, spacing, counter);
+  });
   var defaultClasses = ['btn', 'btn-default', 'btn-sm'];
 
-  if (props.value === '') {
+  if (value === '') {
     defaultClasses.push('active');
   }
 
@@ -37519,11 +37358,11 @@ var ButtonFilter = function ButtonFilter(props) {
     className: defaultClasses.join(' '),
     key: "null",
     onClick: function onClick() {
-      return props.onChange('');
+      return onChange('');
     }
-  }, props.allText)), _react["default"].createElement("div", {
+  }, allText)), _react["default"].createElement("div", {
     className: "btn-group"
-  }, options));
+  }, optionButtons));
 };
 
 ButtonFilter.propTypes = {
@@ -37547,7 +37386,7 @@ ButtonFilter.defaultProps = {
 var _default = ButtonFilter;
 exports["default"] = _default;
 
-},{"react":546}],550:[function(require,module,exports){
+},{"react":546}],549:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37577,6 +37416,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
+/**
+ * A component for visualizing process output console-style
+ */
 var ConsoleViewer =
 /*#__PURE__*/
 function (_React$Component) {
@@ -37593,17 +37435,6 @@ function (_React$Component) {
   }
 
   _createClass(ConsoleViewer, [{
-    key: "openModal",
-    value: function openModal() {
-      if (this.modalDIV !== null) {
-        $(this.modalDIV).modal();
-        $(this.modalDIV).on('shown.bs.modal', function () {
-          var modalBody = $(this).find('.modal-body').first()[0];
-          modalBody.scrollTop = Math.max(modalBody.scrollHeight, modalBody.clientHeight);
-        });
-      }
-    }
-  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
@@ -37614,6 +37445,17 @@ function (_React$Component) {
       $(this.modalDIV).on('show.bs.modal', function () {
         _this2.handleResize();
       });
+    }
+  }, {
+    key: "openModal",
+    value: function openModal() {
+      if (this.modalDIV !== null) {
+        $(this.modalDIV).modal();
+        $(this.modalDIV).on('shown.bs.modal', function onModalShow() {
+          var modalBody = $(this).find('.modal-body').first()[0];
+          modalBody.scrollTop = Math.max(modalBody.scrollHeight, modalBody.clientHeight);
+        });
+      }
     }
   }, {
     key: "handleResize",
@@ -37632,6 +37474,9 @@ function (_React$Component) {
     value: function render() {
       var _this3 = this;
 
+      var _this$props = this.props,
+          title = _this$props.title,
+          lines = _this$props.lines;
       return _react["default"].createElement("div", {
         className: "modal fade consoleViewer-modal",
         tabIndex: "-1",
@@ -37651,9 +37496,9 @@ function (_React$Component) {
         "data-dismiss": "modal"
       }, _react["default"].createElement("span", null, "\xD7")), _react["default"].createElement("h4", {
         className: "modal-title"
-      }, this.props.title)), _react["default"].createElement("div", {
+      }, title)), _react["default"].createElement("div", {
         className: "modal-body"
-      }, _react["default"].createElement("pre", null, this.props.lines.join('\n'))))));
+      }, _react["default"].createElement("pre", null, lines.join('\n'))))));
     }
   }]);
 
@@ -37670,7 +37515,7 @@ ConsoleViewer.defaultProps = {
   lines: []
 };
 
-},{"react":546}],551:[function(require,module,exports){
+},{"react":546}],550:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37681,8 +37526,6 @@ exports["default"] = void 0;
 var _react = _interopRequireDefault(require("react"));
 
 var _station = _interopRequireDefault(require("./station.jsx"));
-
-var _appSelect = _interopRequireDefault(require("./appSelect.jsx"));
 
 var _buttonFilter = _interopRequireDefault(require("./buttonFilter.jsx"));
 
@@ -37708,15 +37551,15 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
 
 function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
@@ -37726,6 +37569,17 @@ var Dashboard =
 /*#__PURE__*/
 function (_React$Component) {
   _inherits(Dashboard, _React$Component);
+
+  _createClass(Dashboard, null, [{
+    key: "displayState",
+    value: function displayState(state) {
+      if (state === 'starting_station' || state === 'starting_app' || state === 'stopping' || state === 'switching_app') {
+        return 'busy';
+      }
+
+      return state;
+    }
+  }]);
 
   function Dashboard(props) {
     var _this;
@@ -37741,7 +37595,8 @@ function (_React$Component) {
       sortCriteria: 'default',
       log: [],
       serverConnectionError: false,
-      presets: []
+      presets: [],
+      consoleViewerTitle: 'Terminal output'
     };
     _this.selectToggle = _this.selectToggle.bind(_assertThisInitialized(_this));
     _this.changeAppSelected = _this.changeAppSelected.bind(_assertThisInitialized(_this));
@@ -37771,36 +37626,12 @@ function (_React$Component) {
       this.fetchPresets();
     }
   }, {
-    key: "getStationState",
-    value: function getStationState(stationID) {
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.state.stations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var station = _step.value;
-
-          if (station.id === stationID) {
-            return station;
-          }
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      return null;
+    key: "getStation",
+    value: function getStation(stationID) {
+      var stations = this.state.stations;
+      return stations.find(function (item) {
+        return item.id === stationID;
+      }) || null;
     }
   }, {
     key: "getCommand",
@@ -37814,44 +37645,32 @@ function (_React$Component) {
   }, {
     key: "getVisibleStations",
     value: function getVisibleStations() {
-      var answer = [];
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = this.state.stations[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var station = _step2.value;
-
-          if ((this.state.visibleProfile === '' || station.profile === this.state.visibleProfile) && (this.state.visibleState === '' || this.displayState(station.state) === this.state.visibleState)) {
-            answer.push(station);
-          }
-        }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-            _iterator2["return"]();
-          }
-        } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
-          }
-        }
-      }
-
-      return answer;
+      var _this$state = this.state,
+          stations = _this$state.stations,
+          visibleProfile = _this$state.visibleProfile,
+          visibleState = _this$state.visibleState;
+      return stations.filter(function (station) {
+        return (visibleProfile === '' || station.profile === visibleProfile) && (visibleState === '' || Dashboard.displayState(station.state) === visibleState);
+      });
     }
   }, {
-    key: "displayState",
-    value: function displayState(state) {
-      if (state === 'starting_station' || state === 'starting_app' || state === 'stopping' || state === 'switching_app') {
-        return 'busy';
-      }
-
-      return state;
+    key: "getSortFieldAccessor",
+    value: function getSortFieldAccessor(id) {
+      var _this$props = this.props,
+          applications = _this$props.applications,
+          stationProfiles = _this$props.stationProfiles;
+      var criteria = {
+        name: function name(s) {
+          return s.name;
+        },
+        app: function app(s) {
+          return applications[s.app] && applications[s.app].name || '';
+        },
+        profile: function profile(s) {
+          return stationProfiles[s.profile] && stationProfiles[s.profile].name || '';
+        }
+      };
+      return criteria[id];
     }
   }, {
     key: "attachConfirmation",
@@ -37882,6 +37701,8 @@ function (_React$Component) {
   }, {
     key: "initCommands",
     value: function initCommands() {
+      var _this3 = this;
+
       this.commands = {
         'stations-all-start': {
           callback: this.startAll.bind(this),
@@ -37949,65 +37770,33 @@ function (_React$Component) {
           confirm: false
         }
       };
-
-      for (var _i = 0, _Object$keys = Object.keys(this.commands); _i < _Object$keys.length; _i++) {
-        var name = _Object$keys[_i];
-        var command = this.commands[name];
+      Object.keys(this.commands).forEach(function (name) {
+        var command = _this3.commands[name];
 
         if (command.confirm) {
-          this.commands[name].doCallback = this.attachConfirmation("Are you sure you want to ".concat(command.title, "?"), command.callback);
+          _this3.commands[name].doCallback = _this3.attachConfirmation("Are you sure you want to ".concat(command.title, "?"), command.callback);
         } else {
-          this.commands[name].doCallback = command.callback;
+          _this3.commands[name].doCallback = command.callback;
         }
-      }
-    }
-  }, {
-    key: "allStationIDs",
-    value: function allStationIDs() {
-      return this.stationIDs(this.state.stations);
-    }
-  }, {
-    key: "stationIDs",
-    value: function stationIDs(stations) {
-      var ids = new Set();
-      var _iteratorNormalCompletion3 = true;
-      var _didIteratorError3 = false;
-      var _iteratorError3 = undefined;
-
-      try {
-        for (var _iterator3 = stations[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-          var station = _step3.value;
-          ids.add(station.id);
-        }
-      } catch (err) {
-        _didIteratorError3 = true;
-        _iteratorError3 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-            _iterator3["return"]();
-          }
-        } finally {
-          if (_didIteratorError3) {
-            throw _iteratorError3;
-          }
-        }
-      }
-
-      return ids;
+      });
     }
   }, {
     key: "selectAll",
     value: function selectAll() {
+      var stations = this.state.stations;
       this.setState({
-        selection: this.allStationIDs()
+        selection: new Set(stations.map(function (s) {
+          return s.id;
+        }))
       });
     }
   }, {
     key: "selectAllVisible",
     value: function selectAllVisible() {
       this.setState({
-        selection: this.stationIDs(this.getVisibleStations())
+        selection: new Set(this.getVisibleStations().map(function (s) {
+          return s.id;
+        }))
       });
     }
   }, {
@@ -38020,20 +37809,24 @@ function (_React$Component) {
   }, {
     key: "selectToggle",
     value: function selectToggle(id) {
-      if (this.state.selection.has(id)) {
-        this.state.selection["delete"](id);
+      var selection = this.state.selection;
+
+      if (selection.has(id)) {
+        selection["delete"](id);
       } else {
-        this.state.selection.add(id);
+        selection.add(id);
       }
 
       this.setState({
-        selection: this.state.selection
+        selection: selection
       });
     }
   }, {
     key: "stopSelected",
     value: function stopSelected() {
-      this.props.api.stopStations(Array.from(this.state.selection))["catch"](function (err) {
+      var api = this.props.api;
+      var selection = this.state.selection;
+      api.stopStations(Array.from(selection))["catch"](function (err) {
         return console.error(err);
       });
       this.deselectAll();
@@ -38041,14 +37834,20 @@ function (_React$Component) {
   }, {
     key: "stopAll",
     value: function stopAll() {
-      this.props.api.stopStations(Array.from(this.allStationIDs()))["catch"](function (err) {
+      var api = this.props.api;
+      var stations = this.state.stations;
+      api.stopStations(stations.map(function (s) {
+        return s.id;
+      }))["catch"](function (err) {
         return console.error(err);
       });
     }
   }, {
     key: "startSelected",
     value: function startSelected() {
-      this.props.api.startStations(Array.from(this.state.selection))["catch"](function (err) {
+      var api = this.props.api;
+      var selection = this.state.selection;
+      api.startStations(Array.from(selection))["catch"](function (err) {
         return console.error(err);
       });
       this.deselectAll();
@@ -38056,105 +37855,66 @@ function (_React$Component) {
   }, {
     key: "startAll",
     value: function startAll() {
-      this.props.api.startStations(Array.from(this.allStationIDs()))["catch"](function (err) {
+      var api = this.props.api;
+      var stations = this.state.stations;
+      api.startStations(stations.map(function (s) {
+        return s.id;
+      }))["catch"](function (err) {
         return console.error(err);
       });
     }
   }, {
     key: "changeAppSelected",
     value: function changeAppSelected(app) {
-      this.props.api.changeApp(Array.from(this.state.selection), app)["catch"](function (err) {
+      var api = this.props.api;
+      var selection = this.state.selection;
+      api.changeApp(Array.from(selection), app)["catch"](function (err) {
         return console.error(err);
       });
       this.deselectAll();
     }
   }, {
+    key: "applicationsInCommon",
+    value: function applicationsInCommon(selection) {
+      var applications = this.props.applications;
+      var stations = this.state.stations;
+      return Object.values(applications).filter(function (app) {
+        return stations.every(function (station) {
+          return !selection.has(station.id) || station.compatible_apps.includes(app.id);
+        });
+      });
+    }
+  }, {
     key: "changeAppSelectedDialog",
     value: function changeAppSelectedDialog() {
-      var _this3 = this;
+      var _this4 = this;
 
-      var allSelectedOn = true;
-      var _iteratorNormalCompletion4 = true;
-      var _didIteratorError4 = false;
-      var _iteratorError4 = undefined;
+      var api = this.props.api;
+      var selection = this.state.selection;
 
-      try {
-        for (var _iterator4 = this.state.selection[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-          var selectedID = _step4.value;
-
-          if (this.getStationState(selectedID).state !== 'on') {
-            allSelectedOn = false;
-            break;
-          }
-        }
-      } catch (err) {
-        _didIteratorError4 = true;
-        _iteratorError4 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion4 && _iterator4["return"] != null) {
-            _iterator4["return"]();
-          }
-        } finally {
-          if (_didIteratorError4) {
-            throw _iteratorError4;
-          }
-        }
-      }
-
-      if (!allSelectedOn) {
+      if (Array.from(selection).some(function (stationID) {
+        return _this4.getStation(stationID).state !== 'on';
+      })) {
         bootbox.alert('All selected stations must be running to change the application.');
         return;
       }
 
-      var applications = Object.values(this.props.applications).filter(function (app) {
-        var _iteratorNormalCompletion5 = true;
-        var _didIteratorError5 = false;
-        var _iteratorError5 = undefined;
-
-        try {
-          for (var _iterator5 = _this3.state.stations[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-            var station = _step5.value;
-
-            if (_this3.state.selection.has(station.id)) {
-              if (!station.compatible_apps.includes(app.id)) {
-                return false;
-              }
-            }
-          }
-        } catch (err) {
-          _didIteratorError5 = true;
-          _iteratorError5 = err;
-        } finally {
-          try {
-            if (!_iteratorNormalCompletion5 && _iterator5["return"] != null) {
-              _iterator5["return"]();
-            }
-          } finally {
-            if (_didIteratorError5) {
-              throw _iteratorError5;
-            }
-          }
-        }
-
-        return true;
-      }).map(function (app) {
+      var availableApps = this.applicationsInCommon(selection).map(function (app) {
         return {
           text: app.name,
           value: app.id
         };
       });
 
-      if (applications.length === 0) {
+      if (availableApps.length === 0) {
         bootbox.alert('No applications are compatible with all selected stations.');
         return;
       }
 
-      var selection = Array.from(this.state.selection);
       var amount = '1 selected station';
 
-      if (selection.length > 1) {
-        amount = "".concat(selection.length, " selected stations");
+      if (selection.size > 1) {
+        amount = "".concat(selection.size, " selected stations");
       }
 
       bootbox.prompt({
@@ -38163,14 +37923,14 @@ function (_React$Component) {
         inputOptions: [{
           text: 'Select an application...',
           value: ''
-        }].concat(applications),
+        }].concat(availableApps),
         callback: function callback(result) {
           if (result) {
-            _this3.props.api.changeApp(selection, result)["catch"](function (err) {
+            api.changeApp(Array.from(selection), result)["catch"](function (err) {
               return console.error(err);
             });
 
-            _this3.deselectAll();
+            _this4.deselectAll();
           }
         }
       });
@@ -38178,16 +37938,18 @@ function (_React$Component) {
   }, {
     key: "stationAppChanged",
     value: function stationAppChanged(station, appID) {
-      var _this4 = this;
+      var _this$props2 = this.props,
+          applications = _this$props2.applications,
+          api = _this$props2.api;
 
       if (station.app_id === appID) {
-        bootbox.alert("".concat(this.props.applications[appID].name, " is already running in this station."));
+        bootbox.alert("".concat(applications[appID].name, " is already running in this station."));
         return;
       }
 
-      bootbox.confirm("Start <strong>".concat(this.props.applications[appID].name, "</strong> in station <strong>").concat(station.name, "</strong>?<br /><small>This will close the app currently running.</small>"), function (result) {
+      bootbox.confirm("Start <strong>".concat(applications[appID].name, "</strong> in station <strong>").concat(station.name, "</strong>?<br /><small>This will close the app currently running.</small>"), function (result) {
         if (result) {
-          _this4.props.api.changeApp([station.id], appID)["catch"](function (err) {
+          api.changeApp([station.id], appID)["catch"](function (err) {
             return console.error(err);
           });
         }
@@ -38198,11 +37960,13 @@ function (_React$Component) {
     value: function showTerminalLog(stationID) {
       var _this5 = this;
 
+      var api = this.props.api;
+
       if (this.consoleViewer !== null) {
         this.consoleViewer.openModal();
-        this.props.api.getStationOutput(stationID).then(function (lines) {
+        api.getStationOutput(stationID).then(function (lines) {
           _this5.setState({
-            title: stationID,
+            consoleViewerTitle: "".concat(stationID, " output"),
             lines: lines
           });
         })["catch"](function (err) {
@@ -38215,11 +37979,13 @@ function (_React$Component) {
     value: function showGlobalLog() {
       var _this6 = this;
 
+      var api = this.props.api;
+
       if (this.consoleViewer !== null) {
         this.consoleViewer.openModal();
-        this.props.api.getServerOutput().then(function (lines) {
+        api.getServerOutput().then(function (lines) {
           _this6.setState({
-            title: 'Global output',
+            consoleViewerTitle: 'Global output',
             lines: lines
           });
         })["catch"](function (err) {
@@ -38232,9 +37998,11 @@ function (_React$Component) {
     value: function showNotificationLog() {
       var _this7 = this;
 
+      var api = this.props.api;
+
       if (this.logViewer !== null) {
         this.logViewer.openModal();
-        this.props.api.getNotifications().then(function (notifications) {
+        api.getNotifications().then(function (notifications) {
           _this7.setState({
             log: notifications.reverse()
           });
@@ -38248,38 +38016,21 @@ function (_React$Component) {
     value: function createPreset() {
       var _this8 = this;
 
+      var api = this.props.api;
+      var _this$state2 = this.state,
+          stations = _this$state2.stations,
+          selection = _this$state2.selection;
       var preset = {
         name: '',
         stationApps: {}
       };
-      var _iteratorNormalCompletion6 = true;
-      var _didIteratorError6 = false;
-      var _iteratorError6 = undefined;
-
-      try {
-        for (var _iterator6 = this.state.stations[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-          var station = _step6.value;
-          preset.stationApps[station.id] = station.app;
-        }
-      } catch (err) {
-        _didIteratorError6 = true;
-        _iteratorError6 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion6 && _iterator6["return"] != null) {
-            _iterator6["return"]();
-          }
-        } finally {
-          if (_didIteratorError6) {
-            throw _iteratorError6;
-          }
-        }
-      }
-
+      stations.forEach(function (station) {
+        preset.stationApps[station.id] = station.app;
+      });
       bootbox.prompt({
         size: 'small',
         title: 'Enter a name for the preset',
-        message: "The preset includes the ".concat(this.state.selection.length, " selected stations"),
+        message: "The preset includes the ".concat(selection.size, " selected stations"),
         buttons: {
           confirm: {
             label: 'Create',
@@ -38293,8 +38044,7 @@ function (_React$Component) {
         callback: function callback(result) {
           if (result !== null) {
             preset.name = result.substr(0, 50);
-
-            _this8.props.api.createPreset(preset).then(function () {
+            api.createPreset(preset).then(function () {
               return _this8.fetchPresets();
             })["catch"](function (err) {
               console.error(err);
@@ -38308,7 +38058,8 @@ function (_React$Component) {
     value: function activatePreset(presetID) {
       var _this9 = this;
 
-      this.props.api.activatePreset(presetID).then(function () {
+      var api = this.props.api;
+      api.activatePreset(presetID).then(function () {
         return _this9.fetchPresets();
       })["catch"](function (err) {
         console.error(err);
@@ -38319,7 +38070,8 @@ function (_React$Component) {
     value: function deletePreset(presetID) {
       var _this10 = this;
 
-      this.props.api.deletePreset(presetID).then(function () {
+      var api = this.props.api;
+      api.deletePreset(presetID).then(function () {
         return _this10.fetchPresets();
       })["catch"](function (err) {
         console.error(err);
@@ -38330,35 +38082,16 @@ function (_React$Component) {
     value: function updatePreset(presetID) {
       var _this11 = this;
 
+      var api = this.props.api;
+      var stations = this.state.stations;
       var preset = {
         id: presetID,
         stationApps: {}
       };
-      var _iteratorNormalCompletion7 = true;
-      var _didIteratorError7 = false;
-      var _iteratorError7 = undefined;
-
-      try {
-        for (var _iterator7 = this.state.stations[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-          var station = _step7.value;
-          preset.stationApps[station.id] = station.app;
-        }
-      } catch (err) {
-        _didIteratorError7 = true;
-        _iteratorError7 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion7 && _iterator7["return"] != null) {
-            _iterator7["return"]();
-          }
-        } finally {
-          if (_didIteratorError7) {
-            throw _iteratorError7;
-          }
-        }
-      }
-
-      this.props.api.updatePreset(preset).then(function () {
+      stations.forEach(function (station) {
+        preset.stationApps[station.id] = station.app;
+      });
+      api.updatePreset(preset).then(function () {
         return _this11.fetchPresets();
       })["catch"](function (err) {
         console.error(err);
@@ -38382,6 +38115,7 @@ function (_React$Component) {
     value: function pollLoop() {
       var _this12 = this;
 
+      var serverConnectionError = this.state.serverConnectionError;
       var minPollTime = 500;
       var retryPollTime = minPollTime;
       var retryIncreaseFactor = 2;
@@ -38392,7 +38126,7 @@ function (_React$Component) {
           setTimeout(loop, minPollTime);
           retryPollTime = minPollTime;
 
-          if (_this12.state.serverConnectionError) {
+          if (serverConnectionError) {
             _this12.setState({
               serverConnectionError: false
             });
@@ -38427,7 +38161,8 @@ function (_React$Component) {
     value: function pollServer() {
       var _this13 = this;
 
-      return this.props.api.getStations(this.updateID).then(function (data) {
+      var api = this.props.api;
+      return api.getStations(this.updateID).then(function (data) {
         if (data.stations !== undefined) {
           _this13.updateID = data.updateID;
 
@@ -38437,30 +38172,9 @@ function (_React$Component) {
         }
 
         if (data.notifications !== undefined) {
-          var _iteratorNormalCompletion8 = true;
-          var _didIteratorError8 = false;
-          var _iteratorError8 = undefined;
-
-          try {
-            for (var _iterator8 = data.notifications[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-              var notification = _step8.value;
-
-              _this13.notificationManager.push(notification);
-            }
-          } catch (err) {
-            _didIteratorError8 = true;
-            _iteratorError8 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion8 && _iterator8["return"] != null) {
-                _iterator8["return"]();
-              }
-            } finally {
-              if (_didIteratorError8) {
-                throw _iteratorError8;
-              }
-            }
-          }
+          data.notifications.forEach(function (notification) {
+            _this13.notificationManager.push(notification);
+          });
         }
       });
     }
@@ -38469,7 +38183,8 @@ function (_React$Component) {
     value: function fetchPresets() {
       var _this14 = this;
 
-      return this.props.api.getPresets().then(function (presets) {
+      var api = this.props.api;
+      return api.getPresets().then(function (presets) {
         if (presets !== undefined) {
           _this14.setState({
             presets: presets
@@ -38478,24 +38193,6 @@ function (_React$Component) {
       })["catch"](function (err) {
         return console.error(err);
       });
-    }
-  }, {
-    key: "getSortFieldAccessor",
-    value: function getSortFieldAccessor(id) {
-      var _this15 = this;
-
-      var criteria = {
-        name: function name(s) {
-          return s.name;
-        },
-        app: function app(s) {
-          return _this15.props.applications[s.app] && _this15.props.applications[s.app].name || '';
-        },
-        profile: function profile(s) {
-          return _this15.props.stationProfiles[s.profile] && _this15.props.stationProfiles[s.profile].name || '';
-        }
-      };
-      return criteria[id];
     }
   }, {
     key: "sortCriteriaChanged",
@@ -38507,13 +38204,27 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      var _this16 = this;
+      var _this15 = this;
 
-      var stations = [];
+      var _this$props3 = this.props,
+          api = _this$props3.api,
+          applications = _this$props3.applications,
+          stationProfiles = _this$props3.stationProfiles;
+      var _this$state3 = this.state,
+          serverConnectionError = _this$state3.serverConnectionError,
+          sortCriteria = _this$state3.sortCriteria,
+          stations = _this$state3.stations,
+          visibleState = _this$state3.visibleState,
+          selection = _this$state3.selection,
+          presets = _this$state3.presets,
+          log = _this$state3.log,
+          consoleViewerTitle = _this$state3.consoleViewerTitle,
+          lines = _this$state3.lines;
+      var stationsMarkup = [];
       var filters = [];
       var messageBar = '';
 
-      if (this.state.serverConnectionError) {
+      if (serverConnectionError) {
         messageBar = _react["default"].createElement("div", {
           className: "message_bar"
         }, _react["default"].createElement("div", {
@@ -38526,15 +38237,17 @@ function (_React$Component) {
       var stationCount = 0;
       var visibleStations = this.getVisibleStations();
 
-      if (this.state.sortCriteria !== 'default') {
-        var sortFieldAccesor = this.getSortFieldAccessor(this.state.sortCriteria);
+      if (sortCriteria !== 'default') {
+        var sortFieldAccesor = this.getSortFieldAccessor(sortCriteria);
         visibleStations.sort(function (a, b) {
           var fa = sortFieldAccesor(a);
           var fb = sortFieldAccesor(b);
 
           if (fa > fb) {
             return 1;
-          } else if (fa < fb) {
+          }
+
+          if (fa < fb) {
             return -1;
           }
 
@@ -38542,66 +38255,45 @@ function (_React$Component) {
         });
       }
 
-      var _iteratorNormalCompletion9 = true;
-      var _didIteratorError9 = false;
-      var _iteratorError9 = undefined;
+      visibleStations.forEach(function (station) {
+        stationsMarkup.push(_react["default"].createElement("div", {
+          className: "col-sm-6 col-lg-4",
+          key: station.id
+        }, _react["default"].createElement(_station["default"], {
+          station: station,
+          selected: selection.has(station.id),
+          applications: applications,
+          stationProfiles: stationProfiles,
+          onClickStation: _this15.selectToggle,
+          onOpenTerminalLog: _this15.showTerminalLog,
+          onAppChange: _this15.stationAppChanged
+        })));
+        stationCount += 1; // Responsive column resets
 
-      try {
-        for (var _iterator9 = visibleStations[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-          var station = _step9.value;
-          stations.push(_react["default"].createElement("div", {
-            className: "col-sm-6 col-lg-4",
-            key: station.id
-          }, _react["default"].createElement(_station["default"], {
-            station: station,
-            selected: this.state.selection.has(station.id),
-            applications: this.props.applications,
-            stationProfiles: this.props.stationProfiles,
-            onClickStation: this.selectToggle,
-            onOpenTerminalLog: this.showTerminalLog,
-            onAppChange: this.stationAppChanged
-          })));
-          stationCount += 1; // Responsive column resets
-
-          if (stationCount % 3 === 0) {
-            stations.push(_react["default"].createElement("div", {
-              key: "sep-lg-".concat(stationCount),
-              className: "clearfix visible-lg-block"
-            }));
-          }
-
-          if (stationCount % 2 === 0) {
-            stations.push(_react["default"].createElement("div", {
-              key: "sep-sm-".concat(stationCount),
-              className: "clearfix visible-sm-block visible-md-block"
-            }));
-          }
-        }
-      } catch (err) {
-        _didIteratorError9 = true;
-        _iteratorError9 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion9 && _iterator9["return"] != null) {
-            _iterator9["return"]();
-          }
-        } finally {
-          if (_didIteratorError9) {
-            throw _iteratorError9;
-          }
-        }
-      }
-
-      var counts = {};
-      this.state.stations.forEach(function (station) {
-        if (!(_this16.displayState(station.state) in counts)) {
-          counts[_this16.displayState(station.state)] = 0;
+        if (stationCount % 3 === 0) {
+          stationsMarkup.push(_react["default"].createElement("div", {
+            key: "sep-lg-".concat(stationCount),
+            className: "clearfix visible-lg-block"
+          }));
         }
 
-        counts[_this16.displayState(station.state)] += 1;
+        if (stationCount % 2 === 0) {
+          stationsMarkup.push(_react["default"].createElement("div", {
+            key: "sep-sm-".concat(stationCount),
+            className: "clearfix visible-sm-block visible-md-block"
+          }));
+        }
       });
-      var selectedCount = this.state.selection.size;
-      var allSelected = selectedCount === this.state.stations.length;
+      var counts = {};
+      stations.forEach(function (station) {
+        if (!(Dashboard.displayState(station.state) in counts)) {
+          counts[Dashboard.displayState(station.state)] = 0;
+        }
+
+        counts[Dashboard.displayState(station.state)] += 1;
+      });
+      var selectedCount = selection.size;
+      var allSelected = selectedCount === stations.length;
       var selectAllClasses = "btn btn-default btn-sm ".concat(allSelected ? ' disabled' : '');
       var deselectAllClasses = "btn btn-default btn-sm ".concat(selectedCount === 0 ? ' disabled' : '');
       var stationWord = selectedCount === 1 ? 'station' : 'stations';
@@ -38618,7 +38310,7 @@ function (_React$Component) {
         onClick: this.getCommand('stations-all-deselect')
       }, "Deselect"), "\xA0", _react["default"].createElement("span", {
         className: "selectActions-selected"
-      }, this.state.selection.size, " ", stationWord, " selected"))));
+      }, selection.size, " ", stationWord, " selected"))));
       filters.push(_react["default"].createElement("div", {
         key: "stationStateFilter",
         className: "filter-pane filter-pane-state"
@@ -38626,11 +38318,11 @@ function (_React$Component) {
         options: Dashboard.StateOptions,
         counts: counts,
         allText: "All",
-        value: this.state.visibleState,
+        value: visibleState,
         onChange: function onChange(option) {
-          _this16.deselectAll();
+          _this15.deselectAll();
 
-          _this16.setState({
+          _this15.setState({
             visibleState: option
           });
         }
@@ -38681,13 +38373,13 @@ function (_React$Component) {
         href: "#",
         onClick: selectedCount > 0 ? this.getCommand('stations-selected-changeapp-dialog') : ''
       }, "Change the app of selected stations")))), _react["default"].createElement(_viewMenu["default"], {
-        sortCriteria: this.state.sortCriteria,
+        sortCriteria: sortCriteria,
         onSortCriteria: this.sortCriteriaChanged
       }), _react["default"].createElement(_testMenu["default"], {
-        api: this.props.api,
-        selection: this.state.selection
+        api: api,
+        selection: selection
       })), _react["default"].createElement(_presetsBlock["default"], {
-        presets: this.state.presets,
+        presets: presets,
         stationsSelected: selectedCount > 0,
         onCreate: this.getCommand('preset-create'),
         onActivate: this.getCommand('preset-activate'),
@@ -38708,15 +38400,16 @@ function (_React$Component) {
         id: "dashboard"
       }, _react["default"].createElement("div", {
         className: "row"
-      }, stations))))), _react["default"].createElement(_logViewer["default"], {
-        log: this.state.log,
+      }, stationsMarkup))))), _react["default"].createElement(_logViewer["default"], {
+        log: log,
         ref: function ref(c) {
-          _this16.logViewer = c;
+          _this15.logViewer = c;
         }
       }), _react["default"].createElement(_consoleViewer["default"], {
-        lines: this.state.lines,
+        title: consoleViewerTitle,
+        lines: lines,
         ref: function ref(c) {
-          _this16.consoleViewer = c;
+          _this15.consoleViewer = c;
         }
       }));
     }
@@ -38753,7 +38446,7 @@ Dashboard.propTypes = {
   }))
 };
 
-},{"./appSelect.jsx":548,"./buttonFilter.jsx":549,"./consoleViewer.jsx":550,"./header.jsx":552,"./logViewer.jsx":553,"./notificationManager":555,"./presetsBlock.jsx":556,"./station.jsx":557,"./testMenu":558,"./uiAPI":559,"./viewMenu":560,"react":546}],552:[function(require,module,exports){
+},{"./buttonFilter.jsx":548,"./consoleViewer.jsx":549,"./header.jsx":551,"./logViewer.jsx":552,"./notificationManager":554,"./presetsBlock.jsx":555,"./station.jsx":556,"./testMenu":557,"./uiAPI":558,"./viewMenu":559,"react":546}],551:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38802,8 +38495,10 @@ function (_React$Component) {
   _createClass(Header, [{
     key: "handleGlobalLogClicked",
     value: function handleGlobalLogClicked(ev) {
-      if (this.props.onShowGlobalLog) {
-        this.props.onShowGlobalLog();
+      var onShowGlobalLog = this.props.onShowGlobalLog;
+
+      if (onShowGlobalLog) {
+        onShowGlobalLog();
       }
 
       ev.preventDefault();
@@ -38811,8 +38506,10 @@ function (_React$Component) {
   }, {
     key: "handleNotificationsClicked",
     value: function handleNotificationsClicked(ev) {
-      if (this.props.onShowNotificationLog) {
-        this.props.onShowNotificationLog();
+      var onShowNotificationLog = this.props.onShowNotificationLog;
+
+      if (onShowNotificationLog) {
+        onShowNotificationLog();
       }
 
       ev.preventDefault();
@@ -38820,6 +38517,7 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
+      var children = this.props.children;
       return _react["default"].createElement("nav", {
         className: "navbar navbar-default navbar-fixed-top"
       }, _react["default"].createElement("div", {
@@ -38827,8 +38525,7 @@ function (_React$Component) {
       }, _react["default"].createElement("div", {
         className: "navbar-header pull-left"
       }, _react["default"].createElement("div", {
-        className: "navbar-brand",
-        href: "#"
+        className: "navbar-brand"
       }, "Hilbert")), _react["default"].createElement("button", {
         type: "button",
         className: "navbar-toggle collapsed navbar-btn",
@@ -38860,7 +38557,7 @@ function (_React$Component) {
       }))), _react["default"].createElement("div", {
         className: "collapse navbar-collapse pull-left",
         id: "navbar-menus"
-      }, this.props.children)));
+      }, children)));
     }
   }]);
 
@@ -38875,10 +38572,11 @@ Header.propTypes = {
 };
 Header.defaultProps = {
   onShowGlobalLog: function onShowGlobalLog() {},
-  onShowNotificationLog: function onShowNotificationLog() {}
+  onShowNotificationLog: function onShowNotificationLog() {},
+  children: null
 };
 
-},{"react":546}],553:[function(require,module,exports){
+},{"react":546}],552:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38980,39 +38678,20 @@ function (_React$Component) {
     value: function render() {
       var _this3 = this;
 
+      var _this$props = this.props,
+          log = _this$props.log,
+          title = _this$props.title;
       var rowClasses = {
         error: 'danger',
         warning: 'warning'
       };
-      var entries = [];
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.props.log[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var logEntry = _step.value;
-          var rowClass = rowClasses[logEntry.type] !== undefined ? rowClasses[logEntry.type] : '';
-          entries.push(_react["default"].createElement("tr", {
-            key: logEntry.id,
-            className: rowClass
-          }, _react["default"].createElement("td", null, LogViewer.formatTime(logEntry.time)), _react["default"].createElement("td", null, logEntry.station_name), _react["default"].createElement("td", null, logEntry.message), _react["default"].createElement("td", null, logEntry.details)));
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
+      var entries = log.map(function (logEntry) {
+        var rowClass = rowClasses[logEntry.type] || '';
+        return _react["default"].createElement("tr", {
+          key: logEntry.id,
+          className: rowClass
+        }, _react["default"].createElement("td", null, LogViewer.formatTime(logEntry.time)), _react["default"].createElement("td", null, logEntry.station_name), _react["default"].createElement("td", null, logEntry.message), _react["default"].createElement("td", null, logEntry.details));
+      });
       return _react["default"].createElement("div", {
         className: "modal fade logViewer-modal",
         tabIndex: "-1",
@@ -39032,7 +38711,7 @@ function (_React$Component) {
         "data-dismiss": "modal"
       }, _react["default"].createElement("span", null, "\xD7")), _react["default"].createElement("h4", {
         className: "modal-title"
-      }, this.props.title)), _react["default"].createElement("div", {
+      }, title)), _react["default"].createElement("div", {
         className: "modal-body"
       }, _react["default"].createElement("table", {
         className: "table table-fixed table-condensed"
@@ -39061,7 +38740,7 @@ LogViewer.defaultProps = {
   title: 'Latest Notifications'
 };
 
-},{"react":546}],554:[function(require,module,exports){
+},{"react":546}],553:[function(require,module,exports){
 "use strict";
 
 require("core-js/stable");
@@ -39070,14 +38749,15 @@ var _react = _interopRequireDefault(require("react"));
 
 var _reactDom = _interopRequireDefault(require("react-dom"));
 
+var _bluebird = _interopRequireDefault(require("bluebird"));
+
 var _uiAPI = _interopRequireDefault(require("./uiAPI"));
 
 var _dashboard = _interopRequireDefault(require("./dashboard"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var Promise = require('bluebird');
-
+/* globals window */
 var apiConnector = new _uiAPI["default"]('/api');
 window.dashboard = null; // onReady
 
@@ -39085,61 +38765,22 @@ $(function () {
   var initData = {};
   var initTasks = [apiConnector.getApplications().then(function (applications) {
     initData.applications = {};
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = applications[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var application = _step.value;
-        initData.applications[application.id] = application;
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-          _iterator["return"]();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
+    applications.forEach(function (application) {
+      initData.applications[application.id] = application;
+    });
   }), apiConnector.getStationProfiles().then(function (stationProfiles) {
     initData.stationProfiles = {};
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-      for (var _iterator2 = stationProfiles[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-        var stationProfile = _step2.value;
-        initData.stationProfiles[stationProfile.id] = stationProfile;
-      }
-    } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-          _iterator2["return"]();
-        }
-      } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
-        }
-      }
-    }
+    stationProfiles.forEach(function (stationProfile) {
+      initData.stationProfiles[stationProfile.id] = stationProfile;
+    });
   })];
-  Promise.all(initTasks).then(function () {
+
+  _bluebird["default"].all(initTasks).then(function () {
     window.dashboard = _reactDom["default"].render(_react["default"].createElement(_dashboard["default"], {
       api: apiConnector,
       applications: initData.applications,
       stationProfiles: initData.stationProfiles
-    }), document.getElementById('dashboardContainer')); // Install click handlers in external menus and buttons
+    }), window.document.getElementById('dashboardContainer')); // Install click handlers in external menus and buttons
 
     $('[data-command]').each(function setClickHandler() {
       var _this = this;
@@ -39152,7 +38793,7 @@ $(function () {
   });
 });
 
-},{"./dashboard":551,"./uiAPI":559,"bluebird":1,"core-js/stable":359,"react":546,"react-dom":391}],555:[function(require,module,exports){
+},{"./dashboard":550,"./uiAPI":558,"bluebird":1,"core-js/stable":359,"react":546,"react-dom":391}],554:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39250,7 +38891,7 @@ function () {
 
 exports["default"] = NotificationManager;
 
-},{}],556:[function(require,module,exports){
+},{}],555:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39313,22 +38954,31 @@ function (_React$Component) {
   }, {
     key: "handleActivate",
     value: function handleActivate() {
-      if (this.state.selectedPreset !== 0) {
-        this.props.onActivate(this.state.selectedPreset);
+      var onActivate = this.props.onActivate;
+      var selectedPreset = this.state.selectedPreset;
+
+      if (selectedPreset !== 0) {
+        onActivate(selectedPreset);
       }
     }
   }, {
     key: "handleSave",
     value: function handleSave() {
-      if (this.state.selectedPreset !== 0) {
-        this.props.onUpdate(this.state.selectedPreset);
+      var onUpdate = this.props.onUpdate;
+      var selectedPreset = this.state.selectedPreset;
+
+      if (selectedPreset !== 0) {
+        onUpdate(selectedPreset);
       }
     }
   }, {
     key: "handleDelete",
     value: function handleDelete() {
-      if (this.state.selectedPreset !== 0) {
-        this.props.onDelete(this.state.selectedPreset);
+      var onDelete = this.props.onDelete;
+      var selectedPreset = this.state.selectedPreset;
+
+      if (selectedPreset !== 0) {
+        onDelete(selectedPreset);
         this.setState({
           selectedPreset: 0
         });
@@ -39337,61 +38987,45 @@ function (_React$Component) {
   }, {
     key: "handleRefresh",
     value: function handleRefresh() {
-      this.props.onRefresh(this.state.selectedPreset);
+      var onRefresh = this.props.onRefresh;
+      var selectedPreset = this.state.selectedPreset;
+      onRefresh(selectedPreset);
     }
   }, {
     key: "handleNew",
     value: function handleNew() {
-      this.props.onCreate();
+      var onCreate = this.props.onCreate;
+      onCreate();
     }
   }, {
     key: "render",
     value: function render() {
-      var options = [_react["default"].createElement("option", {
+      var presets = this.props.presets;
+      var selectedPreset = this.state.selectedPreset;
+      var options = presets.map(function (preset) {
+        return _react["default"].createElement("option", {
+          key: preset.id,
+          value: preset.id
+        }, preset.name);
+      });
+      options.unshift(_react["default"].createElement("option", {
         key: "0",
         value: "0"
-      })];
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.props.presets[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var preset = _step.value;
-          options.push(_react["default"].createElement("option", {
-            key: preset.id,
-            value: preset.id
-          }, preset.name));
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      var actionsDisabled = this.state.selectedPreset === 0;
+      }));
+      var actionsDisabled = selectedPreset === 0;
       return _react["default"].createElement("div", {
         className: "navbar-form navbar-left presets-block"
       }, "Presets \xA0", _react["default"].createElement("div", {
         className: "input-group"
       }, _react["default"].createElement("select", {
         className: "form-control presets-list",
-        value: this.state.selectedPreset,
+        value: selectedPreset,
         onChange: this.handlePresetChange
       }, options), _react["default"].createElement("div", {
         className: "input-group-btn"
       }, _react["default"].createElement("button", {
-        href: "#",
         className: "dropdown-toggle btn btn-default",
+        type: "button",
         "data-toggle": "dropdown"
       }, _react["default"].createElement("span", {
         className: "caret"
@@ -39453,7 +39087,7 @@ PresetsBlock.defaultProps = {
   onRefresh: function onRefresh() {}
 };
 
-},{"react":546}],557:[function(require,module,exports){
+},{"react":546}],556:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39520,25 +39154,34 @@ function (_React$Component) {
   }, {
     key: "handleAppMenuClick",
     value: function handleAppMenuClick(ev) {
+      var _this$props = this.props,
+          onAppChange = _this$props.onAppChange,
+          station = _this$props.station;
       ev.stopPropagation();
       ev.preventDefault();
       var selectedAppID = $(ev.target).attr('data-value');
 
       if (selectedAppID !== undefined) {
-        if (this.props.onAppChange) {
-          this.props.onAppChange(this.props.station, selectedAppID);
+        if (onAppChange) {
+          onAppChange(station, selectedAppID);
         }
       }
     }
   }, {
     key: "handleClick",
     value: function handleClick() {
-      this.props.onClickStation(this.props.station.id);
+      var _this$props2 = this.props,
+          onClickStation = _this$props2.onClickStation,
+          station = _this$props2.station;
+      onClickStation(station.id);
     }
   }, {
     key: "handleOpenTerminalLog",
     value: function handleOpenTerminalLog(ev) {
-      this.props.onOpenTerminalLog(this.props.station.id);
+      var _this$props3 = this.props,
+          station = _this$props3.station,
+          onOpenTerminalLog = _this$props3.onOpenTerminalLog;
+      onOpenTerminalLog(station.id);
       ev.preventDefault();
       ev.stopPropagation();
     }
@@ -39553,15 +39196,20 @@ function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
-      var stationClasses = ['station', "station-state-".concat(this.props.station.state), "station-profile-".concat(this.props.station.profile)];
+      var _this$props4 = this.props,
+          station = _this$props4.station,
+          selected = _this$props4.selected,
+          applications = _this$props4.applications,
+          stationProfiles = _this$props4.stationProfiles;
+      var stationClasses = ['station', "station-state-".concat(station.state), "station-profile-".concat(station.profile)];
 
-      if (this.props.selected) {
+      if (selected) {
         stationClasses.push('station-selected');
       }
 
       var lock = null;
 
-      if (this.props.station.locked) {
+      if (station.locked) {
         stationClasses.push('station-locked');
         lock = _react["default"].createElement("div", {
           className: "station-lock"
@@ -39570,54 +39218,30 @@ function (_React$Component) {
         }));
       }
 
-      var appName = this.props.station.app;
-      var appDesc = '';
+      var appName = station.app;
 
-      if (this.props.applications[this.props.station.app] !== undefined) {
-        appName = this.props.applications[this.props.station.app].name;
-        appDesc = this.props.applications[this.props.station.app].description;
+      if (applications[station.app] !== undefined) {
+        appName = applications[station.app].name;
       }
 
       var profileName = '';
       var profileDesc = '';
 
-      if (this.props.stationProfiles[this.props.station.profile] !== undefined) {
-        profileName = this.props.stationProfiles[this.props.station.profile].name;
-        profileDesc = this.props.stationProfiles[this.props.station.profile].description;
+      if (stationProfiles[station.profile] !== undefined) {
+        profileName = stationProfiles[station.profile].name;
+        profileDesc = stationProfiles[station.profile].description;
       }
 
-      var appOptions = [];
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = this.props.station.compatible_apps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var appID = _step.value;
-          appOptions.push(_react["default"].createElement("li", {
-            key: appID
-          }, _react["default"].createElement("a", {
-            href: "#",
-            "data-value": appID
-          }, this.props.applications[appID].name)));
-        }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-            _iterator["return"]();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
+      var appOptions = station.compatible_apps.map(function (appID) {
+        return _react["default"].createElement("li", {
+          key: appID
+        }, _react["default"].createElement("a", {
+          href: "#",
+          "data-value": appID
+        }, applications[appID].name));
+      });
       return _react["default"].createElement("div", {
-        id: this.props.station.id,
+        id: station.id,
         className: stationClasses.join(' '),
         onClick: this.handleClick,
         ref: this.onElementRef
@@ -39626,11 +39250,11 @@ function (_React$Component) {
       }), _react["default"].createElement("div", {
         className: "station-icon"
       }, _react["default"].createElement("img", {
-        alt: this.props.station.app,
-        src: this.props.station.icon
+        alt: station.app,
+        src: station.icon
       })), _react["default"].createElement("div", {
         className: "station-name"
-      }, this.props.station.name), _react["default"].createElement("div", {
+      }, station.name), _react["default"].createElement("div", {
         className: "station-profile",
         title: profileDesc
       }, profileName), _react["default"].createElement("div", {
@@ -39646,14 +39270,14 @@ function (_React$Component) {
         onClick: this.handleAppMenuClick
       }, appOptions)), _react["default"].createElement("div", {
         className: "station-status"
-      }, this.props.station.status), lock, _react["default"].createElement("a", {
+      }, station.status), lock, _react["default"].createElement("a", {
         className: "station-info-button",
         onClick: this.handleInfoButton,
         "data-toggle": "popover",
-        tabIndex: "1",
+        tabIndex: "0",
         "data-trigger": "focus",
-        title: this.props.station.id,
-        "data-content": this.props.station.description
+        title: station.id,
+        "data-content": station.description
       }, _react["default"].createElement("i", {
         className: "fa fa-info-circle"
       })), _react["default"].createElement("a", {
@@ -39701,7 +39325,7 @@ Station.propTypes = {
   onAppChange: _react["default"].PropTypes.func
 };
 
-},{"react":546}],558:[function(require,module,exports){
+},{"react":546}],557:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39766,7 +39390,8 @@ function (_React$Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      return this.props.api.getTestFlags().then(function (response) {
+      var api = this.props.api;
+      return api.getTestFlags().then(function (response) {
         _this2.updateFromResponse(response);
       })["catch"](function (err) {
         return console.error(err);
@@ -39777,13 +39402,15 @@ function (_React$Component) {
     value: function toggleFlag(flag) {
       var _this3 = this;
 
+      var api = this.props.api;
+      var flags = this.state.flags;
       var flipped = {};
-      flipped[flag] = !this.state.flags[flag];
-      var newFlags = Object.assign({}, this.state.flags, flipped);
+      flipped[flag] = !flags[flag];
+      var newFlags = Object.assign({}, flags, flipped);
       this.setState({
         flags: newFlags
       });
-      this.props.api.setTestFlags(newFlags).then(function (response) {
+      api.setTestFlags(newFlags).then(function (response) {
         _this3.updateFromResponse(response);
       })["catch"](function (err) {
         return console.error(err);
@@ -39804,22 +39431,35 @@ function (_React$Component) {
   }, {
     key: "makeStationsUnreachable",
     value: function makeStationsUnreachable() {
-      this.props.api.testMakeStationsUnreachable(Array.from(this.props.selection));
+      var _this$props = this.props,
+          api = _this$props.api,
+          selection = _this$props.selection;
+      api.testMakeStationsUnreachable(Array.from(selection));
     }
   }, {
     key: "makeStationsReachable",
     value: function makeStationsReachable() {
-      this.props.api.testMakeStationsReachable(Array.from(this.props.selection));
+      var _this$props2 = this.props,
+          api = _this$props2.api,
+          selection = _this$props2.selection;
+      api.testMakeStationsReachable(Array.from(selection));
     }
   }, {
     key: "stopStationsUnexpectedly",
     value: function stopStationsUnexpectedly() {
-      this.props.api.testStopStationsUnexpectedly(Array.from(this.props.selection));
+      var _this$props3 = this.props,
+          api = _this$props3.api,
+          selection = _this$props3.selection;
+      api.testStopStationsUnexpectedly(Array.from(selection));
     }
   }, {
     key: "render",
     value: function render() {
-      if (!this.state.visible) {
+      var _this$state = this.state,
+          visible = _this$state.visible,
+          flags = _this$state.flags;
+
+      if (!visible) {
         return null;
       }
 
@@ -39835,15 +39475,15 @@ function (_React$Component) {
         className: "dropdown-menu"
       }, _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.state.flags['sim-fail-cli'] ? 'checked' : '',
+        className: flags['sim-fail-cli'] ? 'checked' : '',
         onClick: this.toggleSimFailCli
       }, "Simulate CLI fail in operations")), _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.state.flags['sim-timeout'] ? 'checked' : '',
+        className: flags['sim-timeout'] ? 'checked' : '',
         onClick: this.toggleSimTimeout
       }, "Simulate operations timeout")), _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.state.flags['sim-unexpected-off'] ? 'checked' : '',
+        className: flags['sim-unexpected-off'] ? 'checked' : '',
         onClick: this.toggleUnexpectedOff
       }, "Simulate stations stop during operations")), _react["default"].createElement("li", {
         className: "divider"
@@ -39869,7 +39509,7 @@ TestMenu.propTypes = {
   selection: _react["default"].PropTypes.instanceOf(Set)
 };
 
-},{"./uiAPI":559,"react":546}],559:[function(require,module,exports){
+},{"./uiAPI":558,"react":546}],558:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39877,18 +39517,19 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _bluebird = _interopRequireDefault(require("bluebird"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var Promise = require('bluebird');
 /**
  * Hilbert UI API Connector
  */
-
-
 var UIAPI =
 /*#__PURE__*/
 function () {
@@ -39903,7 +39544,7 @@ function () {
    * This call uses long polling, so it sends the last update ID and has a long timeout
    *
    * @param lastUpdateID
-   * @return {bluebird}
+   * @return {Promise}
    */
 
 
@@ -39920,7 +39561,7 @@ function () {
      * Start a list of stations
      *
      * @param {Array} stationIDs
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -39934,7 +39575,7 @@ function () {
      * Stop a list of stations
      *
      * @param {Array} stationIDs
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -39949,7 +39590,7 @@ function () {
      *
      * @param {Array} stationIDs
      * @param {String} appID
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40043,7 +39684,7 @@ function () {
      * Create a preset
      *
      * @param {Object} preset Preset data
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40055,7 +39696,7 @@ function () {
      * Activates a preset
      *
      * @param {String} presetID
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40067,7 +39708,7 @@ function () {
      * Deletes a preset
      *
      * @param {String} presetID
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40079,7 +39720,7 @@ function () {
      * Updates a preset
      *
      * @param {Object} preset
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40090,7 +39731,7 @@ function () {
     /**
      * Gets the test backend flags
      *
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40102,7 +39743,7 @@ function () {
      * Sets the test backend flags
      *
      * @param {object} flags
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40114,7 +39755,7 @@ function () {
      * Makes stations unrechable in the test backend
      *
      * @param {array} stationIDs
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40128,7 +39769,7 @@ function () {
      * Makes stations reachable in the test backend
      *
      * @param {array} stationIDs
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40142,7 +39783,7 @@ function () {
      * Stops stations unexpectedly in the test backend
      *
      * @param {array} stationIDs
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40165,7 +39806,7 @@ function () {
      *  Optional data to send
      * @param options
      *  Extra options for the call
-     * @return {bluebird}
+     * @return {Promise}
      */
 
   }, {
@@ -40175,7 +39816,7 @@ function () {
 
       var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
       var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
-      return new Promise(function (resolve, reject) {
+      return new _bluebird["default"](function (resolve, reject) {
         var defaultOptions = {
           url: "".concat(_this.apiRoot).concat(entryPoint),
           method: method,
@@ -40209,7 +39850,7 @@ function () {
 
 exports["default"] = UIAPI;
 
-},{"bluebird":1}],560:[function(require,module,exports){
+},{"bluebird":1}],559:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40250,9 +39891,6 @@ function (_React$Component) {
     _classCallCheck(this, ViewMenu);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(ViewMenu).call(this, props));
-    _this.state = {
-      sortCriteria: null
-    };
     _this.sortByDefault = _this.setSortCriteria.bind(_assertThisInitialized(_this), 'default');
     _this.sortByName = _this.setSortCriteria.bind(_assertThisInitialized(_this), 'name');
     _this.sortByApp = _this.setSortCriteria.bind(_assertThisInitialized(_this), 'app');
@@ -40263,13 +39901,16 @@ function (_React$Component) {
   _createClass(ViewMenu, [{
     key: "setSortCriteria",
     value: function setSortCriteria(criteria) {
-      if (this.props.onSortCriteria) {
-        this.props.onSortCriteria(criteria);
+      var onSortCriteria = this.props.onSortCriteria;
+
+      if (onSortCriteria) {
+        onSortCriteria(criteria);
       }
     }
   }, {
     key: "render",
     value: function render() {
+      var sortCriteria = this.props.sortCriteria;
       return _react["default"].createElement("li", {
         className: "dropdown"
       }, _react["default"].createElement("a", {
@@ -40282,19 +39923,19 @@ function (_React$Component) {
         className: "dropdown-menu"
       }, _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.props.sortCriteria === 'default' ? 'checked' : '',
+        className: sortCriteria === 'default' ? 'checked' : '',
         onClick: this.sortByDefault
       }, "Default order")), _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.props.sortCriteria === 'name' ? 'checked' : '',
+        className: sortCriteria === 'name' ? 'checked' : '',
         onClick: this.sortByName
       }, "Order by name")), _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.props.sortCriteria === 'app' ? 'checked' : '',
+        className: sortCriteria === 'app' ? 'checked' : '',
         onClick: this.sortByApp
       }, "Order by application")), _react["default"].createElement("li", null, _react["default"].createElement("a", {
         href: "#",
-        className: this.props.sortCriteria === 'profile' ? 'checked' : '',
+        className: sortCriteria === 'profile' ? 'checked' : '',
         onClick: this.sortByProfile
       }, "Order by profile"))));
     }
@@ -40309,4 +39950,4 @@ ViewMenu.propTypes = {
   onSortCriteria: _react["default"].PropTypes.func
 };
 
-},{"react":546}]},{},[554]);
+},{"react":546}]},{},[553]);

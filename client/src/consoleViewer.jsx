@@ -1,25 +1,29 @@
+/* globals window */
+
 import React from 'react';
 
+/**
+ * A component for visualizing process output console-style
+ */
 export default class ConsoleViewer extends React.Component {
-
   constructor(props) {
     super(props);
     this.modalDIV = null;
   }
 
+  componentDidMount() {
+    $(window).on('resize', () => { this.handleResize(); });
+    $(this.modalDIV).on('show.bs.modal', () => { this.handleResize(); });
+  }
+
   openModal() {
     if (this.modalDIV !== null) {
       $(this.modalDIV).modal();
-      $(this.modalDIV).on('shown.bs.modal', function() {
+      $(this.modalDIV).on('shown.bs.modal', function onModalShow() {
         const modalBody = $(this).find('.modal-body').first()[0];
         modalBody.scrollTop = Math.max(modalBody.scrollHeight, modalBody.clientHeight);
       });
     }
-  }
-
-  componentDidMount() {
-    $(window).on('resize', () => { this.handleResize(); });
-    $(this.modalDIV).on('show.bs.modal', () => { this.handleResize(); });
   }
 
   handleResize() {
@@ -33,6 +37,10 @@ export default class ConsoleViewer extends React.Component {
   }
 
   render() {
+    const {
+      title, lines,
+    } = this.props;
+
     return (
       <div className="modal fade consoleViewer-modal" tabIndex="-1" role="dialog" ref={(c) => { this.modalDIV = c; }}>
         <div className="modal-dialog modal-lg">
@@ -41,11 +49,11 @@ export default class ConsoleViewer extends React.Component {
               <button type="button" className="close" data-dismiss="modal">
                 <span>&times;</span>
               </button>
-              <h4 className="modal-title">{this.props.title}</h4>
+              <h4 className="modal-title">{title}</h4>
             </div>
             <div className="modal-body">
               <pre>
-                {this.props.lines.join('\n')}
+                {lines.join('\n')}
               </pre>
             </div>
           </div>

@@ -1,37 +1,46 @@
 import React from 'react';
 
+/**
+ * A filter component made out of several buttons
+ *
+ * Only one button can be active at a time
+ */
 const ButtonFilter = (props) => {
-  const options = [];
+  const {
+    options, value, counts, allText, onChange,
+  } = props;
 
-  for (const option of props.options) {
+  const optionButtons = options.map((option) => {
     const classes = ['btn', 'btn-default', 'btn-sm', `button-filter-option-${option.id}`];
-    if (props.value === option.id) {
+    if (value === option.id) {
       classes.push('active');
     }
     let counter = '';
     let spacing = '';
-    if (props.counts !== null) {
+    if (counts !== null) {
       let count = 0;
-      if (option.id in props.counts && props.counts[option.id] !== 0) {
-        count = props.counts[option.id];
+      if (option.id in counts && counts[option.id] !== 0) {
+        count = counts[option.id];
       }
       const badgeClasses = `badge${count === 0 ? ' zero' : ' non-zero'}`;
       counter = (<span className={badgeClasses}>{count}</span>);
       spacing = ' ';
     }
-    options.push(
+    return (
       <a
         href="#"
         className={classes.join(' ')}
         key={option.id}
-        onClick={() => props.onChange(option.id)}
+        onClick={() => onChange(option.id)}
         title={option.description || ''}
-      >{option.name || option.id}{spacing}{counter}</a>
+      >
+        {option.name || option.id}{spacing}{counter}
+      </a>
     );
-  }
+  });
 
   const defaultClasses = ['btn', 'btn-default', 'btn-sm'];
-  if (props.value === '') {
+  if (value === '') {
     defaultClasses.push('active');
   }
 
@@ -42,11 +51,13 @@ const ButtonFilter = (props) => {
           href="#"
           className={defaultClasses.join(' ')}
           key="null"
-          onClick={() => props.onChange('')}
-        >{props.allText}</a>
+          onClick={() => onChange('')}
+        >
+          {allText}
+        </a>
       </div>
       <div className="btn-group">
-        {options}
+        {optionButtons}
       </div>
     </div>
   );

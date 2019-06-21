@@ -23,7 +23,8 @@ export default class TestMenu extends React.Component {
   }
 
   componentDidMount() {
-    return this.props.api.getTestFlags()
+    const { api } = this.props;
+    return api.getTestFlags()
       .then((response) => {
         this.updateFromResponse(response);
       })
@@ -31,12 +32,14 @@ export default class TestMenu extends React.Component {
   }
 
   toggleFlag(flag) {
+    const { api } = this.props;
+    const { flags } = this.state;
     const flipped = {};
-    flipped[flag] = !this.state.flags[flag];
-    const newFlags = Object.assign({}, this.state.flags, flipped);
+    flipped[flag] = !flags[flag];
+    const newFlags = Object.assign({}, flags, flipped);
 
     this.setState({ flags: newFlags });
-    this.props.api.setTestFlags(newFlags)
+    api.setTestFlags(newFlags)
       .then((response) => {
         this.updateFromResponse(response);
       })
@@ -55,19 +58,23 @@ export default class TestMenu extends React.Component {
   }
 
   makeStationsUnreachable() {
-    this.props.api.testMakeStationsUnreachable(Array.from(this.props.selection));
+    const { api, selection } = this.props;
+    api.testMakeStationsUnreachable(Array.from(selection));
   }
 
   makeStationsReachable() {
-    this.props.api.testMakeStationsReachable(Array.from(this.props.selection));
+    const { api, selection } = this.props;
+    api.testMakeStationsReachable(Array.from(selection));
   }
 
   stopStationsUnexpectedly() {
-    this.props.api.testStopStationsUnexpectedly(Array.from(this.props.selection));
+    const { api, selection } = this.props;
+    api.testStopStationsUnexpectedly(Array.from(selection));
   }
 
   render() {
-    if (!this.state.visible) {
+    const { visible, flags } = this.state;
+    if (!visible) {
       return null;
     }
 
@@ -77,24 +84,26 @@ export default class TestMenu extends React.Component {
           href="#"
           className="dropdown-toggle"
           data-toggle="dropdown"
-        >Test <span className="caret" /></a>
+        >
+          Test <span className="caret" />
+        </a>
         <ul className="dropdown-menu">
           <li>
-            <a href="#" className={this.state.flags['sim-fail-cli'] ? 'checked' : ''} onClick={this.toggleSimFailCli}>
+            <a href="#" className={flags['sim-fail-cli'] ? 'checked' : ''} onClick={this.toggleSimFailCli}>
               Simulate CLI fail in operations
             </a>
           </li>
           <li>
-            <a href="#" className={this.state.flags['sim-timeout'] ? 'checked' : ''} onClick={this.toggleSimTimeout}>
+            <a href="#" className={flags['sim-timeout'] ? 'checked' : ''} onClick={this.toggleSimTimeout}>
               Simulate operations timeout
             </a>
           </li>
           <li>
-            <a href="#" className={this.state.flags['sim-unexpected-off'] ? 'checked' : ''} onClick={this.toggleUnexpectedOff}>
+            <a href="#" className={flags['sim-unexpected-off'] ? 'checked' : ''} onClick={this.toggleUnexpectedOff}>
               Simulate stations stop during operations
             </a>
           </li>
-          <li className="divider"></li>
+          <li className="divider" />
           <li>
             <a href="#" onClick={this.makeStationsUnreachable}>
               Make selected stations unreachable
@@ -118,5 +127,5 @@ export default class TestMenu extends React.Component {
 
 TestMenu.propTypes = {
   api: React.PropTypes.instanceOf(UIAPI),
-  selection: React.PropTypes.instanceOf(Set)
+  selection: React.PropTypes.instanceOf(Set),
 };

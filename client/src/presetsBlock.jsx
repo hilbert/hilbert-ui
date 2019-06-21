@@ -19,42 +19,51 @@ export default class PresetsBlock extends React.Component {
   }
 
   handleActivate() {
-    if (this.state.selectedPreset !== 0) {
-      this.props.onActivate(this.state.selectedPreset);
+    const { onActivate } = this.props;
+    const { selectedPreset } = this.state;
+    if (selectedPreset !== 0) {
+      onActivate(selectedPreset);
     }
   }
 
   handleSave() {
-    if (this.state.selectedPreset !== 0) {
-      this.props.onUpdate(this.state.selectedPreset);
+    const { onUpdate } = this.props;
+    const { selectedPreset } = this.state;
+    if (selectedPreset !== 0) {
+      onUpdate(selectedPreset);
     }
   }
 
   handleDelete() {
-    if (this.state.selectedPreset !== 0) {
-      this.props.onDelete(this.state.selectedPreset);
+    const { onDelete } = this.props;
+    const { selectedPreset } = this.state;
+    if (selectedPreset !== 0) {
+      onDelete(selectedPreset);
       this.setState({ selectedPreset: 0 });
     }
   }
 
   handleRefresh() {
-    this.props.onRefresh(this.state.selectedPreset);
+    const { onRefresh } = this.props;
+    const { selectedPreset } = this.state;
+    onRefresh(selectedPreset);
   }
 
   handleNew() {
-    this.props.onCreate();
+    const { onCreate } = this.props;
+    onCreate();
   }
 
   render() {
-    const options = [
-      <option key="0" value="0" />,
-    ];
+    const { presets } = this.props;
+    const { selectedPreset } = this.state;
 
-    for (const preset of this.props.presets) {
-      options.push(<option key={preset.id} value={preset.id}>{preset.name}</option>);
-    }
+    const options = presets.map(preset => (
+      <option key={preset.id} value={preset.id}>{preset.name}</option>
+    ));
+    options.unshift(<option key="0" value="0" />);
 
-    const actionsDisabled = (this.state.selectedPreset === 0);
+    const actionsDisabled = (selectedPreset === 0);
 
     return (
       <div className="navbar-form navbar-left presets-block">
@@ -63,35 +72,39 @@ export default class PresetsBlock extends React.Component {
         <div className="input-group">
           <select
             className="form-control presets-list"
-            value={this.state.selectedPreset}
+            value={selectedPreset}
             onChange={this.handlePresetChange}
-          >{options}</select>
+          >
+            {options}
+          </select>
           <div className="input-group-btn">
             <button
-              href="#"
               className="dropdown-toggle btn btn-default"
+              type="button"
               data-toggle="dropdown"
-            ><span className="caret" /></button>
+            >
+              <span className="caret" />
+            </button>
             <ul className="dropdown-menu">
-              <li className={actionsDisabled ? 'disabled' : ''} >
+              <li className={actionsDisabled ? 'disabled' : ''}>
                 <a href="#" onClick={this.handleActivate}>
                   Activate
                 </a>
               </li>
-              <li className={actionsDisabled ? 'disabled' : ''} >
+              <li className={actionsDisabled ? 'disabled' : ''}>
                 <a href="#" onClick={this.handleSave}>
                   Save changes
                 </a>
               </li>
-              <li className={actionsDisabled ? 'disabled' : ''} >
+              <li className={actionsDisabled ? 'disabled' : ''}>
                 <a href="#" onClick={this.handleDelete}>
                   Delete
                 </a>
               </li>
-              <li className="divider"></li>
+              <li className="divider" />
               <li>
                 <a href="#" onClick={this.handleNew}>New preset...</a></li>
-              <li className="divider"></li>
+              <li className="divider" />
               <li><a href="#" onClick={this.handleRefresh}>Refresh</a></li>
             </ul>
           </div>
@@ -125,4 +138,4 @@ PresetsBlock.defaultProps = {
   onDelete: () => {},
   onUpdate: () => {},
   onRefresh: () => {},
-}
+};

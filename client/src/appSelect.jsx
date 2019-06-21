@@ -6,7 +6,6 @@ import React from 'react';
  * Allows the user to select an application from a list
  */
 export default class AppSelect extends React.Component {
-
   constructor(props) {
     super(props);
     this.appSelector = null;
@@ -14,33 +13,33 @@ export default class AppSelect extends React.Component {
   }
 
   clickedChangeApp() {
-    if (this.props.onChange) {
-      this.props.onChange(this.appSelector.value);
+    const { onChange } = this.props;
+    if (onChange) {
+      onChange(this.appSelector.value);
     }
   }
 
   render() {
     const options = [];
+    const {
+      allowBlank, applications, disabled, defaultValue,
+    } = this.props;
 
-    if (this.props.allowBlank) {
-      options.push(
-        <option key="null" value="">&nbsp;</option>
-      );
+    if (allowBlank) {
+      options.push(<option key="null" value="">&nbsp;</option>);
     }
 
-    const sortedApps = Object.values(this.props.applications).sort((a, b) => {
+    const sortedApps = Object.values(applications).sort((a, b) => {
       if (a.name < b.name) return -1;
-      else if (a.name > b.name) return 1;
+      if (a.name > b.name) return 1;
       return 0;
     });
 
-    for (const application of sortedApps) {
-      options.push(
-        <option key={application.id} value={application.id}>{application.name}</option>
-      );
-    }
+    sortedApps.forEach((application) => {
+      options.push(<option key={application.id} value={application.id}>{application.name}</option>);
+    });
 
-    const disabledClass = (this.props.disabled ? ' disabled' : '');
+    const disabledClass = (disabled ? ' disabled' : '');
 
     return (
       <div className={`appSelect${disabledClass}`}>
@@ -48,7 +47,7 @@ export default class AppSelect extends React.Component {
           <div className="form-group form-group-minwidth">
             <select
               className={`form-control${disabledClass}`}
-              defaultValue={this.props.defaultValue ? this.props.defaultValue : ''}
+              defaultValue={defaultValue || ''}
               ref={(sel) => { this.appSelector = sel; }}
             >
               {options}
@@ -58,7 +57,9 @@ export default class AppSelect extends React.Component {
           <a
             className={`btn btn-warning${disabledClass}`}
             onClick={this.clickedChangeApp}
-          >Change application</a>
+          >
+            Change application
+          </a>
         </div>
       </div>
     );

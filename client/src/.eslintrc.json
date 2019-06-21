@@ -1,6 +1,5 @@
 {
   "extends": ["airbnb"],
-  "installedESLint": true,
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module",
@@ -17,5 +16,7 @@
     "bootbox": true
   },
   "rules": {
+    "react/jsx-one-expression-per-line": "off",
+    "comma-dangle": ["error", "always-multiline", { "functions": "never" }]
   }
 }

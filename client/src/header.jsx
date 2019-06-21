@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default class Header extends React.Component {
-
   constructor(props) {
     super(props);
 
@@ -10,25 +9,28 @@ export default class Header extends React.Component {
   }
 
   handleGlobalLogClicked(ev) {
-    if (this.props.onShowGlobalLog) {
-      this.props.onShowGlobalLog();
+    const { onShowGlobalLog } = this.props;
+    if (onShowGlobalLog) {
+      onShowGlobalLog();
     }
     ev.preventDefault();
   }
 
   handleNotificationsClicked(ev) {
-    if (this.props.onShowNotificationLog) {
-      this.props.onShowNotificationLog();
+    const { onShowNotificationLog } = this.props;
+    if (onShowNotificationLog) {
+      onShowNotificationLog();
     }
     ev.preventDefault();
   }
 
   render() {
+    const { children } = this.props;
     return (
       <nav className="navbar navbar-default navbar-fixed-top">
         <div className="container-fluid">
           <div className="navbar-header pull-left">
-            <div className="navbar-brand" href="#">Hilbert</div>
+            <div className="navbar-brand">Hilbert</div>
           </div>
           <button
             type="button"
@@ -60,7 +62,7 @@ export default class Header extends React.Component {
             </button>
           </div>
           <div className="collapse navbar-collapse pull-left" id="navbar-menus">
-            {this.props.children}
+            {children}
           </div>
         </div>
       </nav>
@@ -77,4 +79,5 @@ Header.propTypes = {
 Header.defaultProps = {
   onShowGlobalLog: () => {},
   onShowNotificationLog: () => {},
+  children: null,
 };

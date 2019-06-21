@@ -1,10 +1,11 @@
+/* globals window */
 import 'core-js/stable';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Promise from 'bluebird';
+
 import UIAPI from './uiAPI';
 import Dashboard from './dashboard';
-
-const Promise = require('bluebird');
 
 const apiConnector = new UIAPI('/api');
 
@@ -15,15 +16,15 @@ $(() => {
   const initTasks = [
     apiConnector.getApplications().then((applications) => {
       initData.applications = {};
-      for (const application of applications) {
+      applications.forEach((application) => {
         initData.applications[application.id] = application;
-      }
+      });
     }),
     apiConnector.getStationProfiles().then((stationProfiles) => {
       initData.stationProfiles = {};
-      for (const stationProfile of stationProfiles) {
+      stationProfiles.forEach((stationProfile) => {
         initData.stationProfiles[stationProfile.id] = stationProfile;
-      }
+      });
     }),
   ];
 
@@ -35,7 +36,7 @@ $(() => {
           applications={initData.applications}
           stationProfiles={initData.stationProfiles}
         />,
-        document.getElementById('dashboardContainer')
+        window.document.getElementById('dashboardContainer')
       );
 
       // Install click handlers in external menus and buttons

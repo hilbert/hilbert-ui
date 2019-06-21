@@ -1,7 +1,7 @@
+/* globals window */
 import React from 'react';
 
 export default class LogViewer extends React.Component {
-
   static formatTime(isoTime) {
     const time = new Date(isoTime);
     const today = new Date();
@@ -9,13 +9,13 @@ export default class LogViewer extends React.Component {
     yesterday.setDate(today.getDate() - 1);
     let day = '';
 
-    if (today.getMonth() === time.getMonth() &&
-      today.getFullYear() === time.getFullYear() &&
-      today.getDate() === time.getDate()) {
+    if (today.getMonth() === time.getMonth()
+      && today.getFullYear() === time.getFullYear()
+      && today.getDate() === time.getDate()) {
       day = 'Today';
-    } else if (yesterday.getMonth() === time.getMonth() &&
-      yesterday.getFullYear() === time.getFullYear() &&
-      yesterday.getDate() === time.getDate()) {
+    } else if (yesterday.getMonth() === time.getMonth()
+      && yesterday.getFullYear() === time.getFullYear()
+      && yesterday.getDate() === time.getDate()) {
       day = 'Yesterday';
     } else {
       day = `${time.getFullYear()}-${time.getMonth()}-${time.getDate()}`;
@@ -51,15 +51,15 @@ export default class LogViewer extends React.Component {
   }
 
   render() {
+    const { log, title } = this.props;
     const rowClasses = {
       error: 'danger',
       warning: 'warning',
     };
 
-    const entries = [];
-    for (const logEntry of this.props.log) {
-      const rowClass = rowClasses[logEntry.type] !== undefined ? rowClasses[logEntry.type] : '';
-      entries.push(
+    const entries = log.map((logEntry) => {
+      const rowClass = rowClasses[logEntry.type] || '';
+      return (
         <tr key={logEntry.id} className={rowClass}>
           <td>{LogViewer.formatTime(logEntry.time)}</td>
           <td>{logEntry.station_name}</td>
@@ -67,7 +67,7 @@ export default class LogViewer extends React.Component {
           <td>{logEntry.details}</td>
         </tr>
       );
-    }
+    });
 
     return (
       <div className="modal fade logViewer-modal" tabIndex="-1" role="dialog" ref={(c) => { this.modalDIV = c; }}>
@@ -77,7 +77,7 @@ export default class LogViewer extends React.Component {
               <button type="button" className="close" data-dismiss="modal">
                 <span>&times;</span>
               </button>
-              <h4 className="modal-title">{this.props.title}</h4>
+              <h4 className="modal-title">{title}</h4>
             </div>
             <div className="modal-body">
               <table className="table table-fixed table-condensed">
@@ -90,7 +90,7 @@ export default class LogViewer extends React.Component {
                   </tr>
                 </thead>
                 <tbody>
-                {entries}
+                  { entries }
                 </tbody>
               </table>
             </div>
