@@ -309,7 +309,7 @@ body {
   .station .station-info-button {
     position: absolute;
     top: 5px;
-    right: 5px;
+    right: 35px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -327,7 +327,7 @@ body {
   .station .station-output-button {
     position: absolute;
     top: 5px;
-    right: 40px;
+    right: 70px;
     width: 30px;
     height: 30px;
     line-height: 30px;
@@ -335,6 +335,20 @@ body {
     font-size: 20px;
     color: #91a8ba; }
     .station .station-output-button:hover {
+      color: #5D5D5D; }
+  .station .station-quickmenu {
+    position: absolute;
+    top: 5px;
+    right: 5px; }
+  .station .station-quickmenu-button {
+    display: block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 20px;
+    color: #91a8ba; }
+    .station .station-quickmenu-button:hover {
       color: #5D5D5D; }
   .station .station-lock {
     position: absolute;

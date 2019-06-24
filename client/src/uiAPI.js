@@ -41,6 +41,26 @@ export default class UIAPI {
   }
 
   /**
+   * Restarts a list of stations
+   *
+   * @param {Array} stationIDs
+   * @return {Promise}
+   */
+  restartStations(stationIDs) {
+    return this.send('post', '/stations/restart', { ids: stationIDs });
+  }
+
+  /**
+   * Restarts apps in a list of stations
+   *
+   * @param {Array} stationIDs
+   * @return {Promise}
+   */
+  restartStationApps(stationIDs) {
+    return this.send('post', '/stations/restartapp', { ids: stationIDs });
+  }
+
+  /**
    * Change the app on a list of stations
    *
    * @param {Array} stationIDs

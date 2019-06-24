@@ -45,6 +45,10 @@ export default class Dashboard extends React.Component {
     this.changeAppSelectedDialog = this.changeAppSelectedDialog.bind(this);
     this.stationAppChanged = this.stationAppChanged.bind(this);
     this.sortCriteriaChanged = this.sortCriteriaChanged.bind(this);
+    this.handleStationQuickStart = this.handleStationQuickStart.bind(this);
+    this.handleStationQuickStop = this.handleStationQuickStop.bind(this);
+    this.handleStationQuickRestart = this.handleStationQuickRestart.bind(this);
+    this.handleStationQuickApprestart = this.handleStationQuickApprestart.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -146,6 +150,16 @@ export default class Dashboard extends React.Component {
       'stations-selected-stop': {
         callback: this.stopSelected.bind(this),
         title: 'stop the selected stations',
+        confirm: true,
+      },
+      'stations-selected-restart': {
+        callback: this.restartSelected.bind(this),
+        title: 'restart the selected stations',
+        confirm: true,
+      },
+      'stations-selected-restartapp': {
+        callback: this.restartAppSelected.bind(this),
+        title: 'restart the apps in the selected stations',
         confirm: true,
       },
       'stations-selected-changeapp-dialog': {
@@ -255,6 +269,24 @@ export default class Dashboard extends React.Component {
     );
   }
 
+  restartSelected() {
+    const { api } = this.props;
+    const { selection } = this.state;
+    api.restartStations(Array.from(selection)).catch(
+      err => console.error(err)
+    );
+    this.deselectAll();
+  }
+
+  restartAppSelected() {
+    const { api } = this.props;
+    const { selection } = this.state;
+    api.restartStationApps(Array.from(selection)).catch(
+      err => console.error(err)
+    );
+    this.deselectAll();
+  }
+
   changeAppSelected(app) {
     const { api } = this.props;
     const { selection } = this.state;
@@ -323,6 +355,54 @@ export default class Dashboard extends React.Component {
       (result) => {
         if (result) {
           api.changeApp([station.id], appID).catch(
+            err => console.error(err)
+          );
+        }
+      });
+  }
+
+  handleStationQuickStart(station) {
+    const { api } = this.props;
+    bootbox.confirm(`Are you sure you want to start station <strong>${station.name}</strong> ?<br />`,
+      (result) => {
+        if (result) {
+          api.startStations([station.id]).catch(
+            err => console.error(err)
+          );
+        }
+      });
+  }
+
+  handleStationQuickStop(station) {
+    const { api } = this.props;
+    bootbox.confirm(`Are you sure you want to stop station <strong>${station.name}</strong> ?<br />`,
+      (result) => {
+        if (result) {
+          api.stopStations([station.id]).catch(
+            err => console.error(err)
+          );
+        }
+      });
+  }
+
+  handleStationQuickRestart(station) {
+    const { api } = this.props;
+    bootbox.confirm(`Are you sure you want to restart station <strong>${station.name}</strong> ?<br />`,
+      (result) => {
+        if (result) {
+          api.restartStations([station.id]).catch(
+            err => console.error(err)
+          );
+        }
+      });
+  }
+
+  handleStationQuickApprestart(station) {
+    const { applications, api } = this.props;
+    bootbox.confirm(`Are you sure you want to restart <strong>${applications[station.app].name}</strong> in station <strong>${station.name}</strong> ?<br />`,
+      (result) => {
+        if (result) {
+          api.restartStationApps([station.id]).catch(
             err => console.error(err)
           );
         }
@@ -578,6 +658,10 @@ export default class Dashboard extends React.Component {
             onClickStation={this.selectToggle}
             onOpenTerminalLog={this.showTerminalLog}
             onAppChange={this.stationAppChanged}
+            onQuickStart={this.handleStationQuickStart}
+            onQuickStop={this.handleStationQuickStop}
+            onQuickRestart={this.handleStationQuickRestart}
+            onQuickApprestart={this.handleStationQuickApprestart}
           />
         </div>
       );
@@ -685,10 +769,20 @@ export default class Dashboard extends React.Component {
                     Stop selected stations
                   </a>
                 </li>
+                <li className={noSelectionDisable}>
+                  <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-restart') : ''}>
+                    Restart selected stations
+                  </a>
+                </li>
                 <li role="separator" className="divider" />
                 <li className={noSelectionDisable}>
                   <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-changeapp-dialog') : ''}>
                     Change the app of selected stations
+                  </a>
+                </li>
+                <li className={noSelectionDisable}>
+                  <a href="#" onClick={selectedCount > 0 ? this.getCommand('stations-selected-restartapp') : ''}>
+                    Restart the app of selected stations
                   </a>
                 </li>
               </ul>

@@ -37606,6 +37606,10 @@ function (_React$Component) {
     _this.changeAppSelectedDialog = _this.changeAppSelectedDialog.bind(_assertThisInitialized(_this));
     _this.stationAppChanged = _this.stationAppChanged.bind(_assertThisInitialized(_this));
     _this.sortCriteriaChanged = _this.sortCriteriaChanged.bind(_assertThisInitialized(_this));
+    _this.handleStationQuickStart = _this.handleStationQuickStart.bind(_assertThisInitialized(_this));
+    _this.handleStationQuickStop = _this.handleStationQuickStop.bind(_assertThisInitialized(_this));
+    _this.handleStationQuickRestart = _this.handleStationQuickRestart.bind(_assertThisInitialized(_this));
+    _this.handleStationQuickApprestart = _this.handleStationQuickApprestart.bind(_assertThisInitialized(_this));
     _this.commands = {};
 
     _this.initCommands();
@@ -37732,6 +37736,16 @@ function (_React$Component) {
         'stations-selected-stop': {
           callback: this.stopSelected.bind(this),
           title: 'stop the selected stations',
+          confirm: true
+        },
+        'stations-selected-restart': {
+          callback: this.restartSelected.bind(this),
+          title: 'restart the selected stations',
+          confirm: true
+        },
+        'stations-selected-restartapp': {
+          callback: this.restartAppSelected.bind(this),
+          title: 'restart the apps in the selected stations',
           confirm: true
         },
         'stations-selected-changeapp-dialog': {
@@ -37864,6 +37878,26 @@ function (_React$Component) {
       });
     }
   }, {
+    key: "restartSelected",
+    value: function restartSelected() {
+      var api = this.props.api;
+      var selection = this.state.selection;
+      api.restartStations(Array.from(selection))["catch"](function (err) {
+        return console.error(err);
+      });
+      this.deselectAll();
+    }
+  }, {
+    key: "restartAppSelected",
+    value: function restartAppSelected() {
+      var api = this.props.api;
+      var selection = this.state.selection;
+      api.restartStationApps(Array.from(selection))["catch"](function (err) {
+        return console.error(err);
+      });
+      this.deselectAll();
+    }
+  }, {
     key: "changeAppSelected",
     value: function changeAppSelected(app) {
       var api = this.props.api;
@@ -37950,6 +37984,56 @@ function (_React$Component) {
       bootbox.confirm("Start <strong>".concat(applications[appID].name, "</strong> in station <strong>").concat(station.name, "</strong>?<br /><small>This will close the app currently running.</small>"), function (result) {
         if (result) {
           api.changeApp([station.id], appID)["catch"](function (err) {
+            return console.error(err);
+          });
+        }
+      });
+    }
+  }, {
+    key: "handleStationQuickStart",
+    value: function handleStationQuickStart(station) {
+      var api = this.props.api;
+      bootbox.confirm("Are you sure you want to start station <strong>".concat(station.name, "</strong> ?<br />"), function (result) {
+        if (result) {
+          api.startStations([station.id])["catch"](function (err) {
+            return console.error(err);
+          });
+        }
+      });
+    }
+  }, {
+    key: "handleStationQuickStop",
+    value: function handleStationQuickStop(station) {
+      var api = this.props.api;
+      bootbox.confirm("Are you sure you want to stop station <strong>".concat(station.name, "</strong> ?<br />"), function (result) {
+        if (result) {
+          api.stopStations([station.id])["catch"](function (err) {
+            return console.error(err);
+          });
+        }
+      });
+    }
+  }, {
+    key: "handleStationQuickRestart",
+    value: function handleStationQuickRestart(station) {
+      var api = this.props.api;
+      bootbox.confirm("Are you sure you want to restart station <strong>".concat(station.name, "</strong> ?<br />"), function (result) {
+        if (result) {
+          api.restartStations([station.id])["catch"](function (err) {
+            return console.error(err);
+          });
+        }
+      });
+    }
+  }, {
+    key: "handleStationQuickApprestart",
+    value: function handleStationQuickApprestart(station) {
+      var _this$props3 = this.props,
+          applications = _this$props3.applications,
+          api = _this$props3.api;
+      bootbox.confirm("Are you sure you want to restart <strong>".concat(applications[station.app].name, "</strong> in station <strong>").concat(station.name, "</strong> ?<br />"), function (result) {
+        if (result) {
+          api.restartStationApps([station.id])["catch"](function (err) {
             return console.error(err);
           });
         }
@@ -38126,11 +38210,8 @@ function (_React$Component) {
         _this12.pollServer().then(function () {
           setTimeout(loop, minPollTime);
           retryPollTime = minPollTime;
-          console.log("ACA PERO " + serverConnectionError);
 
           if (serverConnectionError) {
-            console.log("VINO");
-
             _this12.setState({
               serverConnectionError: false
             });
@@ -38210,10 +38291,10 @@ function (_React$Component) {
     value: function render() {
       var _this15 = this;
 
-      var _this$props3 = this.props,
-          api = _this$props3.api,
-          applications = _this$props3.applications,
-          stationProfiles = _this$props3.stationProfiles;
+      var _this$props4 = this.props,
+          api = _this$props4.api,
+          applications = _this$props4.applications,
+          stationProfiles = _this$props4.stationProfiles;
       var _this$state3 = this.state,
           serverConnectionError = _this$state3.serverConnectionError,
           sortCriteria = _this$state3.sortCriteria,
@@ -38270,7 +38351,11 @@ function (_React$Component) {
           stationProfiles: stationProfiles,
           onClickStation: _this15.selectToggle,
           onOpenTerminalLog: _this15.showTerminalLog,
-          onAppChange: _this15.stationAppChanged
+          onAppChange: _this15.stationAppChanged,
+          onQuickStart: _this15.handleStationQuickStart,
+          onQuickStop: _this15.handleStationQuickStop,
+          onQuickRestart: _this15.handleStationQuickRestart,
+          onQuickApprestart: _this15.handleStationQuickApprestart
         })));
         stationCount += 1; // Responsive column resets
 
@@ -38369,6 +38454,11 @@ function (_React$Component) {
         href: "#",
         onClick: selectedCount > 0 ? this.getCommand('stations-selected-stop') : ''
       }, "Stop selected stations")), _react["default"].createElement("li", {
+        className: noSelectionDisable
+      }, _react["default"].createElement("a", {
+        href: "#",
+        onClick: selectedCount > 0 ? this.getCommand('stations-selected-restart') : ''
+      }, "Restart selected stations")), _react["default"].createElement("li", {
         role: "separator",
         className: "divider"
       }), _react["default"].createElement("li", {
@@ -38376,7 +38466,12 @@ function (_React$Component) {
       }, _react["default"].createElement("a", {
         href: "#",
         onClick: selectedCount > 0 ? this.getCommand('stations-selected-changeapp-dialog') : ''
-      }, "Change the app of selected stations")))), _react["default"].createElement(_viewMenu["default"], {
+      }, "Change the app of selected stations")), _react["default"].createElement("li", {
+        className: noSelectionDisable
+      }, _react["default"].createElement("a", {
+        href: "#",
+        onClick: selectedCount > 0 ? this.getCommand('stations-selected-restartapp') : ''
+      }, "Restart the app of selected stations")))), _react["default"].createElement(_viewMenu["default"], {
         sortCriteria: sortCriteria,
         onSortCriteria: this.sortCriteriaChanged
       }), _react["default"].createElement(_testMenu["default"], {
@@ -39136,6 +39231,7 @@ function (_React$Component) {
     _this.handleOpenTerminalLog = _this.handleOpenTerminalLog.bind(_assertThisInitialized(_this));
     _this.handleInfoButton = _this.handleInfoButton.bind(_assertThisInitialized(_this));
     _this.handleAppMenuClick = _this.handleAppMenuClick.bind(_assertThisInitialized(_this));
+    _this.handleQuickmenuClick = _this.handleQuickmenuClick.bind(_assertThisInitialized(_this));
     _this.onElementRef = _this.onElementRef.bind(_assertThisInitialized(_this));
     _this.elementRef = null;
     _this.infoButton = null;
@@ -39172,19 +39268,56 @@ function (_React$Component) {
       }
     }
   }, {
+    key: "handleQuickmenuClick",
+    value: function handleQuickmenuClick(ev) {
+      ev.stopPropagation();
+      ev.preventDefault();
+      var _this$props2 = this.props,
+          station = _this$props2.station,
+          onQuickStart = _this$props2.onQuickStart,
+          onQuickStop = _this$props2.onQuickStop,
+          onQuickRestart = _this$props2.onQuickRestart,
+          onQuickApprestart = _this$props2.onQuickApprestart;
+
+      if (!$(ev.target).parent().hasClass('disabled')) {
+        var action = $(ev.target).attr('data-value');
+
+        switch (action) {
+          case 'start':
+            if (onQuickStart) onQuickStart(station);
+            break;
+
+          case 'stop':
+            if (onQuickStop) onQuickStop(station);
+            break;
+
+          case 'restart':
+            if (onQuickRestart) onQuickRestart(station);
+            break;
+
+          case 'restartapp':
+            if (onQuickApprestart) onQuickApprestart(station);
+            break;
+
+          default:
+            break;
+        }
+      }
+    }
+  }, {
     key: "handleClick",
     value: function handleClick() {
-      var _this$props2 = this.props,
-          onClickStation = _this$props2.onClickStation,
-          station = _this$props2.station;
+      var _this$props3 = this.props,
+          onClickStation = _this$props3.onClickStation,
+          station = _this$props3.station;
       onClickStation(station.id);
     }
   }, {
     key: "handleOpenTerminalLog",
     value: function handleOpenTerminalLog(ev) {
-      var _this$props3 = this.props,
-          station = _this$props3.station,
-          onOpenTerminalLog = _this$props3.onOpenTerminalLog;
+      var _this$props4 = this.props,
+          station = _this$props4.station,
+          onOpenTerminalLog = _this$props4.onOpenTerminalLog;
       onOpenTerminalLog(station.id);
       ev.preventDefault();
       ev.stopPropagation();
@@ -39200,11 +39333,11 @@ function (_React$Component) {
     value: function render() {
       var _this2 = this;
 
-      var _this$props4 = this.props,
-          station = _this$props4.station,
-          selected = _this$props4.selected,
-          applications = _this$props4.applications,
-          stationProfiles = _this$props4.stationProfiles;
+      var _this$props5 = this.props,
+          station = _this$props5.station,
+          selected = _this$props5.selected,
+          applications = _this$props5.applications,
+          stationProfiles = _this$props5.stationProfiles;
       var stationClasses = ['station', "station-state-".concat(station.state), "station-profile-".concat(station.profile)];
 
       if (selected) {
@@ -39243,6 +39376,43 @@ function (_React$Component) {
           href: "#",
           "data-value": appID
         }, applications[appID].name));
+      });
+      var quickmenuItems = [{
+        name: 'Start station',
+        state: 'off',
+        action: 'start'
+      }, {
+        name: 'Stop station',
+        state: 'on',
+        action: 'stop'
+      }, {
+        name: 'Restart station',
+        state: 'on',
+        action: 'restart'
+      }, {
+        type: 'divider'
+      }, {
+        name: 'Restart app',
+        state: 'on',
+        action: 'restartapp'
+      }];
+      var dividers = 0;
+      var quickmenuOptions = quickmenuItems.map(function (item) {
+        if (item.type === 'divider') {
+          dividers += 1;
+          return _react["default"].createElement("li", {
+            key: "divider-".concat(dividers),
+            className: "divider"
+          });
+        }
+
+        return _react["default"].createElement("li", {
+          key: "quick-".concat(item.action),
+          className: station.state !== item.state ? 'disabled' : ''
+        }, _react["default"].createElement("a", {
+          href: "#",
+          "data-value": item.action
+        }, item.name));
       });
       return _react["default"].createElement("div", {
         id: station.id,
@@ -39291,7 +39461,18 @@ function (_React$Component) {
         }
       }, _react["default"].createElement("i", {
         className: "fa fa-desktop"
-      })));
+      })), _react["default"].createElement("div", {
+        className: "station-quickmenu dropdown"
+      }, _react["default"].createElement("a", {
+        className: "station-quickmenu-button",
+        "data-toggle": "dropdown",
+        onClick: this.handleQuickmenuClick
+      }, _react["default"].createElement("i", {
+        className: "fa fa-caret-down"
+      })), _react["default"].createElement("ul", {
+        className: "dropdown-menu dropdown-menu-right",
+        onClick: this.handleQuickmenuClick
+      }, quickmenuOptions)));
     }
   }]);
 
@@ -39326,7 +39507,11 @@ Station.propTypes = {
   })),
   onClickStation: _react["default"].PropTypes.func,
   onOpenTerminalLog: _react["default"].PropTypes.func,
-  onAppChange: _react["default"].PropTypes.func
+  onAppChange: _react["default"].PropTypes.func,
+  onQuickStart: _react["default"].PropTypes.func,
+  onQuickStop: _react["default"].PropTypes.func,
+  onQuickRestart: _react["default"].PropTypes.func,
+  onQuickApprestart: _react["default"].PropTypes.func
 };
 
 },{"react":546}],557:[function(require,module,exports){
@@ -39586,6 +39771,34 @@ function () {
     key: "stopStations",
     value: function stopStations(stationIDs) {
       return this.send('post', '/stations/stop', {
+        ids: stationIDs
+      });
+    }
+    /**
+     * Restarts a list of stations
+     *
+     * @param {Array} stationIDs
+     * @return {Promise}
+     */
+
+  }, {
+    key: "restartStations",
+    value: function restartStations(stationIDs) {
+      return this.send('post', '/stations/restart', {
+        ids: stationIDs
+      });
+    }
+    /**
+     * Restarts apps in a list of stations
+     *
+     * @param {Array} stationIDs
+     * @return {Promise}
+     */
+
+  }, {
+    key: "restartStationApps",
+    value: function restartStationApps(stationIDs) {
+      return this.send('post', '/stations/restartapp', {
         ids: stationIDs
       });
     }
