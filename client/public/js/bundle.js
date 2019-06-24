@@ -38115,18 +38115,22 @@ function (_React$Component) {
     value: function pollLoop() {
       var _this12 = this;
 
-      var serverConnectionError = this.state.serverConnectionError;
       var minPollTime = 500;
       var retryPollTime = minPollTime;
       var retryIncreaseFactor = 2;
       var maxRetryPollTime = 4000;
 
       var loop = function loop() {
+        var serverConnectionError = _this12.state.serverConnectionError;
+
         _this12.pollServer().then(function () {
           setTimeout(loop, minPollTime);
           retryPollTime = minPollTime;
+          console.log("ACA PERO " + serverConnectionError);
 
           if (serverConnectionError) {
+            console.log("VINO");
+
             _this12.setState({
               serverConnectionError: false
             });

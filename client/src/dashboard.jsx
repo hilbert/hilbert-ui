@@ -465,14 +465,13 @@ export default class Dashboard extends React.Component {
    * increases with each error until a max poll time is reached.
    */
   pollLoop() {
-    const { serverConnectionError } = this.state;
-
     const minPollTime = 500;
     let retryPollTime = minPollTime;
     const retryIncreaseFactor = 2;
     const maxRetryPollTime = 4000;
 
     const loop = () => {
+      const { serverConnectionError } = this.state;
       this.pollServer().then(() => {
         setTimeout(loop, minPollTime);
         retryPollTime = minPollTime;
