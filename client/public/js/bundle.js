@@ -37287,6 +37287,43 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
 },{"process/browser.js":386,"timers":547}],548:[function(require,module,exports){
+module.exports={
+  "name": "hilbert-ui-client",
+  "version": "0.21",
+  "description": "Hilbert UI Client",
+  "repository": "hilbert/hilbert-ui",
+  "private": true,
+  "engines": {
+    "node": "^10.14.0"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "core-js": "^3.1.3",
+    "gulp-rename": "^1.4.0",
+    "react": "^15.0.2",
+    "react-dom": "^15.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-react": "^7.0.0",
+    "babelify": "^10.0.0",
+    "browserify": "^16.2.3",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-uglify": "^3.0.2",
+    "node-sass": "^4.12.0",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
+
+},{}],549:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37386,7 +37423,7 @@ ButtonFilter.defaultProps = {
 var _default = ButtonFilter;
 exports["default"] = _default;
 
-},{"react":546}],549:[function(require,module,exports){
+},{"react":546}],550:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -37515,7 +37552,7 @@ ConsoleViewer.defaultProps = {
   lines: []
 };
 
-},{"react":546}],550:[function(require,module,exports){
+},{"react":546}],551:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38545,7 +38582,7 @@ Dashboard.propTypes = {
   }))
 };
 
-},{"./buttonFilter.jsx":548,"./consoleViewer.jsx":549,"./header.jsx":551,"./logViewer.jsx":552,"./notificationManager":554,"./presetsBlock.jsx":555,"./station.jsx":556,"./testMenu":557,"./uiAPI":558,"./viewMenu":559,"react":546}],551:[function(require,module,exports){
+},{"./buttonFilter.jsx":549,"./consoleViewer.jsx":550,"./header.jsx":552,"./logViewer.jsx":553,"./notificationManager":555,"./presetsBlock.jsx":556,"./station.jsx":557,"./testMenu":558,"./uiAPI":559,"./viewMenu":560,"react":546}],552:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38675,7 +38712,7 @@ Header.defaultProps = {
   children: null
 };
 
-},{"react":546}],552:[function(require,module,exports){
+},{"react":546}],553:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38839,7 +38876,7 @@ LogViewer.defaultProps = {
   title: 'Latest Notifications'
 };
 
-},{"react":546}],553:[function(require,module,exports){
+},{"react":546}],554:[function(require,module,exports){
 "use strict";
 
 require("core-js/stable");
@@ -38850,6 +38887,8 @@ var _reactDom = _interopRequireDefault(require("react-dom"));
 
 var _bluebird = _interopRequireDefault(require("bluebird"));
 
+var _package = _interopRequireDefault(require("../package.json"));
+
 var _uiAPI = _interopRequireDefault(require("./uiAPI"));
 
 var _dashboard = _interopRequireDefault(require("./dashboard"));
@@ -38858,6 +38897,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 /* globals window */
 var apiConnector = new _uiAPI["default"]('/api');
+console.log("Starting hilbert-ui client v".concat(_package["default"].version));
 window.dashboard = null; // onReady
 
 $(function () {
@@ -38892,7 +38932,7 @@ $(function () {
   });
 });
 
-},{"./dashboard":550,"./uiAPI":558,"bluebird":1,"core-js/stable":359,"react":546,"react-dom":391}],554:[function(require,module,exports){
+},{"../package.json":548,"./dashboard":551,"./uiAPI":559,"bluebird":1,"core-js/stable":359,"react":546,"react-dom":391}],555:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38990,7 +39030,7 @@ function () {
 
 exports["default"] = NotificationManager;
 
-},{}],555:[function(require,module,exports){
+},{}],556:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39186,7 +39226,7 @@ PresetsBlock.defaultProps = {
   onRefresh: function onRefresh() {}
 };
 
-},{"react":546}],556:[function(require,module,exports){
+},{"react":546}],557:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39514,7 +39554,7 @@ Station.propTypes = {
   onQuickApprestart: _react["default"].PropTypes.func
 };
 
-},{"react":546}],557:[function(require,module,exports){
+},{"react":546}],558:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39698,7 +39738,7 @@ TestMenu.propTypes = {
   selection: _react["default"].PropTypes.instanceOf(Set)
 };
 
-},{"./uiAPI":558,"react":546}],558:[function(require,module,exports){
+},{"./uiAPI":559,"react":546}],559:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40067,7 +40107,7 @@ function () {
 
 exports["default"] = UIAPI;
 
-},{"bluebird":1}],559:[function(require,module,exports){
+},{"bluebird":1}],560:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40167,4 +40207,4 @@ ViewMenu.propTypes = {
   onSortCriteria: _react["default"].PropTypes.func
 };
 
-},{"react":546}]},{},[553]);
+},{"react":546}]},{},[554]);

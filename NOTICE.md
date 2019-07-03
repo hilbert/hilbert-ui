@@ -1,5 +1,5 @@
 Hilbert UI
-Copyright 2016 IMAGINARY gGmbH
+Copyright 2016-2019 IMAGINARY gGmbH
 
 Code and documentation released under the Apache [License](LICENSE.md).
 

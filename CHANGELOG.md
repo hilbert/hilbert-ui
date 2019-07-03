@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.21] 2019-07-03
+## Added
+- Adds a "Quick menu" to stations in the UI Client.
+- Adds "Restart" and "Restar app" commands to stations.
+- Prints client version in the console on start.
+
+## [v0.20.1] 2019-06-27
+## Changed
+- Downgrades node engine requirement to v10.14
+
+## [v0.20] 2019-06-24
+## Changed
+- Updates node to v10.16.0 and many dependencies. 
+- Removes need for server compilation. Updates client compilation.
+## Fixed
+- Fixes (erroneous) function calls that failed after updating Set polyfill.- Fixes Client regression bug: "No connection to server" message doesn't disappear when connection comes back up.
+
+
 ## [v0.19.1] 2018-10-14
 ## Fixed
 - Makes hilbert-cli exec buffers larger to cope with large cfgs
