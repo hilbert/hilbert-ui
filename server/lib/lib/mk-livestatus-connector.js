@@ -61,14 +61,31 @@ class MKLivestatusConnector {
               stationState.app_state = Nagios.ServiceState.UNKNOWN;
               stationState.app_state_type = Nagios.StateType.HARD;
               stationState.app_id = '';
+              stationState.app_start_time = '';
             } else {
               stationState.app_state = station.app_state;
               stationState.app_state_type = station.app_state_type;
               stationState.app_id = station.app_id;
+              stationState.app_start_time = station.app_start_time;
             }
           }
         }
-
+        return this.getUptime();
+      })
+      .then((stations) => {
+        for (const station of stations) {
+          if ('id' in station && state.has(station.id)) {
+            const stationState = state.get(station.id);
+            // OK - up since Wed Jul  3 08:31:36 2019 (0d 08:31:45)
+            const matches = station.start_time.match(/^OK - up since ([^(]*) \(.*\)$/);
+            if (matches.length > 1) {
+              const startTime = matches[1];
+              stationState.start_time = startTime;
+            } else {
+              stationState.start_time = '';
+            }
+          }
+        }
         return state.values();
       })
       .catch((err) => {
@@ -99,7 +116,7 @@ class MKLivestatusConnector {
   /**
    * Queries the foreground apps running in the stations
    * Returns an array of objects with shape
-   * {id: 'station name', app_state: 0, app_state_type: 1, app_id: 'app name'}
+   * {id: 'station name', app_state: 0, app_state_type: 1, app_id: 'app name', app_start_time: 'Timestamp'}
    * @private
    *
    * @returns {Promise}
@@ -125,24 +142,41 @@ class MKLivestatusConnector {
             station.app_id = '';
             station.app_state = Nagios.ServiceState.UNKNOWN;
             station.app_state_type = Nagios.StateType.SOFT;
+            station.app_start_time = '';
           } else {
             // Current data
-            const matches = station.app_id.match(/^[^:]+:\s*(.*)@\[.*\]$/);
-            if (station.app_state === Nagios.ServiceState.OK &&
-              matches !== null && ('length' in matches) && matches.length > 1) {
-              station.app_id = matches[1];
-            } else if (station.app_state === Nagios.ServiceState.CRITICAL &&
-              station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
+            const matches = station.app_id.match(/^[^:]+:\s*(.*)@\[(.*)\]$/);
+            if (station.app_state === Nagios.ServiceState.OK
+              && matches !== null && ('length' in matches) && matches.length > 2) {
+              const appID = matches[1];
+              const appData = JSON.parse(matches[2]);
+              station.app_id = appID;
+              if (appData && appData.StartedAt) {
+                station.app_start_time = appData.StartedAt;
+              }
+            } else if (station.app_state === Nagios.ServiceState.CRITICAL
+              && station.app_id === 'CRIT - CRITICAL - no running TOP app!') {
               // Not really a critical error
               // There's just no app running. It happens. No need to call the Avengers.
               station.app_id = '';
               station.app_state = Nagios.ServiceState.OK;
               station.app_state_type = Nagios.StateType.SOFT;
+              station.app_start_time = '';
             }
           }
         }
         return stations;
       });
+  }
+
+  getUptime() {
+    this.logger.debug('MKLivestatus: Querying uptime');
+    return this.query()
+      .get('services')
+      .columns(['host_name', 'plugin_output'])
+      .asColumns(['id', 'uptime'])
+      .filter('description = Uptime')
+      .execute();
   }
 
   /**

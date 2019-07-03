@@ -111,6 +111,20 @@ function stopAllCommand(server) {
   );
 }
 
+function restartCommand(server, stations) {
+  console.log(`Restarting stations ${stations.join(', ')}`);
+  return callAPI(server, '/api/stations/restart', 'POST', {
+    ids: stations,
+  });
+}
+
+function restartAppCommand(server, stations) {
+  console.log(`Restarting apps of stations ${stations.join(', ')}`);
+  return callAPI(server, '/api/stations/restartapp', 'POST', {
+    ids: stations,
+  });
+}
+
 const argv = yargs
   .options({
     h: {
@@ -129,6 +143,8 @@ const argv = yargs
   .command('list', 'List stations')
   .command('start <stations..>', 'Start stations')
   .command('stop <stations..>', 'Stop stations')
+  .command('restart <stations..>', 'Restart stations')
+  .command('restartapp <stations..>', 'Restart apps of stations')
   .command('startall', 'Start all stations')
   .command('stopall', 'Stop all stations')
   .demandCommand(1, 1, 'You must indicate a command to execute')
@@ -142,7 +158,6 @@ const server = {
   port: argv.port,
 };
 
-let command;
 switch (argv._[0]) {
   case 'list':
     command = () => listCommand(server);
@@ -153,6 +168,12 @@ switch (argv._[0]) {
   case 'stop':
     command = () => stopCommand(server, argv.stations);
     break;
+  case 'restart':
+    command = () => restartCommand(server, argv.stations);
+    break;
+  case 'restartapp':
+    command = () => restartAppCommand(server, argv.stations);
+    break;
   case 'startall':
     command = () => startAllCommand(server);
     break;
@@ -162,5 +183,6 @@ switch (argv._[0]) {
   default:
     break;
 }
+let command;
 
 command().catch(err => console.error(err));

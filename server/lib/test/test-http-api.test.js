@@ -76,7 +76,7 @@ describe('HTTP API', () => {
   describe('POST /stations/stop', () => {
     it('fails with no arguments', (done) => {
       request(apiServer)
-        .post('/stations/start')
+        .post('/stations/stop')
         .set('Accept', 'application/json')
         .expect(400, done);
     });
@@ -84,6 +84,42 @@ describe('HTTP API', () => {
     it('responds with JSON', (done) => {
       request(apiServer)
         .post('/stations/stop')
+        .send({ ids: ['station_interactive_1'] })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+  });
+
+  describe('POST /stations/restart', () => {
+    it('fails with no arguments', (done) => {
+      request(apiServer)
+        .post('/stations/restart')
+        .set('Accept', 'application/json')
+        .expect(400, done);
+    });
+
+    it('responds with JSON', (done) => {
+      request(apiServer)
+        .post('/stations/restart')
+        .send({ ids: ['station_interactive_1'] })
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+  });
+
+  describe('POST /stations/restart_app', () => {
+    it('fails with no arguments', (done) => {
+      request(apiServer)
+        .post('/stations/restartapp')
+        .set('Accept', 'application/json')
+        .expect(400, done);
+    });
+
+    it('responds with JSON', (done) => {
+      request(apiServer)
+        .post('/stations/restartapp')
         .send({ ids: ['station_interactive_1'] })
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)

@@ -37573,7 +37573,7 @@ function (_React$Component) {
   _createClass(Dashboard, null, [{
     key: "displayState",
     value: function displayState(state) {
-      if (state === 'starting_station' || state === 'starting_app' || state === 'stopping' || state === 'switching_app') {
+      if (state === 'starting_station' || state === 'restarting' || state === 'starting_app' || state === 'restarting_app' || state === 'stopping' || state === 'switching_app') {
         return 'busy';
       }
 

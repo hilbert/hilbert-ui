@@ -256,15 +256,15 @@ class StationManager {
         return this.hilbertCLI.startStation(station.id, station.outputBuffer).then(() => {
           this.logger.verbose(`Station manager: Waiting for station ${eligibleStation} to start`);
         })
-        .catch(() => {
-          this.logger.verbose(`Station manager: Error starting station ${eligibleStation}`);
-          this.notify('error', station, 'Error starting station');
-          station.setErrorState('Failure starting the station. Please wait...');
-          station.errorLock();
-        })
-        .then(() => {
-          this.signalUpdate();
-        });
+          .catch(() => {
+            this.logger.verbose(`Station manager: Error starting station ${eligibleStation}`);
+            this.notify('error', station, 'Error starting station');
+            station.setErrorState('Failure starting the station. Please wait...');
+            station.errorLock();
+          })
+          .then(() => {
+            this.signalUpdate();
+          });
       },
       { concurrency: this.nconf.get('scriptConcurrency') }
     );
@@ -312,6 +312,88 @@ class StationManager {
   }
 
   /**
+   * Restart indicated stations
+   *
+   * @param {Iterable} stationIDs - IDs of stations to restart
+   * @return {Promise}
+   */
+  restartStations(stationIDs) {
+    const eligibleStations = [];
+    for (const stationID of stationIDs) {
+      const station = this.getStationByID(stationID);
+      if (station && station.setQueuedToRestartState()) {
+        eligibleStations.push(stationID);
+      }
+    }
+
+    this.signalUpdate();
+
+    return Promise.map(
+      eligibleStations,
+      (eligibleStation) => {
+        this.logger.verbose(`Station manager: Restarting station ${eligibleStation}`);
+        const station = this.getStationByID(eligibleStation);
+        station.setRestartingState();
+        this.signalUpdate();
+        return this.hilbertCLI.restartStation(station.id, station.outputBuffer).then(() => {
+          this.logger.verbose(`Station manager: Waiting for station ${eligibleStation} to restart`);
+        })
+          .catch(() => {
+            this.logger.verbose(`Station manager: Error restarting station ${eligibleStation}`);
+            this.notify('error', station, 'Error restarting station');
+            station.setErrorState('Failure restarting the station. Please wait...');
+            station.errorLock();
+          })
+          .then(() => {
+            this.signalUpdate();
+          });
+      },
+      { concurrency: this.nconf.get('scriptConcurrency') }
+    );
+  }
+
+  /**
+   * Restart apps in indicated stations
+   *
+   * @param {Iterable} stationIDs - IDs of stations to restart their apps
+   * @return {Promise}
+   */
+  restartStationApps(stationIDs) {
+    const eligibleStations = [];
+    for (const stationID of stationIDs) {
+      const station = this.getStationByID(stationID);
+      if (station && station.setQueuedToRestartAppState()) {
+        eligibleStations.push(stationID);
+      }
+    }
+
+    this.signalUpdate();
+
+    return Promise.map(
+      eligibleStations,
+      (eligibleStation) => {
+        this.logger.verbose(`Station manager: Restarting app of station ${eligibleStation}`);
+        const station = this.getStationByID(eligibleStation);
+        station.setRestartingAppState();
+        this.signalUpdate();
+        return this.hilbertCLI.restartStationApp(station.id, station.outputBuffer).then(() => {
+          this.logger.verbose(`Station manager: Waiting for app of station ${eligibleStation} to restart`);
+        })
+          .catch(() => {
+            this.logger.verbose(`Station manager: Error restarting app of station ${eligibleStation}`);
+            this.notify('error', station, 'Error restarting station app');
+            station.setErrorState('Failure restarting app. Please wait...');
+            station.errorLock();
+          })
+          .then(() => {
+            this.signalUpdate();
+          });
+      },
+      { concurrency: this.nconf.get('scriptConcurrency') }
+    );
+  }
+
+  /**
    * Change the application running in indicated stations
    *
    * @param {Iterable} stationIDs - IDs of stations in which to change the appID
@@ -339,18 +421,19 @@ class StationManager {
         this.signalUpdate();
         return this.hilbertCLI.changeApp(eligibleStation, appID, station.outputBuffer).then(() => {
           this.logger.verbose(
-            `Station manager: Waiting for app of station ${eligibleStation} to change to ${appID}`);
+            `Station manager: Waiting for app of station ${eligibleStation} to change to ${appID}`
+          );
         })
-        .catch(() => {
-          this.logger.verbose(
-            `Station manager: Error changing app of station ${eligibleStation} to ${appID}`);
-          this.notify('error', station, `Failed to launch app ${appID}`);
-          station.setErrorState(`Failed to open ${appID}. Please wait...`);
-          station.errorLock();
-        })
-        .then(() => {
-          this.signalUpdate();
-        });
+          .catch(() => {
+            this.logger.verbose(
+              `Station manager: Error changing app of station ${eligibleStation} to ${appID}`);
+            this.notify('error', station, `Failed to launch app ${appID}`);
+            station.setErrorState(`Failed to open ${appID}. Please wait...`);
+            station.errorLock();
+          })
+          .then(() => {
+            this.signalUpdate();
+          });
       },
       { concurrency: this.nconf.get('scriptConcurrency') }
     );
@@ -428,6 +511,7 @@ class StationManager {
       }
     });
   }
+
   /**
    * Signal listeners that station data was modified
    * @private

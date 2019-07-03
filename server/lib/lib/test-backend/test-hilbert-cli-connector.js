@@ -53,6 +53,28 @@ class TestHilbertCLIConnector {
   }
 
   /**
+   * Restarts a station
+   *
+   * @param {string} stationID - ID of the station
+   * @param {Writable} output - Command output should be written here
+   * @returns {Promise}
+   */
+  restartStation(stationID, output) {
+    return this.testBackend.restartStation(stationID, output);
+  }
+
+  /**
+   * Restarts a station app
+   *
+   * @param {string} stationID - ID of the station
+   * @param {Writable} output - Command output should be written here
+   * @returns {Promise}
+   */
+  restartStationApp(stationID, output) {
+    return this.testBackend.restartStationApp(stationID, output);
+  }
+
+  /**
    * Change the foreground application running in a station
    *
    * @param {string} stationID - ID of the station

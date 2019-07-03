@@ -1,11 +1,10 @@
-const EventEmitter = require('events').EventEmitter;
+const { EventEmitter } = require('events');
 
 const TerminalOutputBuffer = require('./terminal-output-buffer');
 const Nagios = require('./nagios');
 
 
 class Station {
-
   constructor(id, config, nconf) {
     this.nconf = nconf;
 
@@ -21,6 +20,8 @@ class Station {
     this.setStatus('');
     this.app = '';
     this.switching_app = '';
+    this.start_time = '';
+    this.app_start_time = '';
     this.outputBuffer = new TerminalOutputBuffer();
     this.events = new EventEmitter();
     this.transitionTimeout = null;
@@ -57,9 +58,11 @@ class Station {
    * @param {String} stationStatus.id - station.id
    * @param {Number} stationStatus.state - Enum from Nagios.HostState
    * @param {Number} stationStatus.state_type - Enum from Nagios.StateType
+   * @param {String} stationStatus.start_time - String timestamp
    * @param {Number} stationStatus.app_state - Enum from Nagios.ServiceState
    * @param {Number} stationStatus.app_state_type - Enum from Nagios.StateType
    * @param {String} stationStatus.app_id - ID of the app
+   * @param {String} stationStatus.app_start_time - String timestamp
    * @returns {boolean}
    */
   updateFromMKLivestatus(stationStatus) {
@@ -68,6 +71,22 @@ class Station {
     if (this.app !== stationStatus.app_id) {
       this.app = stationStatus.app_id;
       changes = true;
+    }
+
+    let startTimeChanged = false;
+    if (stationStatus.start_time
+      && stationStatus.start_time !== ''
+      && stationStatus.start_time !== this.start_time) {
+      startTimeChanged = true;
+      this.start_time = stationStatus.start_time;
+    }
+
+    let appStartTimeChanged = false;
+    if (stationStatus.app_start_time
+      && stationStatus.app_start_time !== ''
+      && stationStatus.app_start_time !== this.app_start_time) {
+      appStartTimeChanged = true;
+      this.app_start_time = stationStatus.app_start_time;
     }
 
     if (this.state === Station.ERROR && this.isErrorLocked()) {
@@ -84,8 +103,19 @@ class Station {
       if (stationStatus.state === Nagios.HostState.DOWN) {
         this.setOffState();
         return true;
-      } else if (stationStatus.state === Nagios.HostState.UP) {
+      }
+      if (stationStatus.state === Nagios.HostState.UP) {
         this.setOnState();
+        return true;
+      }
+    } else if (this.state === Station.RESTARTING) {
+      if (startTimeChanged) {
+        this.setStartingState();
+        return true;
+      }
+    } else if (this.state === Station.RESTARTING_APP) {
+      if (appStartTimeChanged) {
+        this.setStartingAppState();
         return true;
       }
     } else if (this.state === Station.ON) {
@@ -130,7 +160,6 @@ class Station {
         return true;
       }
       if (this.switching_app !== '' && this.switching_app === stationStatus.app_id) {
-
         this.events.emit('stateChange', this, 'info', 'App changed', `${oldApp} to ${this.switching_app}`);
         this.setOnState();
         return true;
@@ -161,7 +190,9 @@ class Station {
    * @return {boolean} The transition was successful
    */
   setStartingState() {
-    if (this.state === Station.OFF || this.state === Station.STARTING_STATION) {
+    if (this.state === Station.OFF
+      || this.state === Station.STARTING_STATION
+      || this.state === Station.RESTARTING) {
       this.state = Station.STARTING_STATION;
       this.setStatus('Starting...');
       this.startTransitionTimeout();
@@ -176,7 +207,8 @@ class Station {
    * @return {boolean} The transition was sucessful
    */
   setStartingAppState() {
-    if (this.state === Station.STARTING_STATION) {
+    if (this.state === Station.STARTING_STATION
+    || this.state === Station.RESTARTING_APP) {
       this.state = Station.STARTING_APP;
       this.setStatus('Waiting for app...');
       this.startTransitionTimeout();
@@ -216,6 +248,36 @@ class Station {
   }
 
   /**
+   * Transitions the station to the "waiting to restart" state
+   *
+   * @return {boolean} The transition was succesful
+   */
+  setQueuedToRestartState() {
+    if (!this.isErrorLocked() && this.state === Station.ON) {
+      this.state = Station.RESTARTING;
+      this.setStatus('Waiting to restart...');
+      this.startTransitionTimeout();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "restarting" state
+   *
+   * @return {boolean} The transition was successful
+   */
+  setRestartingState() {
+    if (this.state === Station.ON || this.state === Station.RESTARTING) {
+      this.state = Station.RESTARTING;
+      this.setStatus('Restarting...');
+      this.startTransitionTimeout();
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Transitions the station to the "queued to change app" state
    *
    * @param appID {string}
@@ -243,6 +305,36 @@ class Station {
       this.state = Station.SWITCHING_APP;
       this.setStatus(`Opening ${appID}...`);
       this.switching_app = appID;
+      this.startTransitionTimeout();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "queued to restart app" state
+   *
+   * @return {boolean} The transition was successful
+   */
+  setQueuedToRestartAppState() {
+    if (!this.isErrorLocked() && this.state === Station.ON) {
+      this.state = Station.RESTARTING_APP;
+      this.setStatus('Waiting to restart app...');
+      this.startTransitionTimeout();
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Transitions the station to the "restarting app" state
+   *
+   * @return {boolean} The transition was successful
+   */
+  setRestartingAppState(appID) {
+    if (this.state === Station.ON || this.state === Station.RESTARTING_APP) {
+      this.state = Station.RESTARTING_APP;
+      this.setStatus('Restarting app');
       this.startTransitionTimeout();
       return true;
     }
@@ -321,6 +413,8 @@ class Station {
     messages[Station.STARTING_APP] = 'Time out waiting for app to start';
     messages[Station.SWITCHING_APP] = 'Time out waiting for app to change';
     messages[Station.STOPPING] = 'Time out waiting for station to stop';
+    messages[Station.RESTARTING] = 'Time out waiting for station to restart';
+    messages[Station.RESTARTING_APP] = 'Time out waiting for app to restart';
     this.events.emit('stateChange', this, 'error', messages[this.state] || 'Operation timed out');
 
     this.state = Station.UNKNOWN;
@@ -384,9 +478,11 @@ Station.UNKNOWN = 'unk';
 Station.OFF = 'off';
 Station.ON = 'on';
 Station.STOPPING = 'stopping';
+Station.RESTARTING = 'restarting';
 Station.STARTING_STATION = 'starting_station';
 Station.STARTING_APP = 'starting_app';
 Station.SWITCHING_APP = 'switching_app';
+Station.RESTARTING_APP = 'restarting_app';
 Station.ERROR = 'error';
 
 module.exports = Station;

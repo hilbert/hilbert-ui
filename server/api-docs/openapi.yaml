@@ -213,6 +213,54 @@ paths:
           description: Success
         400:
           description: Missing 'ids' argument
+  /stations/restart:
+    post:
+      tags:
+        - "Stations"
+      summary: "Restart a list of stations"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Missing 'ids' argument
+  /stations/restartapp:
+    post:
+      tags:
+        - "Stations"
+      summary: "Restart apps in a list of stations"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: arguments
+          description: List of Station IDs
+          schema:
+            type: object
+            properties:
+              ids:
+                description: List of station IDs
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: Success
+        400:
+          description: Missing 'ids' argument
   /stations/change_app:
     post:
       tags:

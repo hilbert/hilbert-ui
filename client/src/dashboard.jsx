@@ -15,7 +15,9 @@ import ViewMenu from './viewMenu';
 export default class Dashboard extends React.Component {
   static displayState(state) {
     if (state === 'starting_station'
+      || state === 'restarting'
       || state === 'starting_app'
+      || state === 'restarting_app'
       || state === 'stopping'
       || state === 'switching_app') {
       return 'busy';

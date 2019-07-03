@@ -69,6 +69,8 @@ class HttpAPIServer {
     router.get('/stations', this.getStations.bind(this));
     router.post('/stations/start', validate(HttpAPIServer.postStationsStartSchema()), this.postStationsStart.bind(this));
     router.post('/stations/stop', validate(HttpAPIServer.postStationsStopSchema()), this.postStationsStop.bind(this));
+    router.post('/stations/restart', validate(HttpAPIServer.postStationsRestartSchema()), this.postStationsRestart.bind(this));
+    router.post('/stations/restartapp', validate(HttpAPIServer.postStationsRestartappSchema()), this.postStationsRestartapp.bind(this));
     router.post('/stations/change_app', validate(HttpAPIServer.postStationsChangeAppSchema()), this.postStationsChangeApp.bind(this));
     router.get('/station/:id/output', validate(HttpAPIServer.getStationOutputSchema()), this.getStationOutput.bind(this));
     router.get('/server/output', this.getServerOutput.bind(this));
@@ -218,6 +220,38 @@ class HttpAPIServer {
   }
 
   /**
+   * POST /stations/restart handler
+   * @param req
+   * @param res
+   */
+  postStationsRestart(req, res) {
+    if (!req.body.ids) {
+      this.logger.debug("HTTP request received: Restart stations missing required 'ids' argument");
+      res.status(400).send("Missing 'ids' argument");
+      return;
+    }
+    this.logger.debug(`HTTP request received: Restart stations ${req.body.ids}`);
+    this.stationManager.restartStations(req.body.ids);
+    res.json({});
+  }
+
+  /**
+   * POST /stations/restartapp handler
+   * @param req
+   * @param res
+   */
+  postStationsRestartapp(req, res) {
+    if (!req.body.ids) {
+      this.logger.debug("HTTP request received: Restart station apps missing required 'ids' argument");
+      res.status(400).send("Missing 'ids' argument");
+      return;
+    }
+    this.logger.debug(`HTTP request received: Restart station apps ${req.body.ids}`);
+    this.stationManager.restartStationApps(req.body.ids);
+    res.json({});
+  }
+
+  /**
    * POST /stations/change_app handler
    * @param req
    * @param res
@@ -330,6 +364,22 @@ class HttpAPIServer {
   }
 
   static postStationsStopSchema() {
+    return {
+      body: {
+        ids: Joi.array().items(Joi.string()).required(),
+      },
+    };
+  }
+
+  static postStationsRestartSchema() {
+    return {
+      body: {
+        ids: Joi.array().items(Joi.string()).required(),
+      },
+    };
+  }
+
+  static postStationsRestartappSchema() {
     return {
       body: {
         ids: Joi.array().items(Joi.string()).required(),

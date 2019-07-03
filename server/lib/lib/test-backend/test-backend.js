@@ -1,3 +1,4 @@
+const dateformat = require('dateformat');
 const Nagios = require('../nagios');
 const TestHilbertCLIConnector = require('./test-hilbert-cli-connector');
 const TestMKLivestatusConnector = require('./test-mk-livestatus-connector');
@@ -66,9 +67,11 @@ class TestBackend {
       id,
       state: Nagios.HostState.DOWN,
       state_type: Nagios.StateType.HARD,
+      start_time: '',
       app_state: Nagios.ServiceState.UNKNOWN,
       app_state_type: Nagios.StateType.HARD,
       app_id: '',
+      app_start_time: '',
     });
   }
 
@@ -97,10 +100,7 @@ class TestBackend {
       const newState = Object.assign({}, stationState);
 
       if (toStopUnexpectedly.includes(stationState.id)) {
-        newState.state = Nagios.HostState.DOWN;
-        newState.app_state = Nagios.ServiceState.DOWN;
-        newState.app_state_type = Nagios.StateType.HARD;
-        newState.app_id = '';
+        TestBackend.setStateDown(stationState);
         // This new state overrides the internal state
         this.state.set(stationState.id, newState);
       }
@@ -154,18 +154,13 @@ class TestBackend {
           const stationState = this.state.get(stationID);
           if (stationState &&
             (stationState.state === Nagios.HostState.DOWN)) {
-            stationState.state = Nagios.HostState.UP;
-            stationState.app_state = Nagios.ServiceState.UNKNOWN;
-            stationState.app_state_type = Nagios.StateType.HARD;
-            stationState.app_id = '';
+            TestBackend.setStateUp(stationState);
             return this.randomDelay(2500, 5000).then(() => {
               if (this.nconf.get('test-backend:sim-unexpected-off') === true) {
-                stationState.state = Nagios.HostState.DOWN;
+                TestBackend.setStateDown(stationState);
               } else {
                 const stationCfg = this.station_cfg.get(stationID);
-                stationState.app_state = Nagios.ServiceState.OK;
-                stationState.app_state_type = Nagios.StateType.HARD;
-                stationState.app_id = stationCfg.default_app;
+                TestBackend.setStateAppUp(stationState, stationCfg.default_app);
                 output.write(`Station state set to UP with app ${stationState.app_id}.`);
               }
             });
@@ -199,10 +194,7 @@ class TestBackend {
           output.write('Wait finished.');
           const stationState = this.state.get(stationID);
           if (stationState && (stationState.state === Nagios.HostState.UP)) {
-            stationState.state = Nagios.HostState.DOWN;
-            stationState.app_state = Nagios.ServiceState.UNKNOWN;
-            stationState.app_state_type = Nagios.StateType.HARD;
-            stationState.app_id = '';
+            TestBackend.setStateDown(stationState);
             output.write('Station state set to DOWN.');
           }
         });
@@ -210,6 +202,64 @@ class TestBackend {
 
       resolve();
     });
+  }
+
+  /**
+   * Restarts a station
+   *
+   * @param stationID
+   * @param {Writable} output - Command output should be written here
+   * @returns {Promise}
+   */
+  restartStation(stationID, output) {
+    if (this.nconf.get('test-backend:sim-fail-cli') === true) {
+      return Promise.reject(new Error('Simulated Hilbert CLI failure'));
+    }
+
+    return new Promise((resolve) => {
+      if (this.nconf.get('test-backend:sim-timeout') === true) {
+        output.write(`Simulating restarting station ${stationID} with operation that times out.`);
+      } else {
+        output.write(`Simulating restarting station ${stationID}. Waiting a random delay...`);
+        this.randomDelay(2000, 6000)
+          .then(() => {
+            output.write('Wait finished.');
+            const stationState = this.state.get(stationID);
+            if (stationState && (stationState.state === Nagios.HostState.UP)) {
+              TestBackend.setStateDown(stationState);
+              output.write('Station state set to DOWN.');
+            }
+            return this.randomDelay(2500, 5000);
+          }).then(() => {
+            const stationState = this.state.get(stationID);
+            TestBackend.setStateUp(stationState);
+            return this.randomDelay(2500, 5000);
+          }).then(() => {
+            const stationState = this.state.get(stationID);
+            if (this.nconf.get('test-backend:sim-unexpected-off') === true) {
+              TestBackend.setStateDown(stationState);
+            } else {
+              const stationCfg = this.station_cfg.get(stationID);
+              TestBackend.setStateAppUp(stationState, stationCfg.default_app);
+              output.write(`Station state set to UP with app ${stationState.app_id}.`);
+            }
+          });
+      }
+
+      resolve();
+    });
+  }
+
+  /**
+   * Restarts a station app
+   *
+   * @param stationID
+   * @param {Writable} output - Command output should be written here
+   * @returns {Promise}
+   */
+  restartStationApp(stationID, output) {
+    const stationState = this.state.get(stationID);
+    return this.changeApp(stationID, stationState.app_id, output);
   }
 
   /**
@@ -233,6 +283,7 @@ class TestBackend {
         stationState.state = Nagios.HostState.DOWN;
         stationState.app_state = Nagios.ServiceState.UNKNOWN;
         stationState.app_id = '';
+        stationState.app_start_time = '';
       } else {
         output.write(
           `Simulating changing app for station ${stationID} to ${appID}. Waiting a random delay...`);
@@ -242,6 +293,7 @@ class TestBackend {
           const stationCfg = this.station_cfg.get(stationID);
           if (stationCfg.compatible_apps.indexOf(appID) >= 0) {
             stationState.app_id = appID;
+            stationState.app_start_time = TestBackend.appTimestamp();
             output.write('App changed.');
           }
         });
@@ -269,6 +321,41 @@ class TestBackend {
     }
 
     return Promise.resolve();
+  }
+
+  static setStateUp(stationState) {
+    stationState.state = Nagios.HostState.UP;
+    stationState.start_time = TestBackend.stationTimestamp();
+    stationState.app_state = Nagios.ServiceState.UNKNOWN;
+    stationState.app_state_type = Nagios.StateType.HARD;
+    stationState.app_id = '';
+    stationState.app_start_time = '';
+  }
+
+  static setStateAppUp(stationState, appID) {
+    stationState.app_state = Nagios.ServiceState.OK;
+    stationState.app_state_type = Nagios.StateType.HARD;
+    stationState.app_id = appID;
+    stationState.app_start_time = TestBackend.appTimestamp();
+  }
+
+  static setStateDown(stationState) {
+    stationState.state = Nagios.HostState.DOWN;
+    stationState.start_time = '';
+    stationState.app_state = Nagios.ServiceState.UNKNOWN;
+    stationState.app_state_type = Nagios.StateType.HARD;
+    stationState.app_id = '';
+    stationState.app_start_time = '';
+  }
+
+  static stationTimestamp() {
+    // Wed Jul  3 08:31:36 2019
+    return dateformat(Date.now(), 'ddd mmm d hh:MM:ss yyyy');
+  }
+
+  static appTimestamp() {
+    // 2019-07-03T06:32:14.671526364Z
+    return dateformat(Date.now(), 'yyyy-mm-ddThh:MM:ss.lZ');
   }
 }
 

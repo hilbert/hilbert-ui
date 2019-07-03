@@ -83,6 +83,46 @@ ${answer}`);
   }
 
   /**
+   * Restart a station
+   * @param {string} stationID - ID of the station
+   * @param {stream.Writable} output - Command output should be written here
+   * @returns bluebird
+   */
+  restartStation(stationID, output) {
+    this.logger.verbose(`hilbert-cli: Restarting station ${stationID}`);
+    return new Promise((resolve, reject) => {
+      this.execute(`${this.nconf.get('hilbert_cli')} ${HilbertCLIConnector.COMMAND_RESTART} ${stationID}`, output)
+        .then(() => {
+          resolve();
+        })
+        .catch((err) => {
+          this.logger.error(`hilbert-cli: Error restarting station ${stationID}, '${err.message}'`);
+          reject(err);
+        });
+    });
+  }
+
+  /**
+   * Restart a station app
+   * @param {string} stationID - ID of the station
+   * @param {stream.Writable} output - Command output should be written here
+   * @returns bluebird
+   */
+  restartStationApp(stationID, output) {
+    this.logger.verbose(`hilbert-cli: Restarting app of station ${stationID}`);
+    return new Promise((resolve, reject) => {
+      this.execute(`${this.nconf.get('hilbert_cli')} ${HilbertCLIConnector.COMMAND_RESTARTAPP} ${stationID}`, output)
+        .then(() => {
+          resolve();
+        })
+        .catch((err) => {
+          this.logger.error(`hilbert-cli: Error restarting app of station ${stationID}, '${err.message}'`);
+          reject(err);
+        });
+    });
+  }
+
+  /**
    * Change the foreground application running in a station
    * @param {string} stationID - ID of the station
    * @param {string} appID - ID of the app to set
@@ -174,6 +214,8 @@ ${answer}`);
 HilbertCLIConnector.COMMAND_DUMP_CFG = 'cfg_query -f json';
 HilbertCLIConnector.COMMAND_START = 'poweron';
 HilbertCLIConnector.COMMAND_STOP = 'poweroff';
+HilbertCLIConnector.COMMAND_RESTART = 'reboot';
+HilbertCLIConnector.COMMAND_RESTARTAPP = 'app_restart';
 HilbertCLIConnector.COMMAND_CHANGE_APP = 'app_change';
 
 module.exports = HilbertCLIConnector;
