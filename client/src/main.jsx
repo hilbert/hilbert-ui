@@ -4,11 +4,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Promise from 'bluebird';
 
+import packagedata from '../package.json';
 import UIAPI from './uiAPI';
 import Dashboard from './dashboard';
 
 const apiConnector = new UIAPI('/api');
 
+console.log(`Starting hilbert-ui client v${packagedata.version}`);
 window.dashboard = null;
 // onReady
 $(() => {
