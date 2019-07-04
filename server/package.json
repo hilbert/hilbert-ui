@@ -1,6 +1,6 @@
 {
   "name": "hilbert-ui-server",
-  "version": "0.21.0",
+  "version": "0.21.1",
   "description": "Hilbert UI Server",
   "repository": "hilbert/hilbert-ui",
   "main": "app/main.js",

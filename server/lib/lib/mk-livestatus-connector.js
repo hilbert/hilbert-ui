@@ -76,13 +76,14 @@ class MKLivestatusConnector {
         for (const station of stations) {
           if ('id' in station && state.has(station.id)) {
             const stationState = state.get(station.id);
-            // OK - up since Wed Jul  3 08:31:36 2019 (0d 08:31:45)
-            const matches = station.start_time.match(/^OK - up since ([^(]*) \(.*\)$/);
-            if (matches.length > 1) {
-              const startTime = matches[1];
-              stationState.start_time = startTime;
-            } else {
-              stationState.start_time = '';
+            stationState.start_time = '';
+            if (station.start_time) {
+              // OK - up since Wed Jul  3 08:31:36 2019 (0d 08:31:45)
+              const matches = station.start_time.match(/^OK - up since ([^(]*) \(.*\)$/);
+              if (matches.length > 1) {
+                const startTime = matches[1];
+                stationState.start_time = startTime;
+              }
             }
           }
         }
@@ -174,7 +175,7 @@ class MKLivestatusConnector {
     return this.query()
       .get('services')
       .columns(['host_name', 'plugin_output'])
-      .asColumns(['id', 'uptime'])
+      .asColumns(['id', 'start_time'])
       .filter('description = Uptime')
       .execute();
   }

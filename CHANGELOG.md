@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.21.1] 2019-07-04
+## Fixed
+- Fixes critical bug querying MK Livestatus
+
 ## [v0.21] 2019-07-03
 ## Added
 - Adds a "Quick menu" to stations in the UI Client.
