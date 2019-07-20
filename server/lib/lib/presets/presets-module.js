@@ -160,7 +160,7 @@ class PresetsModule {
     return {
       body: {
         name: Joi.string().min(1).max(Preset.MAX_NAME_LEN).required(),
-        stationApps: Joi.object().pattern(/./, Joi.string().allow('')),
+        stationApps: Joi.object().pattern(/./, Joi.string().allow('')).required(),
       },
     };
   }
@@ -169,7 +169,7 @@ class PresetsModule {
     return Object.assign(PresetsModule.presetIdParamSchema(), {
       body: {
         name: Joi.string().min(1).max(Preset.MAX_NAME_LEN),
-        stationApps: Joi.object().pattern(/./, Joi.string().allow('')),
+        stationApps: Joi.object().pattern(/./, Joi.string().allow('')).required(),
       },
     });
   }
