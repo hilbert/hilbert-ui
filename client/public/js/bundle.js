@@ -37289,7 +37289,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 },{"process/browser.js":386,"timers":547}],548:[function(require,module,exports){
 module.exports={
   "name": "hilbert-ui-client",
-  "version": "0.21",
+  "version": "0.21.0",
   "description": "Hilbert UI Client",
   "repository": "hilbert/hilbert-ui",
   "private": true,
@@ -37582,6 +37582,8 @@ var _notificationManager = _interopRequireDefault(require("./notificationManager
 
 var _viewMenu = _interopRequireDefault(require("./viewMenu"));
 
+var _textFilter = _interopRequireDefault(require("./textFilter"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -37627,6 +37629,7 @@ function (_React$Component) {
     _this.state = {
       stations: [],
       selection: new Set(),
+      nameFilterText: '',
       visibleProfile: '',
       visibleState: '',
       sortCriteria: 'default',
@@ -37647,6 +37650,7 @@ function (_React$Component) {
     _this.handleStationQuickStop = _this.handleStationQuickStop.bind(_assertThisInitialized(_this));
     _this.handleStationQuickRestart = _this.handleStationQuickRestart.bind(_assertThisInitialized(_this));
     _this.handleStationQuickApprestart = _this.handleStationQuickApprestart.bind(_assertThisInitialized(_this));
+    _this.handleNameFilterTextChange = _this.handleNameFilterTextChange.bind(_assertThisInitialized(_this));
     _this.commands = {};
 
     _this.initCommands();
@@ -37689,9 +37693,10 @@ function (_React$Component) {
       var _this$state = this.state,
           stations = _this$state.stations,
           visibleProfile = _this$state.visibleProfile,
-          visibleState = _this$state.visibleState;
+          visibleState = _this$state.visibleState,
+          nameFilterText = _this$state.nameFilterText;
       return stations.filter(function (station) {
-        return (visibleProfile === '' || station.profile === visibleProfile) && (visibleState === '' || Dashboard.displayState(station.state) === visibleState);
+        return (visibleProfile === '' || station.profile === visibleProfile) && (visibleState === '' || Dashboard.displayState(station.state) === visibleState) && (nameFilterText.trim().length === 0 || station.name.toLowerCase().includes(nameFilterText.toLowerCase()));
       });
     }
   }, {
@@ -38077,6 +38082,13 @@ function (_React$Component) {
       });
     }
   }, {
+    key: "handleNameFilterTextChange",
+    value: function handleNameFilterTextChange(filterText) {
+      this.setState({
+        nameFilterText: filterText
+      });
+    }
+  }, {
     key: "showTerminalLog",
     value: function showTerminalLog(stationID) {
       var _this5 = this;
@@ -38454,6 +38466,7 @@ function (_React$Component) {
         }
       })));
       var noSelectionDisable = selectedCount === 0 ? ' disabled' : '';
+      var nameFilterText = this.state.nameFilterText;
       return _react["default"].createElement("div", {
         className: messageBar !== '' ? 'with-message_bar' : ''
       }, messageBar, _react["default"].createElement(_header["default"], {
@@ -38522,6 +38535,9 @@ function (_React$Component) {
         onDelete: this.getCommand('preset-delete'),
         onUpdate: this.getCommand('preset-update'),
         onRefresh: this.getCommand('preset-refresh')
+      }), _react["default"].createElement(_textFilter["default"], {
+        value: nameFilterText,
+        onChange: this.handleNameFilterTextChange
       })), _react["default"].createElement("div", {
         className: "container-fluid"
       }, _react["default"].createElement("div", {
@@ -38582,7 +38598,7 @@ Dashboard.propTypes = {
   }))
 };
 
-},{"./buttonFilter.jsx":549,"./consoleViewer.jsx":550,"./header.jsx":552,"./logViewer.jsx":553,"./notificationManager":555,"./presetsBlock.jsx":556,"./station.jsx":557,"./testMenu":558,"./uiAPI":559,"./viewMenu":560,"react":546}],552:[function(require,module,exports){
+},{"./buttonFilter.jsx":549,"./consoleViewer.jsx":550,"./header.jsx":552,"./logViewer.jsx":553,"./notificationManager":555,"./presetsBlock.jsx":556,"./station.jsx":557,"./testMenu":558,"./textFilter":559,"./uiAPI":560,"./viewMenu":561,"react":546}],552:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -38932,7 +38948,7 @@ $(function () {
   });
 });
 
-},{"../package.json":548,"./dashboard":551,"./uiAPI":559,"bluebird":1,"core-js/stable":359,"react":546,"react-dom":391}],555:[function(require,module,exports){
+},{"../package.json":548,"./dashboard":551,"./uiAPI":560,"bluebird":1,"core-js/stable":359,"react":546,"react-dom":391}],555:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -39738,7 +39754,111 @@ TestMenu.propTypes = {
   selection: _react["default"].PropTypes.instanceOf(Set)
 };
 
-},{"./uiAPI":559,"react":546}],559:[function(require,module,exports){
+},{"./uiAPI":560,"react":546}],559:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var TextFilter =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(TextFilter, _React$Component);
+
+  function TextFilter(props) {
+    var _this;
+
+    _classCallCheck(this, TextFilter);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(TextFilter).call(this, props));
+    _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
+    _this.handleCancelButton = _this.handleCancelButton.bind(_assertThisInitialized(_this));
+    return _this;
+  }
+
+  _createClass(TextFilter, [{
+    key: "handleChange",
+    value: function handleChange(ev) {
+      var onChange = this.props.onChange;
+
+      if (onChange) {
+        onChange(ev.target.value);
+      }
+    }
+  }, {
+    key: "handleCancelButton",
+    value: function handleCancelButton(ev) {
+      var onChange = this.props.onChange;
+
+      if (onChange) {
+        onChange('');
+      }
+
+      ev.preventDefault();
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var value = this.props.value;
+      return _react["default"].createElement("div", {
+        className: "textFilter navbar-form navbar-left"
+      }, _react["default"].createElement("div", {
+        className: "input-group"
+      }, _react["default"].createElement("input", {
+        type: "text",
+        value: value,
+        onChange: this.handleChange,
+        className: "form-control",
+        placeholder: "Search"
+      }), _react["default"].createElement("div", {
+        className: "input-group-btn"
+      }, _react["default"].createElement("button", {
+        className: "btn btn-default textFilter-cancel",
+        onClick: this.handleCancelButton
+      }, _react["default"].createElement("i", {
+        className: "fa fa-times-circle"
+      })))));
+    }
+  }]);
+
+  return TextFilter;
+}(_react["default"].Component);
+
+exports["default"] = TextFilter;
+TextFilter.propTypes = {
+  value: _react["default"].PropTypes.string,
+  onChange: _react["default"].PropTypes.func
+};
+TextFilter.defaultProps = {
+  value: '',
+  onChange: function onChange() {}
+};
+
+},{"react":546}],560:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -40107,7 +40227,7 @@ function () {
 
 exports["default"] = UIAPI;
 
-},{"bluebird":1}],560:[function(require,module,exports){
+},{"bluebird":1}],561:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

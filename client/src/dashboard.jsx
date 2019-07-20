@@ -11,6 +11,7 @@ import UIAPI from './uiAPI';
 import TestMenu from './testMenu';
 import NotificationManager from './notificationManager';
 import ViewMenu from './viewMenu';
+import TextFilter from './textFilter';
 
 export default class Dashboard extends React.Component {
   static displayState(state) {
@@ -31,6 +32,7 @@ export default class Dashboard extends React.Component {
     this.state = {
       stations: [],
       selection: new Set(),
+      nameFilterText: '',
       visibleProfile: '',
       visibleState: '',
       sortCriteria: 'default',
@@ -51,6 +53,7 @@ export default class Dashboard extends React.Component {
     this.handleStationQuickStop = this.handleStationQuickStop.bind(this);
     this.handleStationQuickRestart = this.handleStationQuickRestart.bind(this);
     this.handleStationQuickApprestart = this.handleStationQuickApprestart.bind(this);
+    this.handleNameFilterTextChange = this.handleNameFilterTextChange.bind(this);
     this.commands = {};
     this.initCommands();
     this.getCommand = this.getCommand.bind(this);
@@ -83,11 +86,12 @@ export default class Dashboard extends React.Component {
 
   getVisibleStations() {
     const {
-      stations, visibleProfile, visibleState,
+      stations, visibleProfile, visibleState, nameFilterText
     } = this.state;
 
     return stations.filter(station => (visibleProfile === '' || station.profile === visibleProfile)
-      && (visibleState === '' || Dashboard.displayState(station.state) === visibleState));
+      && (visibleState === '' || Dashboard.displayState(station.state) === visibleState)
+      && (nameFilterText.trim().length === 0 || station.name.toLowerCase().includes(nameFilterText.toLowerCase())));
   }
 
   getSortFieldAccessor(id) {
@@ -411,6 +415,10 @@ export default class Dashboard extends React.Component {
       });
   }
 
+  handleNameFilterTextChange(filterText) {
+    this.setState({ nameFilterText: filterText });
+  }
+
   showTerminalLog(stationID) {
     const { api } = this.props;
 
@@ -732,6 +740,7 @@ export default class Dashboard extends React.Component {
     );
 
     const noSelectionDisable = (selectedCount === 0 ? ' disabled' : '');
+    const { nameFilterText } = this.state;
 
     return (
       <div className={messageBar !== '' ? 'with-message_bar' : ''}>
@@ -801,6 +810,7 @@ export default class Dashboard extends React.Component {
             onUpdate={this.getCommand('preset-update')}
             onRefresh={this.getCommand('preset-refresh')}
           />
+          <TextFilter value={nameFilterText} onChange={this.handleNameFilterTextChange} />
         </Header>
         <div className="container-fluid">
           <div className="row">

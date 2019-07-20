@@ -485,4 +485,17 @@ body {
 .navbar-form .input-group > .presets-list {
   width: 150px; }
 
+.textFilter {
+  border-left: 1px solid rgba(0, 0, 0, 0.27); }
+  .textFilter .textFilter-cancel {
+    padding-left: 0.6em;
+    padding-right: 0.6em; }
+    .textFilter .textFilter-cancel i {
+      font-size: 23px;
+      line-height: 1;
+      margin-top: -10px;
+      margin-bottom: -7px;
+      vertical-align: middle;
+      color: #91a8ba; }
+
 /*# sourceMappingURL=default.css.map */
