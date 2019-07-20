@@ -65,16 +65,16 @@ class PresetsModule {
   addPreset(req, res) {
     const newPreset = this.presetStore.createPreset(req.body);
     newPreset.save()
-    .then((preset) => {
-      res.json(preset.toJSON());
-    })
-    .catch((err) => {
-      if (err instanceof DuplicateIdentifierError) {
-        res.status(400).json({ error: err.message });
-      } else {
-        res.status(500).json({ error: err.message });
-      }
-    });
+      .then((preset) => {
+        res.json(preset.toJSON());
+      })
+      .catch((err) => {
+        if (err instanceof DuplicateIdentifierError) {
+          res.status(400).json({ error: err.message });
+        } else {
+          res.status(500).json({ error: err.message });
+        }
+      });
   }
 
   updatePreset(req, res) {
@@ -132,7 +132,9 @@ class PresetsModule {
           res.status(404).send('Preset not found');
         } else {
           for (const [stationID, appID] of Object.entries(preset.stationApps)) {
-            this.stationManager.changeApp([stationID], appID);
+            if (appID.trim() !== '') {
+              this.stationManager.changeApp([stationID], appID);
+            }
           }
           res.status(200).send('');
         }
@@ -158,7 +160,7 @@ class PresetsModule {
     return {
       body: {
         name: Joi.string().min(1).max(Preset.MAX_NAME_LEN).required(),
-        stationApps: Joi.object().pattern(/./, Joi.string().min(1)).required(),
+        stationApps: Joi.object().pattern(/./, Joi.string().allow('')),
       },
     };
   }
@@ -167,7 +169,7 @@ class PresetsModule {
     return Object.assign(PresetsModule.presetIdParamSchema(), {
       body: {
         name: Joi.string().min(1).max(Preset.MAX_NAME_LEN),
-        stationApps: Joi.object().pattern(/./, Joi.string().min(1)),
+        stationApps: Joi.object().pattern(/./, Joi.string().allow('')),
       },
     });
   }
