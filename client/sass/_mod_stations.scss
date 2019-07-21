@@ -90,6 +90,15 @@ $station-light-width: 28px;
     img {
       width: 65px;
       height: 65px;
+
+      &:before {
+        content: " ";
+        display: block;
+        width: 65px;
+        height: 65px;
+        background-image: url('../icons/none.png');
+        background-size: contain;
+      }
     }
     width: 65px;
     height: 65px;

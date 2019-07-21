@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Added
 - Adds station name filter in the dashboard.
 - Adds logo and favicon.
+- Adds new application icons.
 ## Fixed
 - Fixes bug where presets failed to create / update if stations were off.
 

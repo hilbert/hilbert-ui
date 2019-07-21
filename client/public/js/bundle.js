@@ -37289,7 +37289,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
 },{"process/browser.js":386,"timers":547}],548:[function(require,module,exports){
 module.exports={
   "name": "hilbert-ui-client",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "description": "Hilbert UI Client",
   "repository": "hilbert/hilbert-ui",
   "private": true,
@@ -39470,6 +39470,7 @@ function (_React$Component) {
           "data-value": item.action
         }, item.name));
       });
+      var iconUrl = "icons/".concat(station.app, ".png");
       return _react["default"].createElement("div", {
         id: station.id,
         className: stationClasses.join(' '),
@@ -39481,7 +39482,7 @@ function (_React$Component) {
         className: "station-icon"
       }, _react["default"].createElement("img", {
         alt: station.app,
-        src: station.icon
+        src: iconUrl
       })), _react["default"].createElement("div", {
         className: "station-name"
       }, station.name), _react["default"].createElement("div", {

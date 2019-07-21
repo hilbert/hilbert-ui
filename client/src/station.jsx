@@ -162,6 +162,8 @@ export default class Station extends React.Component {
       );
     });
 
+    const iconUrl = `icons/${station.app}.png`;
+
     return (
       <div
         id={station.id}
@@ -171,7 +173,7 @@ export default class Station extends React.Component {
       >
         <div className="station-state-light" />
         <div className="station-icon">
-          <img alt={station.app} src={station.icon} />
+          <img alt={station.app} src={iconUrl} />
         </div>
         <div className="station-name">{station.name}</div>
         <div className="station-profile" title={profileDesc}>{profileName}</div>

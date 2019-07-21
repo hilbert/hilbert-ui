@@ -317,6 +317,13 @@ body {
     .station .station-icon img {
       width: 65px;
       height: 65px; }
+      .station .station-icon img:before {
+        content: " ";
+        display: block;
+        width: 65px;
+        height: 65px;
+        background-image: url("../icons/none.png");
+        background-size: contain; }
   .station .station-state-light {
     position: absolute;
     top: 0;
