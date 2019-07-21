@@ -8,4 +8,8 @@
 
 .navbar-form .input-group>.presets-list {
   width: 150px;
+
+  @include responsive($sm-only) {
+    width: 100px;
+  }
 }

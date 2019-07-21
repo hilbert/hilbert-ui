@@ -14,4 +14,10 @@
       color: $color-blue-shadow;
     }
   }
+
+  input[type=text] {
+    @include responsive($sm-only) {
+      width: 120px !important;
+    }
+  }
 }

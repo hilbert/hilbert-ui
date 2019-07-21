@@ -14,7 +14,6 @@ $station-light-width: 28px;
   padding: $station-padding;
   line-height: $station-line-height;
   background-color: rgba(255, 255, 255, 0.8);
-  box-shadow: 1px 1px 1px 0px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   min-height: $station-min-height;
   padding-left: $station-padding + $station-light-width + $station-icon-width + 5px;
@@ -254,9 +253,7 @@ $station-light-width: 28px;
 
 .station-selected {
   background-color: rgba(217, 237, 255, 0.8);
-  margin-top: 7px !important;
-  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.3);
-  margin-bottom: 7px !important;
+  box-shadow: 0 0 7px 3px rgba(28, 206, 234, 0.54);
 
   &:hover {
     background-color: rgba(217, 237, 255, 0.95);

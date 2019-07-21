@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.22.0] 2019-07-20
+## Added
+- Adds station name filter in the dashboard.
+- Adds logo and favicon.
+## Fixed
+- Fixes bug where presets failed to create / update if stations were off.
+
 ## [v0.21.1] 2019-07-04
 ## Fixed
 - Fixes critical bug querying MK Livestatus

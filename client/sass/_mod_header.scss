@@ -3,7 +3,23 @@
 }
 
 .navbar {
-  box-shadow: 0 6px 12px 0px rgba(0,0,0,0.2);
+  border-color: $color-blue-text-grayed;
+
+  .navbar-brand {
+    @include image-replace;
+    @include image-replace-src('../img/lg-hilbert-200.png', 200px, 200px);
+    width: 48px;
+    height: 42px;
+    background-size: contain;
+    padding: 0;
+    margin-top: 6px;
+    margin-left: 0 !important;
+    margin-right: 1em;
+
+    @include responsive($xs) {
+      margin-left: 1em !important;
+    }
+  }
 
   .navbar-toggle {
     margin-right: 0;
