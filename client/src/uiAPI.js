@@ -126,6 +126,16 @@ export default class UIAPI {
   }
 
   /**
+   * Gets the list of services
+   *
+   * @return {bluebird<Array>}
+   */
+  getServices() {
+    return this.send('get', '/services')
+      .then(data => data.services);
+  }
+
+  /**
    * Gets the list of presets
    *
    * @return {bluebird<Array>}

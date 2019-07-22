@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [v0.22.0] 2019-07-20
 ## Added
 - Adds station name filter in the dashboard.
+- Adds support for opening services with URLs in the quick action menu.
 - Adds logo and favicon.
 - Adds new application icons.
+- Added /services endpoint to the HTTP API.
 ## Fixed
 - Fixes bug where presets failed to create / update if stations were off.
 

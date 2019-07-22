@@ -36,6 +36,9 @@ export default class Station extends React.Component {
   }
 
   handleQuickmenuClick(ev) {
+    if ($(ev.target).attr('data-value') === 'service') {
+      return true;
+    }
     ev.stopPropagation();
     ev.preventDefault();
     const {
@@ -86,7 +89,7 @@ export default class Station extends React.Component {
 
   render() {
     const {
-      station, selected, applications, stationProfiles,
+      station, selected, applications, stationProfiles, services,
     } = this.props;
     const stationClasses = [
       'station',
@@ -144,6 +147,9 @@ export default class Station extends React.Component {
         state: 'on',
         action: 'restartapp',
       },
+      {
+        type: 'divider',
+      },
     ];
 
     let dividers = 0;
@@ -161,6 +167,21 @@ export default class Station extends React.Component {
         </li>
       );
     });
+
+    const servicesWithURL = Object.values(services)
+      .filter(service => service.url && typeof service.url === 'string' && service.url.trim().length > 0);
+    quickmenuOptions.push(
+      ...servicesWithURL.map((service) => {
+        const url = service.url.replace('<station.address>', station.address);
+        return (
+          <li
+            key={`service-${service.id}`}
+          >
+            <a href={url} data-value='service' target={`${station.id}-${service.id}`} title={service.description}>{service.name}</a>
+          </li>
+        );
+      })
+    );
 
     const iconUrl = `icons/${station.app}.png`;
 
@@ -231,6 +252,14 @@ Station.propTypes = {
       id: React.PropTypes.string,
       name: React.PropTypes.string,
       description: React.PropTypes.string,
+    })
+  ),
+  services: React.PropTypes.objectOf(
+    React.PropTypes.shape({
+      id: React.PropTypes.string,
+      name: React.PropTypes.string,
+      description: React.PropTypes.string,
+      url: React.PropTypes.string,
     })
   ),
   onClickStation: React.PropTypes.func,

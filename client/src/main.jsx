@@ -28,6 +28,12 @@ $(() => {
         initData.stationProfiles[stationProfile.id] = stationProfile;
       });
     }),
+    apiConnector.getServices().then((services) => {
+      initData.services = {};
+      services.forEach((service) => {
+        initData.services[service.id] = service;
+      });
+    }),
   ];
 
   Promise.all(initTasks)
@@ -37,6 +43,7 @@ $(() => {
           api={apiConnector}
           applications={initData.applications}
           stationProfiles={initData.stationProfiles}
+          services={initData.services}
         />,
         window.document.getElementById('dashboardContainer')
       );

@@ -620,7 +620,7 @@ export default class Dashboard extends React.Component {
   }
 
   render() {
-    const { api, applications, stationProfiles } = this.props;
+    const { api, applications, stationProfiles, services } = this.props;
     const {
       serverConnectionError, sortCriteria, stations, visibleState, selection, presets, log,
       consoleViewerTitle, lines,
@@ -665,6 +665,7 @@ export default class Dashboard extends React.Component {
             selected={selection.has(station.id)}
             applications={applications}
             stationProfiles={stationProfiles}
+            services={services}
             onClickStation={this.selectToggle}
             onOpenTerminalLog={this.showTerminalLog}
             onAppChange={this.stationAppChanged}
@@ -860,6 +861,14 @@ Dashboard.propTypes = {
       id: React.PropTypes.string,
       name: React.PropTypes.string,
       description: React.PropTypes.string,
+    })
+  ),
+  services: React.PropTypes.objectOf(
+    React.PropTypes.shape({
+      id: React.PropTypes.string,
+      name: React.PropTypes.string,
+      description: React.PropTypes.string,
+      url: React.PropTypes.string,
     })
   ),
 };

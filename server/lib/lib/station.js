@@ -11,6 +11,7 @@ class Station {
     this.id = id;
     this.name = config.name || id;
     this.description = config.description || '';
+    this.address = config.address || '';
     this.profile = config.profile || '';
     this.type = config.type || '';
     this.default_app = (config.client_settings && config.client_settings.hilbert_station_default_application) || '';
@@ -36,6 +37,7 @@ class Station {
       id: this.id,
       name: this.name,
       description: this.description,
+      address: this.address,
       profile: this.profile,
       type: this.type,
       state: this.state,

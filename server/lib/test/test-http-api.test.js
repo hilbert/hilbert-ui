@@ -212,4 +212,14 @@ describe('HTTP API', () => {
         .expect(200, done);
     });
   });
+
+  describe('GET /services', () => {
+    it('responds with JSON', (done) => {
+      request(apiServer)
+        .get('/services')
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200, done);
+    });
+  });
 });

@@ -465,6 +465,36 @@
       "pre_init": "",
       "ref": "x11vnc",
       "type": "compose"
+    },
+    "xpra_pa": {
+      "auto_detections": "",
+      "description": "Remote noninteractive audio access",
+      "file": "docker-compose.xpra.yml",
+      "name": "Remote audio",
+      "pre_init": "",
+      "ref": "xpra_pa",
+      "type": "compose",
+      "url": "http://<station.address>:5992/index.html?password=1234&sound=1"
+    },
+    "xpra_ro": {
+      "auto_detections": "",
+      "description": "Remote noninteractive desktop access with audio",
+      "file": "docker-compose.xpra.yml",
+      "name": "Noninteractive desktop",
+      "pre_init": "",
+      "ref": "xpra_ro",
+      "type": "compose",
+      "url": "http://<station.address>:5990/index.html?password=1234&sound=1"
+    },
+    "xpra_rw": {
+      "auto_detections": "",
+      "description": "Remote interactive desktop access with audio",
+      "file": "docker-compose.xpra.yml",
+      "name": "Interactive desktop",
+      "pre_init": "",
+      "ref": "xpra_rw",
+      "type": "compose",
+      "url": "http://<station.address>:5991/index.html?password=1234&sound=1"
     }
   },
   "Stations": {

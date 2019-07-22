@@ -38343,7 +38343,8 @@ function (_React$Component) {
       var _this$props4 = this.props,
           api = _this$props4.api,
           applications = _this$props4.applications,
-          stationProfiles = _this$props4.stationProfiles;
+          stationProfiles = _this$props4.stationProfiles,
+          services = _this$props4.services;
       var _this$state3 = this.state,
           serverConnectionError = _this$state3.serverConnectionError,
           sortCriteria = _this$state3.sortCriteria,
@@ -38398,6 +38399,7 @@ function (_React$Component) {
           selected: selection.has(station.id),
           applications: applications,
           stationProfiles: stationProfiles,
+          services: services,
           onClickStation: _this15.selectToggle,
           onOpenTerminalLog: _this15.showTerminalLog,
           onAppChange: _this15.stationAppChanged,
@@ -38595,6 +38597,12 @@ Dashboard.propTypes = {
     id: _react["default"].PropTypes.string,
     name: _react["default"].PropTypes.string,
     description: _react["default"].PropTypes.string
+  })),
+  services: _react["default"].PropTypes.objectOf(_react["default"].PropTypes.shape({
+    id: _react["default"].PropTypes.string,
+    name: _react["default"].PropTypes.string,
+    description: _react["default"].PropTypes.string,
+    url: _react["default"].PropTypes.string
   }))
 };
 
@@ -38928,13 +38936,19 @@ $(function () {
     stationProfiles.forEach(function (stationProfile) {
       initData.stationProfiles[stationProfile.id] = stationProfile;
     });
+  }), apiConnector.getServices().then(function (services) {
+    initData.services = {};
+    services.forEach(function (service) {
+      initData.services[service.id] = service;
+    });
   })];
 
   _bluebird["default"].all(initTasks).then(function () {
     window.dashboard = _reactDom["default"].render(_react["default"].createElement(_dashboard["default"], {
       api: apiConnector,
       applications: initData.applications,
-      stationProfiles: initData.stationProfiles
+      stationProfiles: initData.stationProfiles,
+      services: initData.services
     }), window.document.getElementById('dashboardContainer')); // Install click handlers in external menus and buttons
 
     $('[data-command]').each(function setClickHandler() {
@@ -39256,6 +39270,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -39326,6 +39348,10 @@ function (_React$Component) {
   }, {
     key: "handleQuickmenuClick",
     value: function handleQuickmenuClick(ev) {
+      if ($(ev.target).attr('data-value') === 'service') {
+        return true;
+      }
+
       ev.stopPropagation();
       ev.preventDefault();
       var _this$props2 = this.props,
@@ -39393,7 +39419,8 @@ function (_React$Component) {
           station = _this$props5.station,
           selected = _this$props5.selected,
           applications = _this$props5.applications,
-          stationProfiles = _this$props5.stationProfiles;
+          stationProfiles = _this$props5.stationProfiles,
+          services = _this$props5.services;
       var stationClasses = ['station', "station-state-".concat(station.state), "station-profile-".concat(station.profile)];
 
       if (selected) {
@@ -39451,6 +39478,8 @@ function (_React$Component) {
         name: 'Restart app',
         state: 'on',
         action: 'restartapp'
+      }, {
+        type: 'divider'
       }];
       var dividers = 0;
       var quickmenuOptions = quickmenuItems.map(function (item) {
@@ -39470,6 +39499,20 @@ function (_React$Component) {
           "data-value": item.action
         }, item.name));
       });
+      var servicesWithURL = Object.values(services).filter(function (service) {
+        return service.url && typeof service.url === 'string' && service.url.trim().length > 0;
+      });
+      quickmenuOptions.push.apply(quickmenuOptions, _toConsumableArray(servicesWithURL.map(function (service) {
+        var url = service.url.replace('<station.address>', station.address);
+        return _react["default"].createElement("li", {
+          key: "service-".concat(service.id)
+        }, _react["default"].createElement("a", {
+          href: url,
+          "data-value": "service",
+          target: "".concat(station.id, "-").concat(service.id),
+          title: service.description
+        }, service.name));
+      })));
       var iconUrl = "icons/".concat(station.app, ".png");
       return _react["default"].createElement("div", {
         id: station.id,
@@ -39561,6 +39604,12 @@ Station.propTypes = {
     id: _react["default"].PropTypes.string,
     name: _react["default"].PropTypes.string,
     description: _react["default"].PropTypes.string
+  })),
+  services: _react["default"].PropTypes.objectOf(_react["default"].PropTypes.shape({
+    id: _react["default"].PropTypes.string,
+    name: _react["default"].PropTypes.string,
+    description: _react["default"].PropTypes.string,
+    url: _react["default"].PropTypes.string
   })),
   onClickStation: _react["default"].PropTypes.func,
   onOpenTerminalLog: _react["default"].PropTypes.func,
@@ -40043,6 +40092,19 @@ function () {
     value: function getStationProfiles() {
       return this.send('get', '/station_profiles').then(function (data) {
         return data.stationProfiles;
+      });
+    }
+    /**
+     * Gets the list of services
+     *
+     * @return {bluebird<Array>}
+     */
+
+  }, {
+    key: "getServices",
+    value: function getServices() {
+      return this.send('get', '/services').then(function (data) {
+        return data.services;
       });
     }
     /**

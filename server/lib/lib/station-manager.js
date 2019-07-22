@@ -5,6 +5,7 @@ const Ajv = require('ajv');
 const Station = require('./station');
 const StationProfile = require('./station-profile');
 const Application = require('./application');
+const Service = require('./service');
 const TerminalOutputBuffer = require('./terminal-output-buffer');
 
 const HilbertCfgSchema = require('../../data/schema/hilbert-cfg-partial.json');
@@ -41,6 +42,7 @@ class StationManager {
     this.clearStations();
     this.clearStationProfiles();
     this.clearApplications();
+    this.clearServices();
   }
 
   /**
@@ -84,6 +86,7 @@ class StationManager {
     this.clearStations();
     this.clearStationProfiles();
     this.clearApplications();
+    this.clearServices();
     this.signalUpdate();
 
     return this.hilbertCLI.getHilbertCfg(this.globalHilbertCLIOutputBuffer)
@@ -95,6 +98,10 @@ class StationManager {
 
         for (const [profileID, profileCfg] of Object.entries(hilbertCfg.Profiles)) {
           this.addStationProfile(new StationProfile(profileID, profileCfg));
+        }
+
+        for (const [serviceID, serviceCfg] of Object.entries(hilbertCfg.Services)) {
+          this.addService(new Service(serviceID, serviceCfg));
         }
 
         for (const [stationID, stationCfg] of Object.entries(hilbertCfg.Stations)) {
@@ -124,6 +131,16 @@ class StationManager {
   addApplication(application) {
     this.logger.verbose(`Station manager: Adding application profile ${application.id}`);
     this.applications.set(application.id, application);
+  }
+
+  /**
+   * Adds a service
+   *
+   * @param {Service} service
+   */
+  addService(service) {
+    this.logger.verbose(`Station manager: Adding service ${service.id}`);
+    this.services.set(service.id, service);
   }
 
   /**
@@ -193,12 +210,29 @@ class StationManager {
   }
 
   /**
+   * Removes all services
+   */
+  clearServices() {
+    this.logger.verbose('Station manager: Clearing all services');
+    this.services = new Map();
+  }
+
+  /**
    * Returns the station profiles
    *
    * @return {Iterator.<StationProfile>}
    */
   getStationProfiles() {
     return this.stationProfiles.values();
+  }
+
+  /**
+   * Returns the services
+   *
+   * @return {Iterator.<StationProfile>}
+   */
+  getServices() {
+    return this.services.values();
   }
 
   /**

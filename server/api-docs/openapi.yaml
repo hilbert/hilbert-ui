@@ -66,6 +66,34 @@ paths:
                     description:
                       type: string
                       description: Profile Description
+  /services:
+    get:
+      tags:
+        - "Services"
+      summary: "List all Services"
+      responses:
+        200:
+          description: Returns the list of services.
+          schema:
+            type: object
+            properties:
+              applications:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: Service ID
+                    name:
+                      type: string
+                      description: Service Name
+                    description:
+                      type: string
+                      description: Service Description
+                    url:
+                      type: string
+                      description: Service URL
   /stations:
     get:
       tags:
@@ -103,6 +131,9 @@ paths:
                     description:
                       type: string
                       description: Station description
+                    address:
+                      type: string
+                      description: Station TCP/IP Address
                     profile:
                       type: string
                       description: ID of the station profile the station belongs to

@@ -66,6 +66,7 @@ class HttpAPIServer {
     const router = express.Router(); // eslint-disable-line new-cap
     router.get('/applications', this.getApplications.bind(this));
     router.get('/station_profiles', this.getStationProfiles.bind(this));
+    router.get('/services', this.getServices.bind(this));
     router.get('/stations', this.getStations.bind(this));
     router.post('/stations/start', validate(HttpAPIServer.postStationsStartSchema()), this.postStationsStart.bind(this));
     router.post('/stations/stop', validate(HttpAPIServer.postStationsStopSchema()), this.postStationsStop.bind(this));
@@ -160,6 +161,19 @@ class HttpAPIServer {
       });
     res.json({
       stationProfiles,
+    });
+  }
+
+  /**
+   * GET /services handler
+   * @param req
+   * @param res
+   */
+  getServices(req, res) {
+    const services = Array.from(this.stationManager.getServices())
+      .map(a => a.toJSON());
+    res.json({
+      services,
     });
   }
 

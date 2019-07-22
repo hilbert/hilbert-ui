@@ -31,6 +31,9 @@
       ]
     }
   },
+  "Services": {
+
+  },
   "Stations": {
     "station_a": {
       "client_settings": {

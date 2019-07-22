@@ -229,7 +229,16 @@ class MKLivestatusConnector {
 
 // When executed directly it performs a query
 if (require.main === module) {
-  const mkLivestatusConnector = new MKLivestatusConnector();
+  const mkLivestatusConnector = new MKLivestatusConnector(
+    {
+      get: () => 'nc es-ex.hq.eso.org 6557',
+    },
+    {
+      debug: () => {},
+      error: () => {},
+    }
+  );
+  mkLivestatusConnector.minTime = 0;
   console.log('Querying');
   mkLivestatusConnector.getState().then((state) => {
     console.log(state);
