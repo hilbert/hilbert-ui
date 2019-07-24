@@ -16,7 +16,6 @@ The parts of the ui are:
       performed on them.
     - Provides a web service interface (HTTP queries and JSON responses)
     - Programmed on node.js
-    - ECMAScript 2015 is used and transpiled with babel.
     - Should be reverse proxied with nginx.
 
 ## Installation
@@ -93,6 +92,33 @@ The ui configuration file is `server/config.json`. It supports the following opt
 - `operation_timeout`: (default: 600) Number of seconds to wait for station operations (stop, start, change app) to finish before timing out.
 - `error_lock_time`: (default: 30) Number of seconds a station will be locked after an operation fails.
 - `db_path`: (default: '') Path to the sqlite database file for persistant storage of features such as presets. 
+
+## Presets
+
+The client provides a **Preset** feature that allows to quickly change application assignments for all the
+stations at once. For instance you can save a "School visit" preset to prepare the stations for such
+an event (and then restore them to default after), or a "Development" preset for testing out software for
+a new exhibition. A **Preset** stores the current assignment of applications with a descriptive name.
+
+To create a **Preset** first start the desired applications in each station. Once done select "Create Preset" 
+in the **Preset** dropdown menu in the top bar. The system will ask for a name and save your preset.
+
+You can activate a **Preset** by choosing it in the Preset selector and then selecting "Activate"
+in the dropdown menu. The system will automatically switch the applications in all stations to match the
+saved assignment.
+
+Note that Presets only include application assignments and not the On/Off state of stations. Activating
+a preset will never start nor stop stations. Only stations that were On and had an application running 
+are saved in the preset. Also, when activating a preset it will only affect the stations that are part of 
+it; i.e. it won't have any effect on stations that were Off when the preset was created or that were added 
+to Hilbert later.
+
+You can modify an existing Preset by choosing it in the Preset selector and then selecting "Save" in the
+dropdown menu. The current application assignment will be saved under that name, just like creating a new
+preset but without being prompted for a name.
+
+Finally you can delete a preset by choosing it in the selector and then selecting "Delete" in the dropdown
+menu.
 
 ## Directory reference
 
