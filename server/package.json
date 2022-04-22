@@ -17,7 +17,7 @@
     "express-validation": "^1.0.2",
     "joi": "^14.3.1",
     "mocha": "^6.1.4",
-    "nconf": "^0.8.4",
+    "nconf": "^0.11.4",
     "sqlite3": "^4.0.9",
     "winston": "^2.2.0",
     "yargs": "^10.0.3"
